@@ -1,0 +1,6 @@
+{
+  "name": "ChronoLife - Personal Hub",
+  "description": "All-in-one personal tracker for movies & series episodes, daily calories & nutrition biometrics, pet health records, and integrated mini-calendars in a warm editorial style.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

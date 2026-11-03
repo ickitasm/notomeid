@@ -1,0 +1,122 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+export type MediaType = 'movie' | 'series';
+export type MediaStatus = 'watchlist' | 'watching' | 'completed' | 'dropped';
+
+export interface SeriesDetails {
+  totalSeasons: number;
+  totalEpisodes: number;
+  currentSeason: number;
+  currentEpisode: number;
+}
+
+export interface MediaItem {
+  id: string;
+  title: string;
+  type: MediaType;
+  status: MediaStatus;
+  releaseDate?: string; // YYYY-MM-DD
+  rating: number; // 1 to 10
+  posterUrl?: string;
+  genres: string[];
+  notes?: string;
+  seriesDetails?: SeriesDetails;
+  scheduledWatchDate?: string; // YYYY-MM-DD
+  updatedAt: string;
+}
+
+export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack';
+
+export interface MealItem {
+  id: string;
+  mealType: MealType;
+  name: string;
+  calories: number;
+  sugarGrams: number;
+  proteinGrams?: number;
+  carbsGrams?: number;
+  fatGrams?: number;
+  time: string; // HH:mm
+}
+
+export interface DailyNutritionLog {
+  date: string; // YYYY-MM-DD
+  caloriesConsumed: number;
+  calorieGoal: number;
+  sugarGrams: number;
+  sugarLimitGrams: number;
+  weightKg?: number;
+  waterMl: number;
+  notes?: string;
+  meals: MealItem[];
+}
+
+export type PetSpecies = 'dog' | 'cat' | 'bird' | 'rabbit' | 'other';
+export type PetGender = 'male' | 'female';
+
+export interface PetProfile {
+  id: string;
+  name: string;
+  species: PetSpecies;
+  breed: string;
+  birthDate: string; // YYYY-MM-DD
+  gender: PetGender;
+  weightKg: number;
+  microchipId?: string;
+  avatarUrl?: string;
+  allergies: string[];
+  dietaryNotes?: string;
+  vetClinicName?: string;
+  emergencyContact?: string;
+}
+
+export type MedicalRecordType = 'vaccine' | 'checkup' | 'medication' | 'surgery' | 'deworming' | 'grooming' | 'lab';
+
+export interface PetMedicalRecord {
+  id: string;
+  petId: string;
+  type: MedicalRecordType;
+  title: string;
+  date: string; // YYYY-MM-DD
+  nextDueDate?: string; // YYYY-MM-DD
+  clinicName?: string;
+  veterinarian?: string;
+  cost?: number;
+  notes?: string;
+  completed: boolean;
+}
+
+export interface PetMedication {
+  id: string;
+  petId: string;
+  name: string;
+  dosage: string;
+  frequency: string;
+  startDate: string;
+  endDate?: string;
+  isActive: boolean;
+  notes?: string;
+}
+
+export type EventCategory = 'media' | 'nutrition' | 'pet' | 'personal';
+
+export interface CalendarEvent {
+  id: string;
+  title: string;
+  date: string; // YYYY-MM-DD
+  time?: string; // HH:mm
+  category: EventCategory;
+  description?: string;
+  relatedId?: string; // Id of media, pet record, etc.
+  isCompleted?: boolean;
+}
+
+export interface UserPreferences {
+  theme: 'light' | 'dark';
+  defaultCalorieGoal: number;
+  defaultSugarLimit: number; // in grams
+  weightUnit: 'kg' | 'lbs';
+}
