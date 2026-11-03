@@ -134,3 +134,46 @@ export interface InvitedUser {
   lastLoginAt?: string;
 }
 
+// --- NOTE MODULE TYPES ---
+export interface FootnoteItem {
+  id: string;
+  index: number;
+  label: string;
+  content: string;
+}
+
+export type NoteCategory = 'idea' | 'project' | 'personal' | 'research' | 'archive';
+
+export interface NoteItem {
+  id: string;
+  title: string;
+  content: string;
+  category: NoteCategory;
+  tags: string[];
+  isPinned: boolean;
+  color?: string;
+  footnotes: FootnoteItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+// --- DREAM CATCHER MODULE TYPES ---
+export type DreamEmotion = 'happy' | 'neutral' | 'sad' | 'anxious';
+
+export interface DreamLog {
+  id: string;
+  title: string;
+  description: string;
+  date: string; // YYYY-MM-DD
+  wakeTime?: string; // HH:mm
+  tags: string[];
+  emotion: DreamEmotion;
+  clarityScore: number; // 1 to 5
+  lucidityScore: number; // 1 to 5 (or 20% to 100%)
+  isRecurring: boolean;
+  isNightmare: boolean;
+  interpretationNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+

@@ -13,6 +13,8 @@ import {
   CalendarEvent,
   UserPreferences,
   MealItem,
+  NoteItem,
+  DreamLog,
 } from '../types';
 import {
   initialPreferences,
@@ -22,6 +24,8 @@ import {
   initialMedicalRecords,
   initialMedications,
   initialEvents,
+  initialNotes,
+  initialDreamLogs,
 } from '../data/seedData';
 
 const STORAGE_KEYS = {
@@ -32,6 +36,8 @@ const STORAGE_KEYS = {
   MEDICAL: 'chronolife_medical_v1',
   MEDS: 'chronolife_meds_v1',
   EVENTS: 'chronolife_events_v1',
+  NOTES: 'chronolife_notes_v1',
+  DREAMS: 'chronolife_dreams_v1',
 };
 
 function loadStored<T>(key: string, fallback: T): T {
@@ -80,6 +86,14 @@ export function useStorage() {
 
   const [calendarEvents, setCalendarEventsState] = useState<CalendarEvent[]>(() =>
     loadStored(STORAGE_KEYS.EVENTS, initialEvents)
+  );
+
+  const [notes, setNotesState] = useState<NoteItem[]>(() =>
+    loadStored(STORAGE_KEYS.NOTES, initialNotes)
+  );
+
+  const [dreamLogs, setDreamLogsState] = useState<DreamLog[]>(() =>
+    loadStored(STORAGE_KEYS.DREAMS, initialDreamLogs)
   );
 
   // Sync theme with HTML class
@@ -388,10 +402,75 @@ export function useStorage() {
     saveCalendarEvents(calendarEvents.filter((e) => e.id !== id));
   }, [calendarEvents, saveCalendarEvents]);
 
+  // --- NOTES OPERATIONS ---
+  const saveNotes = useCallback((items: NoteItem[]) => {
+    setNotesState(items);
+    saveStored(STORAGE_KEYS.NOTES, items);
+  }, []);
+
+  const addNote = useCallback((note: Omit<NoteItem, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const now = new Date().toISOString();
+    const newNote: NoteItem = {
+      ...note,
+      id: `note-${Date.now()}`,
+      createdAt: now,
+      updatedAt: now,
+    };
+    saveNotes([newNote, ...notes]);
+    return newNote;
+  }, [notes, saveNotes]);
+
+  const updateNote = useCallback((id: string, updates: Partial<NoteItem>) => {
+    const updated = notes.map((item) =>
+      item.id === id ? { ...item, ...updates, updatedAt: new Date().toISOString() } : item
+    );
+    saveNotes(updated);
+  }, [notes, saveNotes]);
+
+  const deleteNote = useCallback((id: string) => {
+    saveNotes(notes.filter((item) => item.id !== id));
+  }, [notes, saveNotes]);
+
+  const togglePinNote = useCallback((id: string) => {
+    const updated = notes.map((item) =>
+      item.id === id ? { ...item, isPinned: !item.isPinned, updatedAt: new Date().toISOString() } : item
+    );
+    saveNotes(updated);
+  }, [notes, saveNotes]);
+
+  // --- DREAM CATCHER OPERATIONS ---
+  const saveDreamLogs = useCallback((logs: DreamLog[]) => {
+    setDreamLogsState(logs);
+    saveStored(STORAGE_KEYS.DREAMS, logs);
+  }, []);
+
+  const addDreamLog = useCallback((log: Omit<DreamLog, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const now = new Date().toISOString();
+    const newLog: DreamLog = {
+      ...log,
+      id: `dream-${Date.now()}`,
+      createdAt: now,
+      updatedAt: now,
+    };
+    saveDreamLogs([newLog, ...dreamLogs]);
+    return newLog;
+  }, [dreamLogs, saveDreamLogs]);
+
+  const updateDreamLog = useCallback((id: string, updates: Partial<DreamLog>) => {
+    const updated = dreamLogs.map((item) =>
+      item.id === id ? { ...item, ...updates, updatedAt: new Date().toISOString() } : item
+    );
+    saveDreamLogs(updated);
+  }, [dreamLogs, saveDreamLogs]);
+
+  const deleteDreamLog = useCallback((id: string) => {
+    saveDreamLogs(dreamLogs.filter((item) => item.id !== id));
+  }, [dreamLogs, saveDreamLogs]);
+
   // --- BACKUP & RESTORE ---
   const exportAllData = useCallback(() => {
     const bundle = {
-      version: '1.0',
+      version: '1.1',
       exportedAt: new Date().toISOString(),
       preferences,
       mediaItems,
@@ -400,16 +479,18 @@ export function useStorage() {
       medicalRecords,
       medications,
       calendarEvents,
+      notes,
+      dreamLogs,
     };
     const jsonStr = JSON.stringify(bundle, null, 2);
     const blob = new Blob([jsonStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `chronolife_backup_${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `notome_backup_${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
-  }, [preferences, mediaItems, nutritionLogs, pets, medicalRecords, medications, calendarEvents]);
+  }, [preferences, mediaItems, nutritionLogs, pets, medicalRecords, medications, calendarEvents, notes, dreamLogs]);
 
   const importAllData = useCallback((jsonStr: string): boolean => {
     try {
@@ -421,6 +502,8 @@ export function useStorage() {
       if (Array.isArray(data.medicalRecords)) setMedicalRecordsState(data.medicalRecords);
       if (Array.isArray(data.medications)) setMedicationsState(data.medications);
       if (Array.isArray(data.calendarEvents)) setCalendarEventsState(data.calendarEvents);
+      if (Array.isArray(data.notes)) setNotesState(data.notes);
+      if (Array.isArray(data.dreamLogs)) setDreamLogsState(data.dreamLogs);
 
       if (data.preferences) saveStored(STORAGE_KEYS.PREFS, data.preferences);
       if (data.mediaItems) saveStored(STORAGE_KEYS.MEDIA, data.mediaItems);
@@ -429,6 +512,8 @@ export function useStorage() {
       if (data.medicalRecords) saveStored(STORAGE_KEYS.MEDICAL, data.medicalRecords);
       if (data.medications) saveStored(STORAGE_KEYS.MEDS, data.medications);
       if (data.calendarEvents) saveStored(STORAGE_KEYS.EVENTS, data.calendarEvents);
+      if (data.notes) saveStored(STORAGE_KEYS.NOTES, data.notes);
+      if (data.dreamLogs) saveStored(STORAGE_KEYS.DREAMS, data.dreamLogs);
       return true;
     } catch (e) {
       console.error('Import failed:', e);
@@ -444,6 +529,8 @@ export function useStorage() {
     setMedicalRecordsState(initialMedicalRecords);
     setMedicationsState(initialMedications);
     setCalendarEventsState(initialEvents);
+    setNotesState(initialNotes);
+    setDreamLogsState(initialDreamLogs);
 
     saveStored(STORAGE_KEYS.PREFS, initialPreferences);
     saveStored(STORAGE_KEYS.MEDIA, initialMediaItems);
@@ -452,6 +539,8 @@ export function useStorage() {
     saveStored(STORAGE_KEYS.MEDICAL, initialMedicalRecords);
     saveStored(STORAGE_KEYS.MEDS, initialMedications);
     saveStored(STORAGE_KEYS.EVENTS, initialEvents);
+    saveStored(STORAGE_KEYS.NOTES, initialNotes);
+    saveStored(STORAGE_KEYS.DREAMS, initialDreamLogs);
   }, []);
 
   return {
@@ -490,6 +579,17 @@ export function useStorage() {
     calendarEvents,
     addCalendarEvent,
     deleteCalendarEvent,
+    // Notes
+    notes,
+    addNote,
+    updateNote,
+    deleteNote,
+    togglePinNote,
+    // Dream Catcher
+    dreamLogs,
+    addDreamLog,
+    updateDreamLog,
+    deleteDreamLog,
     // Backup
     exportAllData,
     importAllData,

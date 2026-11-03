@@ -4,13 +4,13 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Film, Utensils, HeartPulse, Calendar, Sun, Moon, Sliders, LogOut, CheckCircle2, Globe, ShieldCheck } from 'lucide-react';
+import { Film, Utensils, HeartPulse, Calendar, Sun, Moon, Sliders, LogOut, CheckCircle2, Globe, ShieldCheck, BookOpen, MoonStar } from 'lucide-react';
 import { AppUser } from '../hooks/useAuth';
 import { UpcomingAlert } from '../lib/notifications';
 import { NotificationPanel } from './Notifications/NotificationPanel';
 import { translations, Language } from '../lib/translations';
 
-export type ActiveTab = 'media' | 'nutrition' | 'pets' | 'calendar';
+export type ActiveTab = 'media' | 'nutrition' | 'pets' | 'calendar' | 'notes' | 'dreams';
 
 interface NavigationProps {
   activeTab: ActiveTab;
@@ -51,6 +51,8 @@ export const Navigation: React.FC<NavigationProps> = ({
     { id: 'nutrition', label: t.nutrition, shortLabel: t.nutritionShort, icon: Utensils },
     { id: 'pets', label: t.pets, shortLabel: t.petsShort, icon: HeartPulse },
     { id: 'calendar', label: t.calendar, shortLabel: t.calendarShort, icon: Calendar },
+    { id: 'notes', label: t.notes, shortLabel: t.notesShort, icon: BookOpen },
+    { id: 'dreams', label: t.dreams, shortLabel: t.dreamsShort, icon: MoonStar },
   ];
 
   // Close dropdown on outside click
@@ -91,8 +93,8 @@ export const Navigation: React.FC<NavigationProps> = ({
             </button>
           </div>
 
-          {/* Zone 2: Desktop 4 concise nav tabs */}
-          <nav className="hidden md:flex items-center gap-1.5 lg:gap-2 text-sm font-medium">
+          {/* Zone 2: Desktop 6 concise nav tabs */}
+          <nav className="hidden md:flex items-center gap-1 xl:gap-1.5 text-xs lg:text-sm font-medium">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -101,7 +103,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                   key={item.id}
                   type="button"
                   onClick={() => onTabChange(item.id)}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap shrink-0 touch-manipulation cursor-pointer ${
+                  className={`flex items-center gap-1.5 lg:gap-2 px-2.5 lg:px-3.5 py-1.5 lg:py-2 rounded-lg text-xs lg:text-sm font-medium transition-all whitespace-nowrap shrink-0 touch-manipulation cursor-pointer ${
                     isActive
                       ? 'bg-[#EFE8DD] dark:bg-[#28221D] text-[#2B241E] dark:text-[#EFE9E2] font-semibold shadow-xs'
                       : 'text-[#6F645A] dark:text-[#A89C90] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] hover:bg-[#F4ECE3] dark:hover:bg-[#201B17]'
@@ -261,7 +263,7 @@ export const Navigation: React.FC<NavigationProps> = ({
 
       {/* Android & Mobile Bottom Navigation Bar (Natural Thumb Zone) */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FAF7F2]/95 dark:bg-[#161311]/95 backdrop-blur-lg border-t border-[#E5DDD2] dark:border-[#2D2722] safe-area-pb">
-        <nav className="grid grid-cols-4 items-center h-16 max-w-md mx-auto px-1">
+        <nav className="grid grid-cols-6 items-center h-16 max-w-lg mx-auto px-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -280,9 +282,9 @@ export const Navigation: React.FC<NavigationProps> = ({
                 }`}
               >
                 <div className={`p-1 rounded-md transition-colors ${isActive ? 'bg-[#C85A32]/10' : ''}`}>
-                  <Icon className="w-5 h-5" />
+                  <Icon className="w-4 h-4" />
                 </div>
-                <span className="text-[10px] tracking-tight mt-0.5 whitespace-nowrap font-medium">
+                <span className="text-[9px] sm:text-[10px] tracking-tight mt-0.5 whitespace-nowrap font-medium">
                   {item.shortLabel}
                 </span>
               </button>

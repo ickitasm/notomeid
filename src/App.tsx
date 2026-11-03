@@ -12,6 +12,8 @@ import { MediaView } from './components/MediaTracker/MediaView';
 import { NutritionView } from './components/NutritionTracker/NutritionView';
 import { PetView } from './components/PetTracker/PetView';
 import { MasterCalendarView } from './components/MasterCalendar/MasterCalendarView';
+import { NotesView } from './components/Notes/NotesView';
+import { DreamCatcherView } from './components/DreamCatcher/DreamCatcherView';
 import { SettingsModal } from './components/SettingsModal';
 import { AuthView } from './components/Auth/AuthView';
 import { AccessDeniedView } from './components/Auth/AccessDeniedView';
@@ -208,6 +210,27 @@ export default function App() {
             language={currentLanguage}
           />
         )}
+
+        {activeTab === 'notes' && (
+          <NotesView
+            notes={storage.notes}
+            onAddNote={storage.addNote}
+            onUpdateNote={storage.updateNote}
+            onDeleteNote={storage.deleteNote}
+            onTogglePin={storage.togglePinNote}
+            language={currentLanguage}
+          />
+        )}
+
+        {activeTab === 'dreams' && (
+          <DreamCatcherView
+            dreams={storage.dreamLogs}
+            onAddDream={storage.addDreamLog}
+            onUpdateDream={storage.updateDreamLog}
+            onDeleteDream={storage.deleteDreamLog}
+            language={currentLanguage}
+          />
+        )}
       </main>
 
       {/* Quiet Editorial Footer */}
@@ -220,12 +243,12 @@ export default function App() {
             <span>·</span>
             <span>
               {currentLanguage === 'id'
-                ? 'Pusat Pribadi Hiburan, Nutrisi & Kesehatan Hewan'
-                : 'Personal Entertainment, Nutrition & Pet Health Hub'}
+                ? 'Santuari Pribadi Hiburan, Nutrisi, Hewan, Catatan & Mimpi'
+                : 'Personal Hub for Cinema, Nutrition, Pets, Notes & Dreams'}
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
             <button
               type="button"
               onClick={() => setActiveTab('media')}
@@ -253,6 +276,20 @@ export default function App() {
               className="hover:text-[#2D2823] dark:hover:text-[#EAE3DA] transition-colors cursor-pointer"
             >
               {tNav.calendar}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('notes')}
+              className="hover:text-[#2D2823] dark:hover:text-[#EAE3DA] transition-colors cursor-pointer"
+            >
+              {tNav.notes}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('dreams')}
+              className="hover:text-[#2D2823] dark:hover:text-[#EAE3DA] transition-colors cursor-pointer"
+            >
+              {tNav.dreams}
             </button>
           </div>
         </div>

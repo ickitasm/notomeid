@@ -219,3 +219,56 @@ VALUES (
 ON CONFLICT (email) DO UPDATE 
 SET role = 'primary_admin', status = 'active';
 
+-- =========================================================================
+-- 10. Notes & Footnotes Table
+-- =========================================================================
+CREATE TABLE IF NOT EXISTS public.notes (
+    id TEXT PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE DEFAULT auth.uid(),
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    category TEXT NOT NULL CHECK (category IN ('idea', 'project', 'personal', 'research', 'archive')),
+    tags TEXT[] DEFAULT '{}',
+    is_pinned BOOLEAN DEFAULT FALSE,
+    color TEXT DEFAULT '#D97706',
+    footnotes JSONB DEFAULT '[]', -- [ { id, index, label, content } ]
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_notes_user ON public.notes(user_id);
+ALTER TABLE public.notes ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users access own notes" ON public.notes
+    FOR ALL USING (auth.uid() = user_id OR user_id IS NULL)
+    WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
+
+-- =========================================================================
+-- 11. Dream Catcher & Sleep Journal Table
+-- =========================================================================
+CREATE TABLE IF NOT EXISTS public.dream_logs (
+    id TEXT PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE DEFAULT auth.uid(),
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    date DATE NOT NULL,
+    wake_time TEXT,
+    tags TEXT[] DEFAULT '{}',
+    emotion TEXT NOT NULL CHECK (emotion IN ('happy', 'neutral', 'sad', 'anxious')),
+    clarity_score INT DEFAULT 3 CHECK (clarity_score BETWEEN 1 AND 5),
+    lucidity_score INT DEFAULT 1 CHECK (lucidity_score BETWEEN 1 AND 5),
+    is_recurring BOOLEAN DEFAULT FALSE,
+    is_nightmare BOOLEAN DEFAULT FALSE,
+    interpretation_notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_dreams_user ON public.dream_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_dreams_user_date ON public.dream_logs(user_id, date);
+ALTER TABLE public.dream_logs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users access own dreams" ON public.dream_logs
+    FOR ALL USING (auth.uid() = user_id OR user_id IS NULL)
+    WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
+
