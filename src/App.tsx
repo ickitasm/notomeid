@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useStorage } from './hooks/useStorage';
 import { useAuth } from './hooks/useAuth';
 import { Navigation, ActiveTab } from './components/Navigation';
@@ -13,6 +13,8 @@ import { PetView } from './components/PetTracker/PetView';
 import { MasterCalendarView } from './components/MasterCalendar/MasterCalendarView';
 import { SettingsModal } from './components/SettingsModal';
 import { AuthView } from './components/Auth/AuthView';
+import { getUpcomingAlerts } from './lib/notifications';
+import { translations, Language } from './lib/translations';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('media');
@@ -21,6 +23,23 @@ export default function App() {
   const storage = useStorage();
   const auth = useAuth();
 
+  const currentLanguage: Language = storage.preferences.language || 'id';
+
+  // Compute upcoming alerts within 0-3 days window across all pillars
+  const upcomingAlerts = useMemo(() => {
+    return getUpcomingAlerts(
+      storage.mediaItems,
+      storage.medicalRecords,
+      storage.pets,
+      storage.calendarEvents,
+      3
+    );
+  }, [storage.mediaItems, storage.medicalRecords, storage.pets, storage.calendarEvents]);
+
+  const handleSelectLanguage = (lang: Language) => {
+    storage.updatePreferences({ language: lang });
+  };
+
   // If user is not authenticated, render Login & Account Creation Screen
   if (!auth.user) {
     return (
@@ -28,14 +47,17 @@ export default function App() {
         onSignInWithGoogle={auth.signInWithGoogle}
         onSignInWithEmail={auth.signInWithEmail}
         onSignUpWithEmail={auth.signUpWithEmail}
-        onLoginDemo={auth.loginDemoUser}
         isSupabaseConfigured={auth.isSupabaseConfigured}
         theme={storage.preferences.theme}
         onToggleTheme={storage.toggleTheme}
+        language={currentLanguage}
+        onSelectLanguage={handleSelectLanguage}
         error={auth.error}
       />
     );
   }
+
+  const tNav = translations[currentLanguage].nav;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#2D2823] dark:bg-[#161311] dark:text-[#EAE3DA] transition-colors duration-200">
@@ -46,8 +68,11 @@ export default function App() {
         theme={storage.preferences.theme}
         onToggleTheme={storage.toggleTheme}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        language={currentLanguage}
+        onSelectLanguage={handleSelectLanguage}
         user={auth.user}
         onSignOut={auth.signOut}
+        alerts={upcomingAlerts}
       />
 
       {/* Main Content Area - with mobile bottom padding to clear thumb navigation bar */}
@@ -59,6 +84,7 @@ export default function App() {
             onUpdateItem={storage.updateMediaItem}
             onDeleteItem={storage.deleteMediaItem}
             onIncrementEpisode={storage.incrementEpisode}
+            language={currentLanguage}
           />
         )}
 
@@ -72,6 +98,7 @@ export default function App() {
             onUpdateWater={storage.updateWaterForDate}
             calorieGoal={storage.preferences.defaultCalorieGoal}
             sugarLimit={storage.preferences.defaultSugarLimit}
+            language={currentLanguage}
           />
         )}
 
@@ -89,6 +116,7 @@ export default function App() {
             onAddMedication={storage.addMedication}
             onUpdateMedication={storage.updateMedication}
             onDeleteMedication={storage.deleteMedication}
+            language={currentLanguage}
           />
         )}
 
@@ -101,6 +129,7 @@ export default function App() {
             pets={storage.pets}
             onAddEvent={storage.addCalendarEvent}
             onDeleteEvent={storage.deleteCalendarEvent}
+            language={currentLanguage}
           />
         )}
       </main>
@@ -113,37 +142,41 @@ export default function App() {
               Notome
             </span>
             <span>·</span>
-            <span>Personal Entertainment, Nutrition & Pet Health Hub</span>
+            <span>
+              {currentLanguage === 'id'
+                ? 'Pusat Pribadi Hiburan, Nutrisi & Kesehatan Hewan'
+                : 'Personal Entertainment, Nutrition & Pet Health Hub'}
+            </span>
           </div>
 
           <div className="flex items-center gap-4">
             <button
               type="button"
               onClick={() => setActiveTab('media')}
-              className="hover:text-[#2D2823] dark:hover:text-[#EAE3DA] transition-colors"
+              className="hover:text-[#2D2823] dark:hover:text-[#EAE3DA] transition-colors cursor-pointer"
             >
-              Cinema & Shows
+              {tNav.media}
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('nutrition')}
-              className="hover:text-[#2D2823] dark:hover:text-[#EAE3DA] transition-colors"
+              className="hover:text-[#2D2823] dark:hover:text-[#EAE3DA] transition-colors cursor-pointer"
             >
-              Daily Nutrition
+              {tNav.nutrition}
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('pets')}
-              className="hover:text-[#2D2823] dark:hover:text-[#EAE3DA] transition-colors"
+              className="hover:text-[#2D2823] dark:hover:text-[#EAE3DA] transition-colors cursor-pointer"
             >
-              Pet Records
+              {tNav.pets}
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('calendar')}
-              className="hover:text-[#2D2823] dark:hover:text-[#EAE3DA] transition-colors"
+              className="hover:text-[#2D2823] dark:hover:text-[#EAE3DA] transition-colors cursor-pointer"
             >
-              Master Calendar
+              {tNav.calendar}
             </button>
           </div>
         </div>
@@ -158,6 +191,8 @@ export default function App() {
         onExportData={storage.exportAllData}
         onImportData={storage.importAllData}
         onResetSeed={storage.resetToSeed}
+        language={currentLanguage}
+        onSelectLanguage={handleSelectLanguage}
       />
     </div>
   );

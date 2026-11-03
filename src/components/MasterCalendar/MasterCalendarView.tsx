@@ -25,6 +25,7 @@ import {
   EventCategory,
 } from '../../types';
 import { EventModal } from './EventModal';
+import { translations, Language } from '../../lib/translations';
 
 interface MasterCalendarViewProps {
   customEvents: CalendarEvent[];
@@ -34,6 +35,7 @@ interface MasterCalendarViewProps {
   pets: PetProfile[];
   onAddEvent: (event: Omit<CalendarEvent, 'id'>) => void;
   onDeleteEvent: (id: string) => void;
+  language?: Language;
 }
 
 export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
@@ -44,7 +46,9 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
   pets,
   onAddEvent,
   onDeleteEvent,
+  language = 'id',
 }) => {
+  const t = translations[language].calendar;
   const [selectedCategory, setSelectedCategory] = useState<EventCategory | 'all'>('all');
   const [viewMode, setViewMode] = useState<'month' | 'agenda'>('month');
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10));
@@ -234,23 +238,23 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-[#E4DCDB] dark:border-[#352F2B]">
         <div>
           <div className="text-xs uppercase tracking-widest font-mono text-[#C4933F] font-semibold mb-1">
-            Integrated Schedule & Chronology
+            {t.tag}
           </div>
           <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#2B241E] dark:text-[#EFE9E2]">
-            Master Calendar Timeline
+            {t.title}
           </h1>
           <p className="text-xs sm:text-sm text-[#7B6F63] dark:text-[#9F9184] mt-1 max-w-2xl">
-            Synchronized master timeline integrating watch nights, daily biometrics, and veterinary vaccination schedules.
+            {t.subtitle}
           </p>
         </div>
 
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-[#C4933F] text-white text-xs sm:text-sm font-medium hover:bg-[#AE7F30] transition-colors shadow-xs whitespace-nowrap self-start md:self-auto"
+          className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-[#C4933F] text-white text-xs sm:text-sm font-medium hover:bg-[#AE7F30] transition-colors shadow-xs whitespace-nowrap self-start md:self-auto cursor-pointer"
         >
           <Plus className="w-4 h-4" />
-          <span>Add Custom Event</span>
+          <span>{t.addEventBtn}</span>
         </button>
       </div>
 
@@ -259,17 +263,17 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
         {/* Category Filters */}
         <div className="flex items-center gap-1 overflow-x-auto text-xs">
           {[
-            { id: 'all', label: 'All Events' },
-            { id: 'media', label: 'Cinema & Series', color: '#C85A32' },
-            { id: 'nutrition', label: 'Nutrition & Weight', color: '#5B7A58' },
-            { id: 'pet', label: 'Pet Healthcare', color: '#A86438' },
-            { id: 'personal', label: 'Personal Reminders', color: '#C4933F' },
+            { id: 'all', label: t.allEvents },
+            { id: 'media', label: t.mediaCategory, color: '#C85A32' },
+            { id: 'nutrition', label: t.nutritionCategory, color: '#5B7A58' },
+            { id: 'pet', label: t.petCategory, color: '#A86438' },
+            { id: 'personal', label: t.personalCategory, color: '#C4933F' },
           ].map((cat) => (
             <button
               key={cat.id}
               type="button"
               onClick={() => setSelectedCategory(cat.id as EventCategory | 'all')}
-              className={`px-3 py-1.5 rounded-lg font-medium transition-colors whitespace-nowrap ${
+              className={`px-3 py-1.5 rounded-lg font-medium transition-colors whitespace-nowrap cursor-pointer ${
                 selectedCategory === cat.id
                   ? 'bg-[#EFE8DD] dark:bg-[#28221D] text-[#2B241E] dark:text-[#EFE9E2] font-semibold shadow-xs'
                   : 'text-[#6F645A] dark:text-[#A89C90] hover:text-[#2B241E] hover:bg-[#F4ECE3] dark:hover:bg-[#25201C]'
@@ -291,24 +295,24 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
           <button
             type="button"
             onClick={() => setViewMode('month')}
-            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer ${
               viewMode === 'month'
                 ? 'bg-white dark:bg-[#161311] text-[#2B241E] dark:text-[#EFE9E2] shadow-xs font-semibold'
                 : 'text-[#6F645A] dark:text-[#A89C90]'
             }`}
           >
-            Month Grid
+            {t.monthGrid}
           </button>
           <button
             type="button"
             onClick={() => setViewMode('agenda')}
-            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer ${
               viewMode === 'agenda'
                 ? 'bg-white dark:bg-[#161311] text-[#2B241E] dark:text-[#EFE9E2] shadow-xs font-semibold'
                 : 'text-[#6F645A] dark:text-[#A89C90]'
             }`}
           >
-            Agenda Timeline
+            {t.agendaTimeline}
           </button>
         </div>
       </div>

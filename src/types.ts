@@ -116,6 +116,7 @@ export interface CalendarEvent {
 
 export interface UserPreferences {
   theme: 'light' | 'dark';
+  language: 'id' | 'en';
   defaultCalorieGoal: number;
   defaultSugarLimit: number; // in grams
   weightUnit: 'kg' | 'lbs';

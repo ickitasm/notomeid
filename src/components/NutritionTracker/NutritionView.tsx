@@ -22,6 +22,7 @@ import { DailyNutritionLog, MealItem, MealType } from '../../types';
 import { MiniCalendar, CalendarHighlight } from '../MiniCalendar';
 import { MealModal } from './MealModal';
 import { NutritionCharts } from './NutritionCharts';
+import { translations, Language } from '../../lib/translations';
 
 interface NutritionViewProps {
   logs: DailyNutritionLog[];
@@ -32,6 +33,7 @@ interface NutritionViewProps {
   onUpdateWater: (date: string, deltaMl: number) => void;
   calorieGoal: number;
   sugarLimit: number;
+  language?: Language;
 }
 
 export const NutritionView: React.FC<NutritionViewProps> = ({
@@ -43,7 +45,9 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
   onUpdateWater,
   calorieGoal,
   sugarLimit,
+  language = 'id',
 }) => {
+  const t = translations[language].nutrition;
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalDefaultMealType, setModalDefaultMealType] = useState<MealType>('breakfast');
@@ -112,13 +116,13 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-[#E4DCDB] dark:border-[#352F2B]">
         <div>
           <div className="text-xs uppercase tracking-widest font-mono text-[#5B7A58] font-semibold mb-1">
-            Metabolic & Nutritional Journal
+            {t.tag}
           </div>
           <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#2B241E] dark:text-[#EFE9E2]">
-            Daily Calories & Biometrics
+            {t.title}
           </h1>
           <p className="text-xs sm:text-sm text-[#7B6F63] dark:text-[#9F9184] mt-1 max-w-2xl">
-            Monitor daily calorie balance, keep added sugar within safe limits, and track body weight trends.
+            {t.subtitle}
           </p>
         </div>
 
@@ -128,7 +132,7 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
             type="button"
             onClick={() => stepDate(-1)}
             aria-label="Previous day"
-            className="p-1.5 rounded-lg hover:bg-[#F4ECE3] dark:hover:bg-[#25201C] text-[#6F645A] dark:text-[#A89C90] transition-colors"
+            className="p-1.5 rounded-lg hover:bg-[#F4ECE3] dark:hover:bg-[#25201C] text-[#6F645A] dark:text-[#A89C90] transition-colors cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -138,7 +142,7 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
             <span>{selectedDate}</span>
             {isToday && (
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#5B7A58]/15 text-[#5B7A58] uppercase font-sans font-medium">
-                Today
+                {t.today}
               </span>
             )}
           </div>
@@ -147,7 +151,7 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
             type="button"
             onClick={() => stepDate(1)}
             aria-label="Next day"
-            className="p-1.5 rounded-lg hover:bg-[#F4ECE3] dark:hover:bg-[#25201C] text-[#6F645A] dark:text-[#A89C90] transition-colors"
+            className="p-1.5 rounded-lg hover:bg-[#F4ECE3] dark:hover:bg-[#25201C] text-[#6F645A] dark:text-[#A89C90] transition-colors cursor-pointer"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -156,9 +160,9 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
             <button
               type="button"
               onClick={() => setSelectedDate(new Date().toISOString().slice(0, 10))}
-              className="ml-1 px-2 py-1 rounded text-[11px] font-medium border border-[#E0D7CB] dark:border-[#38312B] hover:bg-[#F4ECE3] dark:hover:bg-[#25201C] transition-colors"
+              className="ml-1 px-2 py-1 rounded text-[11px] font-medium border border-[#E0D7CB] dark:border-[#38312B] hover:bg-[#F4ECE3] dark:hover:bg-[#25201C] transition-colors cursor-pointer"
             >
-              Jump Today
+              {t.jumpToday}
             </button>
           )}
         </div>
@@ -171,7 +175,7 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-[#7B6F63] dark:text-[#9F9184]">
-                Calories Consumed
+                {t.caloriesConsumed}
               </span>
               <Flame className="w-4 h-4 text-[#C85A32]" />
             </div>
@@ -195,9 +199,9 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
           </div>
           <div className="mt-3 pt-2 border-t border-[#EAE2D8] dark:border-[#2E2823] text-[11px] text-[#7B6F63] dark:text-[#9F9184]">
             {remainingCalories >= 0 ? (
-              <span><strong className="text-[#5B7A58]">{remainingCalories} kcal</strong> budget remaining</span>
+              <span><strong className="text-[#5B7A58]">{remainingCalories} kcal</strong> {t.budgetRemaining}</span>
             ) : (
-              <span><strong className="text-[#D9822B]">{Math.abs(remainingCalories)} kcal</strong> over target budget</span>
+              <span><strong className="text-[#D9822B]">{Math.abs(remainingCalories)} kcal</strong> {t.overBudget}</span>
             )}
           </div>
         </div>
@@ -207,7 +211,7 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-[#7B6F63] dark:text-[#9F9184]">
-                Sugar Intake
+                {t.sugarIntake}
               </span>
               <Candy className="w-4 h-4 text-[#D9822B]" />
             </div>
@@ -216,7 +220,7 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
                 {currentLog.sugarGrams}
               </span>
               <span className="text-xs font-mono text-[#7B6F63] dark:text-[#9F9184]">
-                / {currentLog.sugarLimitGrams || sugarLimit}g limit
+                / {currentLog.sugarLimitGrams || sugarLimit}g {t.limit}
               </span>
             </div>
             {/* Sugar bar */}
@@ -232,11 +236,11 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
           <div className="mt-3 pt-2 border-t border-[#EAE2D8] dark:border-[#2E2823] flex items-center justify-between text-[11px]">
             {isSugarSpike ? (
               <span className="text-[#C85A32] font-semibold flex items-center gap-1">
-                <AlertCircle className="w-3 h-3" /> Sugar Spike Alert
+                <AlertCircle className="w-3 h-3" /> {t.sugarSpikeAlert}
               </span>
             ) : (
               <span className="text-[#5B7A58] font-medium flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3" /> Within WHO guidelines
+                <CheckCircle2 className="w-3 h-3" /> {t.sugarWithinGuideline}
               </span>
             )}
             <span className="font-mono text-[10px] text-[#7B6F63]">{sugarPercent}%</span>
@@ -248,7 +252,7 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-[#7B6F63] dark:text-[#9F9184]">
-                Daily Body Weight
+                {t.dailyWeight}
               </span>
               <Scale className="w-4 h-4 text-[#8C6D4F]" />
             </div>
@@ -266,16 +270,16 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
               step="0.1"
               min="30"
               max="250"
-              placeholder={currentLog.weightKg ? `${currentLog.weightKg} kg` : 'Log weight (kg)'}
+              placeholder={currentLog.weightKg ? `${currentLog.weightKg} kg` : t.logWeightPlaceholder}
               value={weightInputValue}
               onChange={(e) => setWeightInputValue(e.target.value)}
               className="w-full px-2 py-1 text-xs rounded border border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] font-mono tabular-nums focus:outline-hidden focus:border-[#8C6D4F]"
             />
             <button
               type="submit"
-              className="px-2 py-1 rounded bg-[#8C6D4F] text-white text-xs font-medium hover:bg-[#785C42] shrink-0 transition-colors"
+              className="px-2 py-1 rounded bg-[#8C6D4F] text-white text-xs font-medium hover:bg-[#785C42] shrink-0 transition-colors cursor-pointer"
             >
-              Save
+              {t.saveWeight}
             </button>
           </form>
         </div>
@@ -285,7 +289,7 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-[#7B6F63] dark:text-[#9F9184]">
-                Water Intake
+                {t.waterIntake}
               </span>
               <Droplets className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
             </div>
@@ -294,7 +298,7 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
                 {currentLog.waterMl}
               </span>
               <span className="text-xs font-mono text-[#7B6F63] dark:text-[#9F9184]">
-                / 2500 ml target
+                / {t.waterTarget}
               </span>
             </div>
             <div className="w-full h-1.5 bg-[#EAE2D8] dark:bg-[#2E2823] rounded-full mt-3 overflow-hidden">
@@ -306,14 +310,14 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
           </div>
           <div className="mt-3 pt-2 border-t border-[#EAE2D8] dark:border-[#2E2823] flex items-center justify-between">
             <span className="text-[11px] text-[#7B6F63] font-mono">
-              ~{(currentLog.waterMl / 250).toFixed(1)} glasses
+              ~{(currentLog.waterMl / 250).toFixed(1)} {t.glasses}
             </span>
             <button
               type="button"
               onClick={() => onUpdateWater(selectedDate, 250)}
-              className="px-2 py-0.5 rounded bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800 text-[11px] font-medium hover:bg-cyan-100 transition-colors"
+              className="px-2 py-0.5 rounded bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800 text-[11px] font-medium hover:bg-cyan-100 transition-colors cursor-pointer"
             >
-              +250 ml
+              {t.addWater}
             </button>
           </div>
         </div>
@@ -332,24 +336,24 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
         <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center justify-between pb-2 border-b border-[#E4DCDB] dark:border-[#352F2B]">
             <h3 className="font-serif text-lg font-bold text-[#2B241E] dark:text-[#EFE9E2]">
-              Food Log for {selectedDate}
+              {t.foodLogTitle} ({selectedDate})
             </h3>
             <button
               type="button"
               onClick={() => handleOpenAddMeal('breakfast')}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#5B7A58] text-white text-xs font-medium hover:bg-[#4D674A] transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#5B7A58] text-white text-xs font-medium hover:bg-[#4D674A] transition-colors cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Log Meal Item</span>
+              <span>{t.logMealBtn}</span>
             </button>
           </div>
 
           {currentLog.meals.length === 0 ? (
             <div className="p-10 text-center rounded-xl border border-dashed border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815]">
               <Utensils className="w-7 h-7 mx-auto text-[#8F8275] mb-2" />
-              <h4 className="font-serif text-sm font-semibold">No food logged yet for this day</h4>
+              <h4 className="font-serif text-sm font-semibold">{t.noFoodLogged}</h4>
               <p className="text-xs text-[#7B6F63] mt-1 max-w-sm mx-auto">
-                Log your breakfast, lunch, dinner, or snacks to track calories and sugar.
+                {t.noFoodDesc}
               </p>
               <div className="flex justify-center gap-2 mt-4">
                 {mealGroups.map((group) => (
@@ -357,7 +361,7 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
                     key={group.type}
                     type="button"
                     onClick={() => handleOpenAddMeal(group.type)}
-                    className="px-2.5 py-1 rounded-md border border-[#E0D7CB] dark:border-[#38312B] text-xs font-medium hover:bg-[#F3ECE4] dark:hover:bg-[#25201C]"
+                    className="px-2.5 py-1 rounded-md border border-[#E0D7CB] dark:border-[#38312B] text-xs font-medium hover:bg-[#F3ECE4] dark:hover:bg-[#25201C] cursor-pointer"
                   >
                     + {group.label}
                   </button>
@@ -469,10 +473,10 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
           <div className="rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-4">
             <div className="mb-3">
               <h3 className="font-serif text-sm font-bold text-[#2B241E] dark:text-[#EFE9E2]">
-                Nutrition & Weigh-in Calendar
+                {t.nutritionCalendar}
               </h3>
               <p className="text-[11px] text-[#7B6F63] dark:text-[#9F9184]">
-                Select any date to view historical meals & calorie targets
+                {t.nutritionCalendarSub}
               </p>
             </div>
 
@@ -488,11 +492,11 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
             <div className="mt-4 pt-3 border-t border-[#E4DCDB] dark:border-[#352F2B] text-[11px] space-y-1.5">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#5B7A58]" />
-                <span className="text-[#6F645A] dark:text-[#A89C90]">On Target Calorie Goal</span>
+                <span className="text-[#6F645A] dark:text-[#A89C90]">{t.onTargetLegend}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#D9822B]" />
-                <span className="text-[#6F645A] dark:text-[#A89C90]">Exceeded Calorie Target</span>
+                <span className="text-[#6F645A] dark:text-[#A89C90]">{t.exceededLegend}</span>
               </div>
             </div>
           </div>
@@ -500,10 +504,10 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
           {/* Daily Advice Card */}
           <div className="rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#F7F2EB] dark:bg-[#221C18] p-4 text-xs text-[#594E44] dark:text-[#C5B8AA] space-y-1.5">
             <div className="font-serif font-bold text-xs text-[#2B241E] dark:text-[#EFE9E2]">
-              Sugar Guidance Note
+              {t.sugarTipTitle}
             </div>
             <p className="leading-relaxed text-[11px]">
-              The American Heart Association (AHA) recommends limiting added sugars to ~36g (9 tsp) daily for men and ~25g (6 tsp) for women to prevent insulin spikes and hepatic strain.
+              {t.sugarTipDesc}
             </p>
           </div>
         </div>

@@ -4,8 +4,11 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Film, Utensils, HeartPulse, Calendar, Sun, Moon, Database, LogOut, User, CheckCircle2 } from 'lucide-react';
+import { Film, Utensils, HeartPulse, Calendar, Sun, Moon, Sliders, LogOut, CheckCircle2, Globe } from 'lucide-react';
 import { AppUser } from '../hooks/useAuth';
+import { UpcomingAlert } from '../lib/notifications';
+import { NotificationPanel } from './Notifications/NotificationPanel';
+import { translations, Language } from '../lib/translations';
 
 export type ActiveTab = 'media' | 'nutrition' | 'pets' | 'calendar';
 
@@ -15,8 +18,11 @@ interface NavigationProps {
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
   onOpenSettings: () => void;
+  language: Language;
+  onSelectLanguage: (lang: Language) => void;
   user?: AppUser | null;
   onSignOut?: () => void;
+  alerts?: UpcomingAlert[];
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
@@ -25,17 +31,22 @@ export const Navigation: React.FC<NavigationProps> = ({
   theme,
   onToggleTheme,
   onOpenSettings,
+  language,
+  onSelectLanguage,
   user,
   onSignOut,
+  alerts = [],
 }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
+  const t = translations[language].nav;
+
   const navItems: { id: ActiveTab; label: string; shortLabel: string; icon: React.ComponentType<{ className?: string }> }[] = [
-    { id: 'media', label: 'Cinema & Series', shortLabel: 'Cinema', icon: Film },
-    { id: 'nutrition', label: 'Nutrition & Metrics', shortLabel: 'Nutrition', icon: Utensils },
-    { id: 'pets', label: 'Pet Records', shortLabel: 'Pets', icon: HeartPulse },
-    { id: 'calendar', label: 'Master Calendar', shortLabel: 'Calendar', icon: Calendar },
+    { id: 'media', label: t.media, shortLabel: t.mediaShort, icon: Film },
+    { id: 'nutrition', label: t.nutrition, shortLabel: t.nutritionShort, icon: Utensils },
+    { id: 'pets', label: t.pets, shortLabel: t.petsShort, icon: HeartPulse },
+    { id: 'calendar', label: t.calendar, shortLabel: t.calendarShort, icon: Calendar },
   ];
 
   // Close dropdown on outside click
@@ -49,6 +60,10 @@ export const Navigation: React.FC<NavigationProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const toggleLanguage = () => {
+    onSelectLanguage(language === 'id' ? 'en' : 'id');
+  };
+
   return (
     <>
       {/* Top Header Bar */}
@@ -59,7 +74,7 @@ export const Navigation: React.FC<NavigationProps> = ({
             <button
               type="button"
               onClick={() => onTabChange('media')}
-              className="flex items-center gap-2.5 text-left group focus-visible:outline-hidden touch-manipulation"
+              className="flex items-center gap-2.5 text-left group focus-visible:outline-hidden touch-manipulation cursor-pointer"
             >
               <div className="w-8 h-8 rounded-lg bg-[#C85A32] flex items-center justify-center text-white font-serif font-bold text-base shadow-xs transition-transform active:scale-95">
                 N
@@ -82,7 +97,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                   key={item.id}
                   type="button"
                   onClick={() => onTabChange(item.id)}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap shrink-0 touch-manipulation ${
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap shrink-0 touch-manipulation cursor-pointer ${
                     isActive
                       ? 'bg-[#EFE8DD] dark:bg-[#28221D] text-[#2B241E] dark:text-[#EFE9E2] font-semibold shadow-xs'
                       : 'text-[#6F645A] dark:text-[#A89C90] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] hover:bg-[#F4ECE3] dark:hover:bg-[#201B17]'
@@ -95,26 +110,45 @@ export const Navigation: React.FC<NavigationProps> = ({
             })}
           </nav>
 
-          {/* Zone 3: Quick Utilities (Theme, Settings & Profile) */}
+          {/* Zone 3: Quick Utilities (Language, Notifications, Theme, Settings & Profile) */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Quick Language Toggle Button */}
+            <button
+              type="button"
+              onClick={toggleLanguage}
+              aria-label="Toggle language"
+              className="min-h-[36px] px-2 sm:px-2.5 flex items-center gap-1.5 text-xs font-semibold rounded-lg border border-[#E0D7CB] dark:border-[#38312B] bg-[#FFFDF9] dark:bg-[#1C1815] text-[#594E44] dark:text-[#C5B8AA] hover:bg-[#EFE8DD] dark:hover:bg-[#28221D] active:scale-95 transition-all touch-manipulation cursor-pointer"
+              title={language === 'id' ? 'Ganti ke English' : 'Switch to Bahasa Indonesia'}
+            >
+              <Globe className="w-3.5 h-3.5 text-[#C85A32]" />
+              <span className="font-mono text-[11px] uppercase tracking-wide">
+                {language.toUpperCase()}
+              </span>
+            </button>
+
+            {/* Notification Center Bell */}
+            <NotificationPanel alerts={alerts} userEmail={user?.email} />
+
+            {/* Theme Toggle */}
             <button
               type="button"
               onClick={onToggleTheme}
               aria-label="Toggle theme"
-              className="min-w-[36px] min-h-[36px] flex items-center justify-center rounded-lg text-[#6F645A] dark:text-[#A89C90] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] hover:bg-[#EFE8DD] dark:hover:bg-[#28221D] active:scale-95 transition-all touch-manipulation"
+              className="min-w-[36px] min-h-[36px] flex items-center justify-center rounded-lg text-[#6F645A] dark:text-[#A89C90] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] hover:bg-[#EFE8DD] dark:hover:bg-[#28221D] active:scale-95 transition-all touch-manipulation cursor-pointer"
               title={theme === 'dark' ? 'Switch to warm light theme' : 'Switch to roast dark theme'}
             >
               {theme === 'dark' ? <Sun className="w-4 h-4 text-[#D9822B]" /> : <Moon className="w-4 h-4 text-[#6F645A]" />}
             </button>
 
+            {/* Settings & Data Button */}
             <button
               type="button"
               onClick={onOpenSettings}
-              className="min-h-[36px] px-2.5 sm:px-3 flex items-center gap-1.5 text-xs font-medium rounded-lg border border-[#E0D7CB] dark:border-[#38312B] bg-[#FFFDF9] dark:bg-[#1C1815] text-[#594E44] dark:text-[#C5B8AA] hover:bg-[#EFE8DD] dark:hover:bg-[#28221D] active:scale-95 transition-all whitespace-nowrap shrink-0 touch-manipulation"
-              title="Cloud Sync, Backup & Settings"
+              className="min-h-[36px] px-2.5 sm:px-3 flex items-center gap-1.5 text-xs font-medium rounded-lg border border-[#E0D7CB] dark:border-[#38312B] bg-[#FFFDF9] dark:bg-[#1C1815] text-[#594E44] dark:text-[#C5B8AA] hover:bg-[#EFE8DD] dark:hover:bg-[#28221D] active:scale-95 transition-all whitespace-nowrap shrink-0 touch-manipulation cursor-pointer"
+              title={t.syncAndData}
             >
-              <Database className="w-3.5 h-3.5 text-[#8C6D4F]" />
-              <span className="hidden sm:inline">Sync & Data</span>
+              <Sliders className="w-3.5 h-3.5 text-[#8C6D4F]" />
+              <span className="hidden sm:inline">{t.syncAndData}</span>
             </button>
 
             {/* Profile Dropdown */}
@@ -124,7 +158,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                   type="button"
                   onClick={() => setIsProfileOpen((v) => !v)}
                   className="flex items-center gap-2 p-1 pl-1.5 pr-2 rounded-full border border-[#E0D7CB] dark:border-[#38312B] bg-[#FFFDF9] dark:bg-[#1C1815] hover:border-[#C85A32]/40 transition-colors touch-manipulation cursor-pointer"
-                  title="Account Details"
+                  title={t.accountDetails}
                 >
                   <div className="w-6 h-6 rounded-full overflow-hidden bg-[#C85A32] flex items-center justify-center text-white text-[11px] font-bold">
                     {user.avatarUrl ? (
@@ -150,7 +184,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                       </div>
                       <div className="mt-1 flex items-center gap-1 text-[10px] text-[#5B7A58] font-medium">
                         <CheckCircle2 className="w-3 h-3" />
-                        <span>Google Identity Verified</span>
+                        <span>{t.verifiedGoogle}</span>
                       </div>
                     </div>
 
@@ -160,10 +194,10 @@ export const Navigation: React.FC<NavigationProps> = ({
                         setIsProfileOpen(false);
                         onOpenSettings();
                       }}
-                      className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-[#F4ECE3] dark:hover:bg-[#25201C] text-[#594E44] dark:text-[#C5B8AA] transition-colors"
+                      className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-[#F4ECE3] dark:hover:bg-[#25201C] text-[#594E44] dark:text-[#C5B8AA] transition-colors cursor-pointer"
                     >
-                      <Database className="w-3.5 h-3.5 text-[#8C6D4F]" />
-                      <span>Database & Sync Settings</span>
+                      <Sliders className="w-3.5 h-3.5 text-[#8C6D4F]" />
+                      <span>{t.syncAndData}</span>
                     </button>
 
                     {onSignOut && (
@@ -173,10 +207,10 @@ export const Navigation: React.FC<NavigationProps> = ({
                           setIsProfileOpen(false);
                           onSignOut();
                         }}
-                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors pt-2 border-t border-[#EAE2D8] dark:border-[#2E2823]"
+                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors pt-2 border-t border-[#EAE2D8] dark:border-[#2E2823] cursor-pointer"
                       >
                         <LogOut className="w-3.5 h-3.5" />
-                        <span>Sign Out of Notome</span>
+                        <span>{t.signOut}</span>
                       </button>
                     )}
                   </div>

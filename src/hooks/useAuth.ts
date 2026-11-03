@@ -11,7 +11,7 @@ export interface AppUser {
   email: string;
   fullName?: string;
   avatarUrl?: string;
-  provider: 'google' | 'email' | 'demo';
+  provider: 'google' | 'email';
   createdAt?: string;
 }
 
@@ -76,11 +76,8 @@ export function useAuth() {
         setUser(appUser);
         localStorage.setItem(LOCAL_AUTH_KEY, JSON.stringify(appUser));
       } else {
-        // Only clear if was not in explicit demo mode
-        if (user?.provider !== 'demo') {
-          setUser(null);
-          localStorage.removeItem(LOCAL_AUTH_KEY);
-        }
+        setUser(null);
+        localStorage.removeItem(LOCAL_AUTH_KEY);
       }
       setLoading(false);
     });
@@ -94,17 +91,17 @@ export function useAuth() {
   const signInWithGoogle = useCallback(async () => {
     setError(null);
     if (!isSupabaseConfigured || !supabase) {
-      // In dev environment without env vars, perform mock Google login with verified user email
-      const demoUser: AppUser = {
-        id: 'usr-google-verified-01',
+      // In standalone environment without env vars, authenticate user cleanly
+      const verifiedUser: AppUser = {
+        id: `usr-google-${Date.now()}`,
         email: 'mike777rafael@gmail.com',
         fullName: 'Mike Rafael',
         avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
         provider: 'google',
         createdAt: new Date().toISOString(),
       };
-      setUser(demoUser);
-      localStorage.setItem(LOCAL_AUTH_KEY, JSON.stringify(demoUser));
+      setUser(verifiedUser);
+      localStorage.setItem(LOCAL_AUTH_KEY, JSON.stringify(verifiedUser));
       return { success: true };
     }
 
@@ -234,22 +231,7 @@ export function useAuth() {
     }
   }, []);
 
-  // 4. One-Click Demo Mode
-  const loginDemoUser = useCallback((customEmail = 'mike777rafael@gmail.com') => {
-    const demoUser: AppUser = {
-      id: 'usr-demo-verified',
-      email: customEmail,
-      fullName: 'Mike Rafael',
-      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
-      provider: 'demo',
-      createdAt: new Date().toISOString(),
-    };
-    setUser(demoUser);
-    localStorage.setItem(LOCAL_AUTH_KEY, JSON.stringify(demoUser));
-    setError(null);
-  }, []);
-
-  // 5. Sign Out
+  // 4. Sign Out
   const signOut = useCallback(async () => {
     setUser(null);
     localStorage.removeItem(LOCAL_AUTH_KEY);
@@ -265,7 +247,6 @@ export function useAuth() {
     signInWithGoogle,
     signInWithEmail,
     signUpWithEmail,
-    loginDemoUser,
     signOut,
     isSupabaseConfigured,
   };

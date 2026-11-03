@@ -11,14 +11,13 @@ import {
   RotateCcw,
   Sliders,
   Check,
-  Database,
   Cloud,
-  ExternalLink,
   RefreshCw,
-  AlertCircle,
+  Globe,
 } from 'lucide-react';
-import { UserPreferences, MediaItem, DailyNutritionLog, PetProfile, PetMedicalRecord, PetMedication, CalendarEvent } from '../types';
-import { supabase, isSupabaseConfigured, testSupabaseConnection } from '../lib/supabase';
+import { UserPreferences } from '../types';
+import { isSupabaseConfigured, testSupabaseConnection } from '../lib/supabase';
+import { translations, Language } from '../lib/translations';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -28,6 +27,8 @@ interface SettingsModalProps {
   onExportData: () => void;
   onImportData: (jsonStr: string) => boolean;
   onResetSeed: () => void;
+  language: Language;
+  onSelectLanguage: (lang: Language) => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -38,6 +39,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onExportData,
   onImportData,
   onResetSeed,
+  language,
+  onSelectLanguage,
 }) => {
   const [calorieGoal, setCalorieGoal] = useState(preferences.defaultCalorieGoal);
   const [sugarLimit, setSugarLimit] = useState(preferences.defaultSugarLimit);
@@ -48,13 +51,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   if (!isOpen) return null;
 
+  const t = translations[language].settings;
+
   const handleSaveGoals = (e: React.FormEvent) => {
     e.preventDefault();
     onUpdatePreferences({
       defaultCalorieGoal: Number(calorieGoal) || 2000,
       defaultSugarLimit: Number(sugarLimit) || 36,
     });
-    setStatusMessage('Nutritional baseline targets updated.');
+    setStatusMessage(
+      language === 'id'
+        ? 'Target nutrisi berhasil diperbarui.'
+        : 'Nutritional baseline targets updated.'
+    );
     setTimeout(() => setStatusMessage(null), 2500);
   };
 
@@ -67,9 +76,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       const content = event.target?.result as string;
       const success = onImportData(content);
       if (success) {
-        setStatusMessage('Notome backup successfully restored!');
+        setStatusMessage(
+          language === 'id'
+            ? 'Cadangan Notome berhasil dipulihkan!'
+            : 'Notome backup successfully restored!'
+        );
       } else {
-        setStatusMessage('Error: Invalid JSON backup file.');
+        setStatusMessage(
+          language === 'id'
+            ? 'Gagal: Format file cadangan JSON tidak valid.'
+            : 'Error: Invalid JSON backup file.'
+        );
       }
       setTimeout(() => setStatusMessage(null), 3000);
     };
@@ -78,9 +95,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   const handleResetConfirm = () => {
-    if (confirm('Restore initial sample data? Custom entries will be overwritten.')) {
+    const confirmText =
+      language === 'id'
+        ? 'Kembalikan data ke pengaturan awal? Semua data tersimpan akan diatur ulang.'
+        : 'Reset data to initial state? All stored entries will be restored to default.';
+    if (confirm(confirmText)) {
       onResetSeed();
-      setStatusMessage('Sample dataset restored.');
+      setStatusMessage(
+        language === 'id'
+          ? 'Data awal berhasil dipulihkan.'
+          : 'Initial dataset restored.'
+      );
       setTimeout(() => setStatusMessage(null), 2500);
     }
   };
@@ -105,7 +130,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <Sliders className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-serif text-base sm:text-lg font-bold">Notome Settings & Sync</h3>
+              <h3 className="font-serif text-base sm:text-lg font-bold">{t.title}</h3>
             </div>
           </div>
           <button
@@ -128,7 +153,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 : 'text-[#6F645A] dark:text-[#A89C90]'
             }`}
           >
-            General & Backup
+            {t.generalTab}
           </button>
           <button
             type="button"
@@ -140,7 +165,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             }`}
           >
             <Cloud className="w-3.5 h-3.5" />
-            <span>Vercel & Supabase</span>
+            <span>{t.cloudTab}</span>
           </button>
         </div>
 
@@ -153,15 +178,56 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         {activeTab === 'general' ? (
           <div className="mt-4 space-y-4 text-xs">
+            {/* Language Selector */}
+            <div className="p-3.5 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-white/50 dark:bg-[#25201C]/50 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 font-serif font-bold text-xs text-[#2B241E] dark:text-[#EFE9E2]">
+                  <Globe className="w-3.5 h-3.5 text-[#C85A32]" />
+                  <span>{t.languageLabel}</span>
+                </div>
+                <span className="text-[10px] text-[#7B6F63] uppercase tracking-wider font-mono">
+                  {language.toUpperCase()}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => onSelectLanguage('id')}
+                  className={`min-h-[40px] flex items-center justify-center gap-2 py-2 px-3 rounded-lg border text-xs font-medium transition-all active:scale-[0.98] touch-manipulation ${
+                    language === 'id'
+                      ? 'border-[#C85A32] bg-[#C85A32]/10 text-[#C85A32] font-semibold shadow-xs'
+                      : 'border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] text-[#594E44] dark:text-[#C5B8AA] hover:bg-[#F3ECE4]'
+                  }`}
+                >
+                  <span className="text-sm">🇮🇩</span>
+                  <span>Bahasa Indonesia</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => onSelectLanguage('en')}
+                  className={`min-h-[40px] flex items-center justify-center gap-2 py-2 px-3 rounded-lg border text-xs font-medium transition-all active:scale-[0.98] touch-manipulation ${
+                    language === 'en'
+                      ? 'border-[#C85A32] bg-[#C85A32]/10 text-[#C85A32] font-semibold shadow-xs'
+                      : 'border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] text-[#594E44] dark:text-[#C5B8AA] hover:bg-[#F3ECE4]'
+                  }`}
+                >
+                  <span className="text-sm">🇬🇧</span>
+                  <span>English</span>
+                </button>
+              </div>
+            </div>
+
             {/* Calorie & Sugar Target configuration */}
             <form onSubmit={handleSaveGoals} className="space-y-3 p-3.5 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-white/50 dark:bg-[#25201C]/50">
               <h4 className="font-serif font-bold text-xs text-[#2B241E] dark:text-[#EFE9E2]">
-                Daily Nutritional Baseline Targets
+                {t.nutritionalBaseline}
               </h4>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] text-[#7B6F63] mb-1">
-                    Daily Calorie Target (kcal)
+                    {t.dailyCalorieTarget}
                   </label>
                   <input
                     type="number"
@@ -176,7 +242,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                 <div>
                   <label className="block text-[11px] text-[#7B6F63] mb-1">
-                    Daily Sugar Intake Ceiling (g)
+                    {t.dailySugarLimit}
                   </label>
                   <input
                     type="number"
@@ -194,17 +260,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 type="submit"
                 className="w-full py-2 rounded-lg bg-[#8C6D4F] text-white text-xs font-medium hover:bg-[#785C42] active:scale-[0.98] transition-all touch-manipulation"
               >
-                Save Nutrition Baselines
+                {t.saveBaselines}
               </button>
             </form>
 
             {/* Offline Data Backup */}
             <div className="space-y-2 p-3.5 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-white/50 dark:bg-[#25201C]/50">
               <h4 className="font-serif font-bold text-xs text-[#2B241E] dark:text-[#EFE9E2]">
-                Local Storage Backup & Restore
+                {t.localBackupTitle}
               </h4>
               <p className="text-[11px] text-[#7B6F63] leading-relaxed">
-                Your movies, episodes, food logs, and pet health records are automatically saved in your browser. Download a backup anytime.
+                {t.localBackupDesc}
               </p>
 
               <div className="grid grid-cols-2 gap-2 pt-1">
@@ -214,7 +280,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   className="min-h-[42px] flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg border border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] hover:bg-[#F3ECE4] font-medium transition-all active:scale-[0.98] touch-manipulation"
                 >
                   <Download className="w-3.5 h-3.5 text-[#8C6D4F]" />
-                  <span>Download Backup</span>
+                  <span>{t.downloadBackup}</span>
                 </button>
 
                 <button
@@ -223,7 +289,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   className="min-h-[42px] flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg border border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] hover:bg-[#F3ECE4] font-medium transition-all active:scale-[0.98] touch-manipulation"
                 >
                   <Upload className="w-3.5 h-3.5 text-[#8C6D4F]" />
-                  <span>Restore File</span>
+                  <span>{t.restoreFile}</span>
                 </button>
                 <input
                   ref={fileInputRef}
@@ -235,27 +301,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
             </div>
 
-            {/* Reset to Seed */}
+            {/* Reset to Clean Defaults */}
             <div className="pt-2 flex items-center justify-between">
-              <span className="text-[11px] text-[#7B6F63]">Reset demo sample records:</span>
+              <span className="text-[11px] text-[#7B6F63]">{t.clearData}:</span>
               <button
                 type="button"
                 onClick={handleResetConfirm}
                 className="flex items-center gap-1 px-2.5 py-1 text-[11px] rounded border border-rose-200 dark:border-rose-900/40 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 active:scale-95 transition-all touch-manipulation"
               >
                 <RotateCcw className="w-3 h-3" />
-                <span>Reset Data</span>
+                <span>{t.clearData}</span>
               </button>
             </div>
           </div>
         ) : (
-          /* Cloud Hosting & Supabase Tab */
+          /* Cloud Sync Tab */
           <div className="mt-4 space-y-4 text-xs">
             {/* Status card */}
             <div className="p-3.5 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-white/60 dark:bg-[#25201C]/60 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="font-serif font-bold text-xs text-[#2B241E] dark:text-[#EFE9E2]">
-                  Supabase Cloud Status
+                  {t.cloudStatus}
                 </span>
                 <span
                   className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-semibold ${
@@ -264,14 +330,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       : 'bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300'
                   }`}
                 >
-                  {isSupabaseConfigured ? 'Connected' : 'Offline / LocalStorage'}
+                  {isSupabaseConfigured ? t.connected : t.offline}
                 </span>
               </div>
 
               <p className="text-[11px] text-[#7B6F63] leading-relaxed">
-                {isSupabaseConfigured
-                  ? 'VITE_SUPABASE_URL is detected. Your app can query and persist to your Supabase PostgreSQL cluster.'
-                  : 'Currently running in high-speed offline local storage mode. Once you configure your Supabase URL & Anon Key on Vercel, cloud persistence activates automatically.'}
+                {isSupabaseConfigured ? t.cloudConnectedDesc : t.cloudOfflineDesc}
               </p>
 
               {isSupabaseConfigured && (
@@ -282,31 +346,26 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E0D7CB] dark:border-[#38312B] text-xs font-medium hover:bg-[#F3ECE4] disabled:opacity-50 transition-colors"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${isTestingSupabase ? 'animate-spin' : ''}`} />
-                  <span>Test Connection</span>
+                  <span>{t.testConnection}</span>
                 </button>
               )}
             </div>
 
-            {/* Quick 3-Step Vercel & Supabase Roadmap */}
-            <div className="p-3.5 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#F7F2EB] dark:bg-[#221C18] space-y-2.5">
-              <h4 className="font-serif font-bold text-xs text-[#2B241E] dark:text-[#EFE9E2]">
-                Langkah Gratis Hosting Vercel & Supabase
-              </h4>
-              <ol className="list-decimal pl-4 space-y-1.5 text-[11px] text-[#594E44] dark:text-[#C5B8AA] leading-relaxed">
-                <li>
-                  <strong>Buka Supabase.com (Free Tier):</strong> Buat project baru, lalu buka menu <code>SQL Editor</code> dan jalankan file <code>supabase_schema.sql</code> yang telah disediakan di root proyek ini.
-                </li>
-                <li>
-                  <strong>Ambil Kunci API:</strong> Di Supabase <code>Project Settings &gt; API</code>, salin <strong>Project URL</strong> dan <strong>anon/public Key</strong>.
-                </li>
-                <li>
-                  <strong>Deploy ke Vercel (Free Tier):</strong> Hubungkan repository GitHub ke Vercel, lalu masukkan 2 Environment Variables:
-                  <div className="mt-1 font-mono text-[10px] bg-white/70 dark:bg-black/30 p-2 rounded border border-[#E4DCDB] dark:border-[#352F2B]">
-                    VITE_SUPABASE_URL = https://xxx.supabase.co<br />
-                    VITE_SUPABASE_ANON_KEY = eyJhbGci...
-                  </div>
-                </li>
-              </ol>
+            {/* Notification & Schedule Reminder Preferences */}
+            <div className="p-3.5 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="font-serif font-bold text-xs text-[#2B241E] dark:text-[#EFE9E2]">
+                  {t.scheduleAlertsTitle}
+                </h4>
+                <span className="text-[10px] text-[#5B7A58] font-medium">{t.activeWindow}</span>
+              </div>
+              <p className="text-[11px] text-[#7B6F63] leading-relaxed">
+                {t.scheduleAlertsDesc}
+              </p>
+              <div className="pt-1 flex items-center justify-between text-[11px] text-[#594E44] dark:text-[#C5B8AA] border-t border-[#EAE2D8] dark:border-[#2E2823]">
+                <span>Email Notifications:</span>
+                <span className="font-mono text-[#5B7A58] font-semibold">{t.freeEmailBadge}</span>
+              </div>
             </div>
           </div>
         )}

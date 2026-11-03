@@ -24,6 +24,7 @@ import { PetProfile, PetMedicalRecord, PetMedication, MedicalRecordType } from '
 import { MiniCalendar, CalendarHighlight } from '../MiniCalendar';
 import { PetModal } from './PetModal';
 import { MedicalRecordModal } from './MedicalRecordModal';
+import { translations, Language } from '../../lib/translations';
 
 interface PetViewProps {
   pets: PetProfile[];
@@ -38,6 +39,7 @@ interface PetViewProps {
   onAddMedication: (med: Omit<PetMedication, 'id'>) => PetMedication;
   onUpdateMedication: (id: string, updates: Partial<PetMedication>) => void;
   onDeleteMedication: (id: string) => void;
+  language?: Language;
 }
 
 export const PetView: React.FC<PetViewProps> = ({
@@ -53,7 +55,9 @@ export const PetView: React.FC<PetViewProps> = ({
   onAddMedication,
   onUpdateMedication,
   onDeleteMedication,
+  language = 'id',
 }) => {
+  const t = translations[language].pets;
   const [activePetId, setActivePetId] = useState<string>(() => pets[0]?.id || '');
   const [selectedRecordType, setSelectedRecordType] = useState<MedicalRecordType | 'all'>('all');
   const [selectedCalendarDate, setSelectedCalendarDate] = useState(() => new Date().toISOString().slice(0, 10));
@@ -180,13 +184,13 @@ export const PetView: React.FC<PetViewProps> = ({
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-[#E4DCDB] dark:border-[#352F2B]">
         <div>
           <div className="text-xs uppercase tracking-widest font-mono text-[#A86438] font-semibold mb-1">
-            Veterinary & Care Ledger
+            {t.tag}
           </div>
           <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#2B241E] dark:text-[#EFE9E2]">
-            Pet Biography & Medic Records
+            {t.title}
           </h1>
           <p className="text-xs sm:text-sm text-[#7B6F63] dark:text-[#9F9184] mt-1 max-w-2xl">
-            Keep lifelong immunization cards, veterinary clinical exams, prescriptions, and booster dates in one place.
+            {t.subtitle}
           </p>
         </div>
 
@@ -198,10 +202,10 @@ export const PetView: React.FC<PetViewProps> = ({
               setIsEditingPet(false);
               setIsPetModalOpen(true);
             }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#E0D7CB] dark:border-[#38312B] bg-[#FFFDF9] dark:bg-[#1C1815] text-xs font-medium hover:bg-[#F3ECE4] dark:hover:bg-[#25201C] transition-colors whitespace-nowrap"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#E0D7CB] dark:border-[#38312B] bg-[#FFFDF9] dark:bg-[#1C1815] text-xs font-medium hover:bg-[#F3ECE4] dark:hover:bg-[#25201C] transition-colors whitespace-nowrap cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Add Another Pet</span>
+            <span>{t.addPetBtn}</span>
           </button>
           <button
             type="button"
@@ -209,10 +213,10 @@ export const PetView: React.FC<PetViewProps> = ({
               setEditingRecord(null);
               setIsRecordModalOpen(true);
             }}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#A86438] text-white text-xs font-medium hover:bg-[#92542B] transition-colors shadow-xs whitespace-nowrap"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#A86438] text-white text-xs font-medium hover:bg-[#92542B] transition-colors shadow-xs whitespace-nowrap cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span>Log Vet Record</span>
+            <span>{t.logRecordBtn}</span>
           </button>
         </div>
       </div>

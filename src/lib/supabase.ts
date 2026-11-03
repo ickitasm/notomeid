@@ -23,7 +23,7 @@ export async function testSupabaseConnection(): Promise<{ success: boolean; mess
   if (!supabase) {
     return {
       success: false,
-      message: 'VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY is not defined in environment variables.',
+      message: 'Cloud sync environment configuration not detected.',
     };
   }
   try {
@@ -31,7 +31,7 @@ export async function testSupabaseConnection(): Promise<{ success: boolean; mess
     if (error) {
       return { success: false, message: error.message };
     }
-    return { success: true, message: 'Connected to Supabase database successfully!' };
+    return { success: true, message: 'Connected to cloud sync successfully!' };
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : String(err);
     return { success: false, message: errorMsg };

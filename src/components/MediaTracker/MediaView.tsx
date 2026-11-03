@@ -21,6 +21,7 @@ import {
 import { MediaItem, MediaType, MediaStatus } from '../../types';
 import { MiniCalendar, CalendarHighlight } from '../MiniCalendar';
 import { MediaModal } from './MediaModal';
+import { translations, Language } from '../../lib/translations';
 
 interface MediaViewProps {
   mediaItems: MediaItem[];
@@ -28,6 +29,7 @@ interface MediaViewProps {
   onUpdateItem: (id: string, updates: Partial<MediaItem>) => void;
   onDeleteItem: (id: string) => void;
   onIncrementEpisode: (id: string) => void;
+  language?: Language;
 }
 
 export const MediaView: React.FC<MediaViewProps> = ({
@@ -36,7 +38,9 @@ export const MediaView: React.FC<MediaViewProps> = ({
   onUpdateItem,
   onDeleteItem,
   onIncrementEpisode,
+  language = 'id',
 }) => {
+  const t = translations[language].media;
   const [selectedType, setSelectedType] = useState<MediaType | 'all'>('all');
   const [selectedStatus, setSelectedStatus] = useState<MediaStatus | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -120,13 +124,13 @@ export const MediaView: React.FC<MediaViewProps> = ({
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-[#E4DCDB] dark:border-[#352F2B]">
         <div>
           <div className="text-xs uppercase tracking-widest font-mono text-[#C85A32] font-semibold mb-1">
-            Entertainment Chronicle
+            {t.tag}
           </div>
           <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#2B241E] dark:text-[#EFE9E2]">
-            Cinema & Series Archive
+            {t.title}
           </h1>
           <p className="text-xs sm:text-sm text-[#7B6F63] dark:text-[#9F9184] mt-1 max-w-2xl">
-            Track episodic progress, ratings, and upcoming release dates with your personal watch planner.
+            {t.subtitle}
           </p>
         </div>
 
@@ -136,10 +140,10 @@ export const MediaView: React.FC<MediaViewProps> = ({
             setEditingItem(null);
             setIsModalOpen(true);
           }}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#C85A32] text-white text-xs sm:text-sm font-medium hover:bg-[#B34B25] transition-colors shadow-xs whitespace-nowrap self-start md:self-auto"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#C85A32] text-white text-xs sm:text-sm font-medium hover:bg-[#B34B25] transition-colors shadow-xs whitespace-nowrap self-start md:self-auto cursor-pointer"
         >
           <Plus className="w-4 h-4" />
-          <span>Add Movie / Series</span>
+          <span>{t.addBtn}</span>
         </button>
       </div>
 
@@ -147,7 +151,7 @@ export const MediaView: React.FC<MediaViewProps> = ({
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="p-3.5 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815]">
           <div className="text-[11px] font-medium text-[#7B6F63] dark:text-[#9F9184]">
-            Total In Library
+            {t.totalLib}
           </div>
           <div className="mt-1 font-serif text-2xl font-bold text-[#2B241E] dark:text-[#EFE9E2] font-mono tabular-nums">
             {stats.total}
@@ -155,7 +159,7 @@ export const MediaView: React.FC<MediaViewProps> = ({
         </div>
         <div className="p-3.5 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815]">
           <div className="text-[11px] font-medium text-[#7B6F63] dark:text-[#9F9184]">
-            Currently Watching
+            {t.currentlyWatching}
           </div>
           <div className="mt-1 font-serif text-2xl font-bold text-[#C85A32] font-mono tabular-nums">
             {stats.watching}
@@ -163,7 +167,7 @@ export const MediaView: React.FC<MediaViewProps> = ({
         </div>
         <div className="p-3.5 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815]">
           <div className="text-[11px] font-medium text-[#7B6F63] dark:text-[#9F9184]">
-            Episodes Logged
+            {t.episodesLogged}
           </div>
           <div className="mt-1 font-serif text-2xl font-bold text-[#5B7A58] font-mono tabular-nums">
             {stats.totalEpisodes}
@@ -171,7 +175,7 @@ export const MediaView: React.FC<MediaViewProps> = ({
         </div>
         <div className="p-3.5 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815]">
           <div className="text-[11px] font-medium text-[#7B6F63] dark:text-[#9F9184]">
-            Completed
+            {t.completed}
           </div>
           <div className="mt-1 font-serif text-2xl font-bold text-[#2B241E] dark:text-[#EFE9E2] font-mono tabular-nums">
             {stats.completed}
@@ -187,18 +191,18 @@ export const MediaView: React.FC<MediaViewProps> = ({
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-2 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815]">
             {/* Type tabs */}
             <div className="flex items-center gap-1 overflow-x-auto p-1 bg-[#F4ECE3] dark:bg-[#25201C] rounded-lg">
-              {(['all', 'movie', 'series'] as const).map((t) => (
+              {(['all', 'movie', 'series'] as const).map((typeVal) => (
                 <button
-                  key={t}
+                  key={typeVal}
                   type="button"
-                  onClick={() => setSelectedType(t)}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
-                    selectedType === t
+                  onClick={() => setSelectedType(typeVal)}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap cursor-pointer ${
+                    selectedType === typeVal
                       ? 'bg-white dark:bg-[#161311] text-[#2B241E] dark:text-[#EFE9E2] shadow-xs font-semibold'
                       : 'text-[#6F645A] dark:text-[#A89C90] hover:text-[#2B241E] dark:hover:text-[#EFE9E2]'
                   }`}
                 >
-                  {t === 'all' ? 'All Types' : t === 'movie' ? 'Movies' : 'TV Shows'}
+                  {typeVal === 'all' ? t.allTypes : typeVal === 'movie' ? t.moviesOnly : t.showsOnly}
                 </button>
               ))}
             </div>
@@ -210,13 +214,19 @@ export const MediaView: React.FC<MediaViewProps> = ({
                   key={s}
                   type="button"
                   onClick={() => setSelectedStatus(s)}
-                  className={`px-2.5 py-1 text-xs rounded-md border transition-colors whitespace-nowrap ${
+                  className={`px-2.5 py-1 text-xs rounded-md border transition-colors whitespace-nowrap cursor-pointer ${
                     selectedStatus === s
                       ? 'border-[#C85A32] bg-[#C85A32]/10 text-[#C85A32] font-semibold'
                       : 'border-transparent text-[#6F645A] dark:text-[#A89C90] hover:bg-[#F4ECE3] dark:hover:bg-[#25201C]'
                   }`}
                 >
-                  {s === 'all' ? 'All Status' : s === 'watching' ? 'Watching' : s === 'watchlist' ? 'Watchlist' : 'Done'}
+                  {s === 'all'
+                    ? t.allStatus
+                    : s === 'watching'
+                    ? t.watchingStatus
+                    : s === 'watchlist'
+                    ? t.watchlistStatus
+                    : t.completedStatus}
                 </button>
               ))}
             </div>
@@ -226,7 +236,7 @@ export const MediaView: React.FC<MediaViewProps> = ({
               <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#8F8275]" />
               <input
                 type="text"
-                placeholder="Search titles, genres..."
+                placeholder={t.searchPlaceholder}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-8 pr-3 py-1.5 rounded-lg border border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] text-xs focus:outline-hidden focus:border-[#C85A32]"
@@ -238,9 +248,9 @@ export const MediaView: React.FC<MediaViewProps> = ({
           {filteredItems.length === 0 ? (
             <div className="p-12 text-center rounded-xl border border-dashed border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815]">
               <Film className="w-8 h-8 mx-auto text-[#8F8275] mb-2" />
-              <h3 className="font-serif text-base font-semibold">No media matches this filter</h3>
+              <h3 className="font-serif text-base font-semibold">{t.noResults}</h3>
               <p className="text-xs text-[#7B6F63] mt-1 max-w-sm mx-auto">
-                Try clearing search terms or add a new film or show to start tracking.
+                {t.noResultsDesc}
               </p>
               <button
                 type="button"
@@ -249,9 +259,9 @@ export const MediaView: React.FC<MediaViewProps> = ({
                   setSelectedStatus('all');
                   setSearchQuery('');
                 }}
-                className="mt-4 px-3 py-1.5 rounded-lg border border-[#E0D7CB] dark:border-[#38312B] text-xs font-medium hover:bg-[#F3ECE4] dark:hover:bg-[#25201C]"
+                className="mt-3 px-3 py-1.5 rounded-lg border border-[#E0D7CB] dark:border-[#38312B] text-xs font-medium hover:bg-[#F4ECE3] dark:hover:bg-[#25201C] cursor-pointer"
               >
-                Reset Filters
+                {t.resetFilters}
               </button>
             </div>
           ) : (
@@ -415,10 +425,10 @@ export const MediaView: React.FC<MediaViewProps> = ({
             <div className="flex items-center justify-between mb-3">
               <div>
                 <h3 className="font-serif text-sm font-bold text-[#2B241E] dark:text-[#EFE9E2]">
-                  Watch & Release Calendar
+                  {t.calendarTitle}
                 </h3>
                 <p className="text-[11px] text-[#7B6F63] dark:text-[#9F9184]">
-                  Mini-calendar for movie nights & premiere dates
+                  {t.calendarSubtitle}
                 </p>
               </div>
             </div>
@@ -435,16 +445,16 @@ export const MediaView: React.FC<MediaViewProps> = ({
             <div className="mt-4 pt-3 border-t border-[#E4DCDB] dark:border-[#352F2B]">
               <div className="flex items-center justify-between text-xs font-medium mb-2">
                 <span className="font-serif text-[#2B241E] dark:text-[#EFE9E2]">
-                  Agenda on {selectedDate}
+                  {t.agendaOn} {selectedDate}
                 </span>
                 <span className="text-[11px] font-mono text-[#C85A32]">
-                  {dateScheduledItems.length} planned
+                  {dateScheduledItems.length} {t.planned}
                 </span>
               </div>
 
               {dateScheduledItems.length === 0 ? (
                 <div className="text-[11px] text-[#7B6F63] py-2 italic">
-                  No watch sessions or premieres marked for this date.
+                  {t.noPlanned}
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -478,7 +488,7 @@ export const MediaView: React.FC<MediaViewProps> = ({
           {/* Quick Queue: In Progress Watchlist */}
           <div className="rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-4">
             <h4 className="font-serif text-xs font-bold uppercase tracking-wider text-[#7B6F63] mb-3">
-              Up Next to Watch
+              {t.upNext}
             </h4>
             <div className="space-y-2.5 text-xs">
               {mediaItems
@@ -499,9 +509,9 @@ export const MediaView: React.FC<MediaViewProps> = ({
                     <button
                       type="button"
                       onClick={() => onIncrementEpisode(m.id)}
-                      className="px-2 py-1 rounded bg-[#EFE8DD] dark:bg-[#28221D] hover:bg-[#C85A32] hover:text-white text-[11px] font-medium transition-colors shrink-0"
+                      className="px-2 py-1 rounded bg-[#EFE8DD] dark:bg-[#28221D] hover:bg-[#C85A32] hover:text-white text-[11px] font-medium transition-colors shrink-0 cursor-pointer"
                     >
-                      Watch
+                      {t.watchBtn}
                     </button>
                   </div>
                 ))}
