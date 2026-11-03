@@ -1,9 +1,10 @@
 /**
  * @license
- * SPDX-License-Identifier: Apache-2.0 done
+ * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { CheckCircle2, AlertCircle, X } from 'lucide-react';
 import { useStorage } from './hooks/useStorage';
 import { useAuth } from './hooks/useAuth';
 import { Navigation, ActiveTab } from './components/Navigation';
@@ -13,17 +14,30 @@ import { PetView } from './components/PetTracker/PetView';
 import { MasterCalendarView } from './components/MasterCalendar/MasterCalendarView';
 import { SettingsModal } from './components/SettingsModal';
 import { AuthView } from './components/Auth/AuthView';
+import { AccessDeniedView } from './components/Auth/AccessDeniedView';
+import { AdminPanelModal } from './components/Admin/AdminPanelModal';
 import { getUpcomingAlerts } from './lib/notifications';
 import { translations, Language } from './lib/translations';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('media');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
 
   const storage = useStorage();
   const auth = useAuth();
 
   const currentLanguage: Language = storage.preferences.language || 'id';
+
+  // Auto-dismiss notice after 7 seconds
+  useEffect(() => {
+    if (auth.notice) {
+      const timer = setTimeout(() => {
+        auth.clearNotice();
+      }, 7000);
+      return () => clearTimeout(timer);
+    }
+  }, [auth.notice, auth.clearNotice]);
 
   // Compute upcoming alerts within 0-3 days window across all pillars
   const upcomingAlerts = useMemo(() => {
@@ -40,19 +54,47 @@ export default function App() {
     storage.updatePreferences({ language: lang });
   };
 
-  // If user is not authenticated, render Login & Account Creation Screen
+  // If user is not authenticated, render pure Google Invite-Only Login Screen
   if (!auth.user) {
     return (
       <AuthView
         onSignInWithGoogle={auth.signInWithGoogle}
-        onSignInWithEmail={auth.signInWithEmail}
-        onSignUpWithEmail={auth.signUpWithEmail}
         isSupabaseConfigured={auth.isSupabaseConfigured}
         theme={storage.preferences.theme}
         onToggleTheme={storage.toggleTheme}
         language={currentLanguage}
         onSelectLanguage={handleSelectLanguage}
         error={auth.error}
+        notice={auth.notice}
+        onClearNotice={auth.clearNotice}
+      />
+    );
+  }
+
+  // If checking whitelist status
+  if (auth.checkingWhitelist) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#FAF7F2] text-[#2D2823] dark:bg-[#161311] dark:text-[#EAE3DA]">
+        <div className="w-10 h-10 rounded-xl bg-[#C85A32] flex items-center justify-center text-white font-serif font-bold text-lg mb-3 shadow-md animate-pulse">
+          N
+        </div>
+        <p className="text-xs font-mono text-[#8F8275]">
+          {currentLanguage === 'id' ? 'Memeriksa otorisasi akses whitelist...' : 'Checking whitelist authorization...'}
+        </p>
+      </div>
+    );
+  }
+
+  // If user is logged in, but not authorized (not primary admin and not whitelisted)
+  if (auth.isWhitelisted === false && !auth.isPrimaryAdmin) {
+    return (
+      <AccessDeniedView
+        user={auth.user}
+        onSignOut={auth.signOut}
+        language={currentLanguage}
+        onSelectLanguage={handleSelectLanguage}
+        theme={storage.preferences.theme}
+        onToggleTheme={storage.toggleTheme}
       />
     );
   }
@@ -68,6 +110,8 @@ export default function App() {
         theme={storage.preferences.theme}
         onToggleTheme={storage.toggleTheme}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenAdminPanel={() => setIsAdminPanelOpen(true)}
+        isPrimaryAdmin={auth.isPrimaryAdmin}
         language={currentLanguage}
         onSelectLanguage={handleSelectLanguage}
         user={auth.user}
@@ -77,6 +121,38 @@ export default function App() {
 
       {/* Main Content Area - with mobile bottom padding to clear thumb navigation bar */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8 pb-24 md:pb-8">
+        {/* Verification / Auth Alert Banner */}
+        {auth.notice && (
+          <div
+            className={`mb-6 p-4 rounded-xl border flex items-center justify-between gap-3 shadow-xs transition-all ${
+              auth.notice.type === 'success'
+                ? 'bg-[#5B7A58]/15 border-[#5B7A58]/35 text-[#2D2823] dark:text-[#EAE3DA]'
+                : auth.notice.type === 'error'
+                ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900/40 text-rose-800 dark:text-rose-200'
+                : 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900/40 text-amber-800 dark:text-amber-200'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              {auth.notice.type === 'success' ? (
+                <CheckCircle2 className="w-5 h-5 text-[#5B7A58] shrink-0" />
+              ) : (
+                <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
+              )}
+              <span className="text-xs sm:text-sm font-medium leading-relaxed">
+                {auth.notice.message}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={auth.clearNotice}
+              className="p-1 rounded-md text-[#8F8275] hover:text-[#2D2823] dark:hover:text-[#EAE3DA] cursor-pointer"
+              title="Tutup pemberitahuan"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         {activeTab === 'media' && (
           <MediaView
             mediaItems={storage.mediaItems}
@@ -194,6 +270,19 @@ export default function App() {
         language={currentLanguage}
         onSelectLanguage={handleSelectLanguage}
       />
+
+      {/* Primary Admin Management Panel */}
+      {auth.isPrimaryAdmin && (
+        <AdminPanelModal
+          isOpen={isAdminPanelOpen}
+          onClose={() => setIsAdminPanelOpen(false)}
+          invitedUsers={auth.invitedUsers}
+          onAddUser={auth.addInvitedUser}
+          onUpdateStatus={auth.updateInvitedUserStatus}
+          onDeleteUser={auth.deleteInvitedUser}
+          language={currentLanguage}
+        />
+      )}
     </div>
   );
 }

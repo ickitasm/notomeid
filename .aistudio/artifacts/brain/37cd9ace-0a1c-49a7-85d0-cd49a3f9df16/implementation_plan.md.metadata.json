@@ -1,0 +1,6 @@
+{
+  "summary": "Cleaned up authentication interface to be 100% Google OAuth invite-only, removed sign-up tabs, email/password forms, and guest mode buttons, and provided the exact fix for Google OAuth Error 400: redirect_uri_mismatch.",
+  "updatedAt": "2026-11-03T14:11:16.075494358Z",
+  "requestFeedback": true,
+  "userFacing": true
+}

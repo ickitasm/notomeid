@@ -169,3 +169,53 @@ CREATE POLICY "Users access own pet meds" ON public.pet_medications
 CREATE POLICY "Users access own events" ON public.calendar_events 
     FOR ALL USING (auth.uid() = user_id OR user_id IS NULL) 
     WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
+
+-- =========================================================================
+-- 9. Whitelist / Invited Users Table (Invite-Only Access Control)
+-- =========================================================================
+CREATE TABLE IF NOT EXISTS public.invited_users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email TEXT UNIQUE NOT NULL,
+    full_name TEXT,
+    notes TEXT,
+    role TEXT NOT NULL DEFAULT 'member' CHECK (role IN ('primary_admin', 'member')),
+    status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'revoked')),
+    invited_by TEXT DEFAULT 'mike777rafael@gmail.com',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    last_login_at TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS idx_invited_users_email ON public.invited_users(email);
+
+-- Enable RLS on invited_users
+ALTER TABLE public.invited_users ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Everyone authenticated can verify their own invitation status
+CREATE POLICY "Users can check own invite status" ON public.invited_users
+    FOR SELECT USING (
+        LOWER(email) = LOWER(auth.jwt() ->> 'email')
+        OR LOWER(auth.jwt() ->> 'email') = 'mike777rafael@gmail.com'
+    );
+
+-- Policy: Primary Admin mike777rafael@gmail.com has full control over whitelist
+CREATE POLICY "Primary Admin full control on invites" ON public.invited_users
+    FOR ALL USING (
+        LOWER(auth.jwt() ->> 'email') = 'mike777rafael@gmail.com'
+    )
+    WITH CHECK (
+        LOWER(auth.jwt() ->> 'email') = 'mike777rafael@gmail.com'
+    );
+
+-- Seed Primary Admin permanently
+INSERT INTO public.invited_users (email, full_name, notes, role, status, invited_by)
+VALUES (
+    'mike777rafael@gmail.com',
+    'Mike Rafael',
+    'Primary Admin Permanen',
+    'primary_admin',
+    'active',
+    'system'
+)
+ON CONFLICT (email) DO UPDATE 
+SET role = 'primary_admin', status = 'active';
+

@@ -121,3 +121,16 @@ export interface UserPreferences {
   defaultSugarLimit: number; // in grams
   weightUnit: 'kg' | 'lbs';
 }
+
+export interface InvitedUser {
+  id: string;
+  email: string;
+  fullName?: string;
+  notes?: string;
+  role: 'primary_admin' | 'member';
+  status: 'active' | 'revoked';
+  invitedBy?: string;
+  createdAt: string;
+  lastLoginAt?: string;
+}
+

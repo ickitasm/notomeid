@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Film, Utensils, HeartPulse, Calendar, Sun, Moon, Sliders, LogOut, CheckCircle2, Globe } from 'lucide-react';
+import { Film, Utensils, HeartPulse, Calendar, Sun, Moon, Sliders, LogOut, CheckCircle2, Globe, ShieldCheck } from 'lucide-react';
 import { AppUser } from '../hooks/useAuth';
 import { UpcomingAlert } from '../lib/notifications';
 import { NotificationPanel } from './Notifications/NotificationPanel';
@@ -18,6 +18,8 @@ interface NavigationProps {
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
   onOpenSettings: () => void;
+  onOpenAdminPanel?: () => void;
+  isPrimaryAdmin?: boolean;
   language: Language;
   onSelectLanguage: (lang: Language) => void;
   user?: AppUser | null;
@@ -31,6 +33,8 @@ export const Navigation: React.FC<NavigationProps> = ({
   theme,
   onToggleTheme,
   onOpenSettings,
+  onOpenAdminPanel,
+  isPrimaryAdmin = false,
   language,
   onSelectLanguage,
   user,
@@ -140,6 +144,19 @@ export const Navigation: React.FC<NavigationProps> = ({
               {theme === 'dark' ? <Sun className="w-4 h-4 text-[#D9822B]" /> : <Moon className="w-4 h-4 text-[#6F645A]" />}
             </button>
 
+            {/* Primary Admin Special Panel Button */}
+            {isPrimaryAdmin && onOpenAdminPanel && (
+              <button
+                type="button"
+                onClick={onOpenAdminPanel}
+                className="min-h-[36px] px-2.5 sm:px-3 flex items-center gap-1.5 text-xs font-semibold rounded-lg border border-[#C85A32]/40 bg-[#C85A32]/10 text-[#C85A32] hover:bg-[#C85A32]/20 active:scale-95 transition-all whitespace-nowrap shrink-0 touch-manipulation cursor-pointer"
+                title="Buka Panel Manajemen Akses Undangan"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-[#C85A32]" />
+                <span className="hidden sm:inline">Panel Admin</span>
+              </button>
+            )}
+
             {/* Settings & Data Button */}
             <button
               type="button"
@@ -174,7 +191,7 @@ export const Navigation: React.FC<NavigationProps> = ({
 
                 {/* Dropdown Menu */}
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-64 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-3 shadow-xl z-50 text-xs space-y-2.5">
+                  <div className="absolute right-0 mt-2 w-64 rounded-xl border border-[#E4DCDB] dark:border-[#38312B] bg-[#FFFDF9] dark:bg-[#1C1815] p-3 shadow-xl z-50 text-xs space-y-2.5">
                     <div className="pb-2 border-b border-[#EAE2D8] dark:border-[#2E2823]">
                       <div className="font-semibold text-[#2B241E] dark:text-[#EFE9E2] truncate">
                         {user.fullName || 'Notome Member'}
@@ -182,11 +199,32 @@ export const Navigation: React.FC<NavigationProps> = ({
                       <div className="text-[11px] text-[#7B6F63] dark:text-[#9F9184] font-mono truncate">
                         {user.email}
                       </div>
-                      <div className="mt-1 flex items-center gap-1 text-[10px] text-[#5B7A58] font-medium">
-                        <CheckCircle2 className="w-3 h-3" />
-                        <span>{t.verifiedGoogle}</span>
+                      <div className="mt-1 flex items-center justify-between gap-1 text-[10px]">
+                        <div className="flex items-center gap-1 text-[#5B7A58] font-medium">
+                          <CheckCircle2 className="w-3 h-3" />
+                          <span>{t.verifiedGoogle}</span>
+                        </div>
+                        {isPrimaryAdmin && (
+                          <span className="font-mono text-[9px] font-semibold px-1.5 py-0.5 rounded bg-[#C85A32]/15 text-[#C85A32]">
+                            Primary Admin
+                          </span>
+                        )}
                       </div>
                     </div>
+
+                    {isPrimaryAdmin && onOpenAdminPanel && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsProfileOpen(false);
+                          onOpenAdminPanel();
+                        }}
+                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg bg-[#C85A32]/10 hover:bg-[#C85A32]/20 text-[#C85A32] font-semibold transition-colors cursor-pointer"
+                      >
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                        <span>Panel Akses Undangan</span>
+                      </button>
+                    )}
 
                     <button
                       type="button"
