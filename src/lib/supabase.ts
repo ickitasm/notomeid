@@ -5,15 +5,47 @@
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+function sanitizeSupabaseUrl(rawUrl?: string): string {
+  if (!rawUrl) return '';
+  let url = rawUrl.trim();
+  // Strip enclosing quotes if accidentally pasted
+  url = url.replace(/^['"]+|['"]+$/g, '');
+  // Strip PostgREST path suffix if user mistakenly copied REST URL instead of Project URL
+  url = url.replace(/\/rest\/v1\/?$/i, '');
+  url = url.replace(/\/auth\/v1\/?$/i, '');
+  // Strip trailing slashes
+  url = url.replace(/\/+$/, '');
+  return url;
+}
+
+function sanitizeSupabaseKey(rawKey?: string): string {
+  if (!rawKey) return '';
+  let key = rawKey.trim();
+  key = key.replace(/^['"]+|['"]+$/g, '');
+  return key;
+}
+
+const rawUrl = import.meta.env.VITE_SUPABASE_URL;
+const rawAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+export const cleanSupabaseUrl = sanitizeSupabaseUrl(rawUrl);
+export const cleanSupabaseAnonKey = sanitizeSupabaseKey(rawAnonKey);
 
 export const isSupabaseConfigured = Boolean(
-  supabaseUrl && supabaseAnonKey && supabaseUrl !== 'MY_SUPABASE_URL'
+  cleanSupabaseUrl &&
+  cleanSupabaseAnonKey &&
+  cleanSupabaseUrl !== 'MY_SUPABASE_URL' &&
+  cleanSupabaseUrl.startsWith('http')
 );
 
 export const supabase: SupabaseClient | null = isSupabaseConfigured
-  ? createClient(supabaseUrl, supabaseAnonKey)
+  ? createClient(cleanSupabaseUrl, cleanSupabaseAnonKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+      },
+    })
   : null;
 
 /**
