@@ -1,6 +1,6 @@
 /**
  * @license
- * SPDX-License-Identifier: Apache-2.0 test
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 import React, { useState, useMemo, useEffect } from 'react';
