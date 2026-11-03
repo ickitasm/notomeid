@@ -17,12 +17,12 @@ import {
   Copy,
   Check,
   Globe,
-  HelpCircle,
-  ExternalLink,
   CheckCircle2,
   AlertTriangle,
 } from 'lucide-react';
 import { translations, Language } from '../../lib/translations';
+
+// Notome Private Life Hub · Pure Google Invite-Only Authentication System
 
 interface AuthViewProps {
   onSignInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
@@ -48,14 +48,12 @@ export const AuthView: React.FC<AuthViewProps> = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
-  const [copiedCallback, setCopiedCallback] = useState(false);
   const [copiedAdmin, setCopiedAdmin] = useState(false);
 
   const t = translations[language].auth;
   const isId = language === 'id';
   const errorMessage = localError || externalError;
   const adminEmail = 'mike777rafael@gmail.com';
-  const supabaseCallbackUrl = 'https://zkakakhaorbdwvnvjtco.supabase.co/auth/v1/callback';
 
   const handleGoogleClick = async () => {
     setLoading(true);
@@ -65,12 +63,6 @@ export const AuthView: React.FC<AuthViewProps> = ({
       setLocalError(res.error);
     }
     setLoading(false);
-  };
-
-  const handleCopyCallback = () => {
-    navigator.clipboard.writeText(supabaseCallbackUrl);
-    setCopiedCallback(true);
-    setTimeout(() => setCopiedCallback(false), 2500);
   };
 
   const handleCopyAdmin = () => {
@@ -294,48 +286,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
                 </div>
               </div>
 
-              {/* Google OAuth Troubleshooting Accordion */}
-              <details className="group text-[11px] text-[#7B6F63] dark:text-[#9F9184] bg-[#F4ECE3]/50 dark:bg-[#201B17]/50 rounded-xl border border-[#E0D7CB] dark:border-[#38312B] p-3 transition-colors">
-                <summary className="font-semibold text-[#594E44] dark:text-[#C5B8AA] select-none flex items-center justify-between cursor-pointer">
-                  <div className="flex items-center gap-1.5">
-                    <HelpCircle className="w-3.5 h-3.5 text-[#C85A32]" />
-                    <span>{t.supabaseHelpTitle}</span>
-                  </div>
-                  <span className="text-[10px] text-[#8F8275] group-open:rotate-180 transition-transform">▼</span>
-                </summary>
-                <div className="mt-3 space-y-3 pt-2.5 border-t border-[#E0D7CB]/60 dark:border-[#38312B]/60 text-[11px] leading-relaxed">
-                  <div className="space-y-1">
-                    <div className="font-semibold text-rose-600 dark:text-rose-400">
-                      Mengatasi Error 400: redirect_uri_mismatch
-                    </div>
-                    <p className="text-[10.5px]">
-                      {t.supabaseHelpGoogle}
-                    </p>
-                  </div>
 
-                  {/* Supabase Callback Box with 1-click copy */}
-                  <div className="p-2 rounded-lg bg-white dark:bg-[#161311] border border-[#E0D7CB] dark:border-[#38312B] space-y-1.5">
-                    <div className="flex items-center justify-between text-[10px] font-mono text-[#8F8275]">
-                      <span>Supabase Callback URL:</span>
-                      <button
-                        type="button"
-                        onClick={handleCopyCallback}
-                        className="inline-flex items-center gap-1 text-[#C85A32] font-semibold hover:underline cursor-pointer"
-                      >
-                        {copiedCallback ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                        <span>{copiedCallback ? 'Tersalin!' : 'Salin URL'}</span>
-                      </button>
-                    </div>
-                    <div className="font-mono text-[10.5px] text-[#C85A32] break-all select-all font-semibold bg-[#FAF7F2] dark:bg-[#1C1815] p-1.5 rounded border border-[#E4DCDB] dark:border-[#2D2722]">
-                      {supabaseCallbackUrl}
-                    </div>
-                  </div>
-
-                  <p className="text-[10px] text-[#8F8275] italic">
-                    {t.supabaseHelpEmail}
-                  </p>
-                </div>
-              </details>
             </div>
           </div>
         </div>

@@ -17,10 +17,22 @@ import {
   Database,
   ExternalLink,
   Sparkles,
+  Mail,
+  Send,
+  AlertTriangle,
+  CheckCircle2,
 } from 'lucide-react';
 import { InvitedUser } from '../../types';
 import { Language } from '../../lib/translations';
 import { PRIMARY_ADMIN_EMAIL } from '../../hooks/useAuth';
+import {
+  notifyMemberInvited,
+  notifyMemberRemoved,
+  getInviteEmailContent,
+  getRemovalEmailContent,
+  buildGmailComposeUrl,
+  buildMailtoUrl,
+} from '../../lib/memberNotifications';
 
 interface AdminPanelModalProps {
   isOpen: boolean;
@@ -46,10 +58,27 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
   const [newEmail, setNewEmail] = useState('');
   const [newName, setNewName] = useState('');
   const [newNotes, setNewNotes] = useState('');
+  const [autoNotifyGmail, setAutoNotifyGmail] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedInviteId, setCopiedInviteId] = useState<string | null>(null);
   const [copiedSql, setCopiedSql] = useState(false);
+
+  // Notification banners after invite / revoke
+  const [notificationBanner, setNotificationBanner] = useState<{
+    type: 'invited' | 'removed';
+    email: string;
+    name?: string;
+    gmailUrl: string;
+    mailtoUrl: string;
+  } | null>(null);
+
+  // Deletion modal state
+  const [deletionCandidate, setDeletionCandidate] = useState<{
+    id: string;
+    email: string;
+    name?: string;
+  } | null>(null);
 
   if (!isOpen) return null;
 
@@ -61,10 +90,30 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
     setSubmitting(true);
     setErrorMsg(null);
 
-    const res = await onAddUser(newEmail.trim(), newName.trim() || undefined, newNotes.trim() || undefined);
+    const emailTrimmed = newEmail.trim();
+    const nameTrimmed = newName.trim() || undefined;
+    const notesTrimmed = newNotes.trim() || undefined;
+
+    const res = await onAddUser(emailTrimmed, nameTrimmed, notesTrimmed);
     if (!res.success && res.error) {
       setErrorMsg(res.error);
     } else {
+      // Trigger notification helper
+      const notifResult = await notifyMemberInvited(emailTrimmed, nameTrimmed);
+
+      // Auto-open Gmail if requested by admin
+      if (autoNotifyGmail && notifResult.gmailComposeUrl) {
+        window.open(notifResult.gmailComposeUrl, '_blank', 'noopener,noreferrer');
+      }
+
+      setNotificationBanner({
+        type: 'invited',
+        email: emailTrimmed,
+        name: nameTrimmed,
+        gmailUrl: notifResult.gmailComposeUrl,
+        mailtoUrl: notifResult.mailtoUrl,
+      });
+
       setNewEmail('');
       setNewName('');
       setNewNotes('');
@@ -73,13 +122,35 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
     setSubmitting(false);
   };
 
-  const handleCopyInviteMessage = (email: string, id: string) => {
-    const text = isId
-      ? `Halo! Akun Google Anda (${email}) telah didaftarkan di Notome Sanctuary (https://notomee.vercel.app). Silakan buka tautan tersebut dan login menggunakan tombol "Lanjutkan dengan Google". Selamat menggunakan!`
-      : `Hello! Your Google account (${email}) has been authorized for Notome Sanctuary (https://notomee.vercel.app). You can now open the link and sign in using "Continue with Google". Welcome!`;
-    navigator.clipboard.writeText(text);
+  const handleCopyInviteMessage = (email: string, id: string, name?: string) => {
+    const { body } = getInviteEmailContent(email, name);
+    navigator.clipboard.writeText(body);
     setCopiedInviteId(id);
     setTimeout(() => setCopiedInviteId(null), 2500);
+  };
+
+  const handleConfirmDelete = async (withGmailNotification: boolean) => {
+    if (!deletionCandidate) return;
+    const { id, email, name } = deletionCandidate;
+
+    const res = await onDeleteUser(id);
+    if (res.success) {
+      const notifResult = await notifyMemberRemoved(email, name);
+
+      if (withGmailNotification && notifResult.gmailComposeUrl) {
+        window.open(notifResult.gmailComposeUrl, '_blank', 'noopener,noreferrer');
+      }
+
+      setNotificationBanner({
+        type: 'removed',
+        email,
+        name,
+        gmailUrl: notifResult.gmailComposeUrl,
+        mailtoUrl: notifResult.mailtoUrl,
+      });
+    }
+
+    setDeletionCandidate(null);
   };
 
   const sqlMigrationCode = `-- Jalankan di Supabase Dashboard -> SQL Editor:
@@ -124,7 +195,11 @@ ON CONFLICT (email) DO UPDATE SET role = 'primary_admin', status = 'active';`;
   const filteredUsers = invitedUsers.filter((u) => {
     const q = search.toLowerCase().trim();
     if (!q) return true;
-    return u.email.toLowerCase().includes(q) || (u.fullName && u.fullName.toLowerCase().includes(q)) || (u.notes && u.notes.toLowerCase().includes(q));
+    return (
+      u.email.toLowerCase().includes(q) ||
+      (u.fullName && u.fullName.toLowerCase().includes(q)) ||
+      (u.notes && u.notes.toLowerCase().includes(q))
+    );
   });
 
   return (
@@ -139,7 +214,7 @@ ON CONFLICT (email) DO UPDATE SET role = 'primary_admin', status = 'active';`;
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="font-serif text-lg sm:text-xl font-bold tracking-tight text-[#2B241E] dark:text-[#EFE9E2]">
-                  {isId ? 'Panel Akses & Undangan' : 'Admin Access & Invite Control'}
+                  {isId ? 'Panel Akses & Notifikasi Anggota' : 'Admin Access & Member Notifications'}
                 </h2>
                 <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-[#C85A32]/15 text-[#C85A32]">
                   Primary Admin
@@ -147,8 +222,8 @@ ON CONFLICT (email) DO UPDATE SET role = 'primary_admin', status = 'active';`;
               </div>
               <p className="text-xs text-[#8F8275] dark:text-[#7A7067] mt-0.5">
                 {isId
-                  ? 'Kelola akun Google yang diizinkan menggunakan Notome secara privat'
-                  : 'Manage authorized Google accounts permitted to access Notome privately'}
+                  ? 'Kelola pendaftaran anggota & kirim notifikasi Gmail resmi secara otomatis'
+                  : 'Manage member whitelist & dispatch official Gmail notifications automatically'}
               </p>
             </div>
           </div>
@@ -173,7 +248,7 @@ ON CONFLICT (email) DO UPDATE SET role = 'primary_admin', status = 'active';`;
             }`}
           >
             <Users className="w-3.5 h-3.5" />
-            <span>{isId ? `Daftar Whitelist (${invitedUsers.length})` : `Whitelist (${invitedUsers.length})`}</span>
+            <span>{isId ? `Daftar Anggota (${invitedUsers.length})` : `Members (${invitedUsers.length})`}</span>
           </button>
 
           <button
@@ -205,10 +280,65 @@ ON CONFLICT (email) DO UPDATE SET role = 'primary_admin', status = 'active';`;
 
         {/* Modal Body */}
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
+          {/* Notification Action Banner */}
+          {notificationBanner && (
+            <div
+              className={`p-4 rounded-xl border text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in duration-200 ${
+                notificationBanner.type === 'invited'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/50 text-emerald-800 dark:text-emerald-300'
+                  : 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-300'
+              }`}
+            >
+              <div className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-semibold">
+                    {notificationBanner.type === 'invited'
+                      ? isId
+                        ? `Akun ${notificationBanner.email} berhasil didaftarkan!`
+                        : `Account ${notificationBanner.email} successfully registered!`
+                      : isId
+                      ? `Akses untuk ${notificationBanner.email} telah dihapus.`
+                      : `Access for ${notificationBanner.email} has been revoked.`}
+                  </div>
+                  <p className="text-[11px] opacity-90 mt-0.5">
+                    {notificationBanner.type === 'invited'
+                      ? isId
+                        ? 'Pengguna kini diizinkan masuk. Kirim notifikasi email agar mereka langsung tahu.'
+                        : 'User is now authorized. Send email notification so they know instantly.'
+                      : isId
+                      ? 'Pemberitahuan pencabutan akses dapat dikirimkan ke Gmail mereka.'
+                      : 'You can notify the user via Gmail that their access was discontinued.'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                <a
+                  href={notificationBanner.gmailUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-3 py-1.5 rounded-lg bg-[#C85A32] text-white font-medium text-xs hover:bg-[#B34B25] flex items-center gap-1.5 shadow-xs transition-colors"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  <span>{isId ? 'Buka Gmail (1-Klik)' : 'Open Gmail (1-Click)'}</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setNotificationBanner(null)}
+                  className="p-1.5 opacity-60 hover:opacity-100 cursor-pointer"
+                  title="Tutup"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* TAB 1: LIST */}
           {tab === 'list' && (
             <div className="space-y-4">
-              {/* Search Bar & Stats */}
+              {/* Search Bar & Add Button */}
               <div className="flex items-center justify-between gap-3">
                 <div className="relative flex-1">
                   <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#8F8275]" />
@@ -216,7 +346,7 @@ ON CONFLICT (email) DO UPDATE SET role = 'primary_admin', status = 'active';`;
                     type="text"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholder={isId ? 'Cari email atau nama pengguna...' : 'Search email or name...'}
+                    placeholder={isId ? 'Cari email atau nama anggota...' : 'Search email or member name...'}
                     className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] text-xs focus:outline-hidden focus:border-[#C85A32]"
                   />
                 </div>
@@ -245,6 +375,13 @@ ON CONFLICT (email) DO UPDATE SET role = 'primary_admin', status = 'active';`;
                 ) : (
                   filteredUsers.map((u) => {
                     const isSelfAdmin = u.email.toLowerCase() === PRIMARY_ADMIN_EMAIL.toLowerCase();
+                    const inviteContent = getInviteEmailContent(u.email, u.fullName);
+                    const gmailComposeUrl = buildGmailComposeUrl(
+                      u.email,
+                      inviteContent.subject,
+                      inviteContent.body
+                    );
+
                     return (
                       <div
                         key={u.id}
@@ -291,21 +428,41 @@ ON CONFLICT (email) DO UPDATE SET role = 'primary_admin', status = 'active';`;
 
                         {/* Actions */}
                         <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
-                          {/* Copy invite message */}
+                          {/* Send Gmail Notification button */}
+                          {!isSelfAdmin && (
+                            <a
+                              href={gmailComposeUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="p-1.5 rounded-lg border border-[#E0D7CB] dark:border-[#38312B] bg-[#FAF7F2] dark:bg-[#161311] hover:bg-[#EFE8DD] text-xs text-[#594E44] dark:text-[#C5B8AA] flex items-center gap-1 cursor-pointer transition-colors"
+                              title={isId ? 'Kirim notifikasi pendaftaran via Gmail' : 'Send invite email via Gmail'}
+                            >
+                              <Mail className="w-3.5 h-3.5 text-[#C85A32]" />
+                              <span className="text-[10px] hidden sm:inline">
+                                {isId ? 'Kirim Gmail' : 'Email'}
+                              </span>
+                            </a>
+                          )}
+
+                          {/* Copy invite text */}
                           {!isSelfAdmin && (
                             <button
                               type="button"
-                              onClick={() => handleCopyInviteMessage(u.email, u.id)}
+                              onClick={() => handleCopyInviteMessage(u.email, u.id, u.fullName)}
                               className="p-1.5 rounded-lg border border-[#E0D7CB] dark:border-[#38312B] bg-[#FAF7F2] dark:bg-[#161311] hover:bg-[#EFE8DD] text-xs text-[#594E44] dark:text-[#C5B8AA] flex items-center gap-1 cursor-pointer transition-colors"
-                              title={isId ? 'Salin pesan konfirmasi undangan untuk dikirim ke orang ini' : 'Copy invite text to send to user'}
+                              title={
+                                isId
+                                  ? 'Salin pesan konfirmasi undangan (untuk WhatsApp/chat)'
+                                  : 'Copy invite text to clipboard'
+                              }
                             >
                               {copiedInviteId === u.id ? (
                                 <Check className="w-3.5 h-3.5 text-emerald-600" />
                               ) : (
                                 <Copy className="w-3.5 h-3.5 text-[#8F8275]" />
                               )}
-                              <span className="text-[10px]">
-                                {copiedInviteId === u.id ? (isId ? 'Tersalin' : 'Copied') : isId ? 'Salin Undangan' : 'Copy Msg'}
+                              <span className="text-[10px] hidden sm:inline">
+                                {copiedInviteId === u.id ? (isId ? 'Disalin' : 'Copied') : isId ? 'Salin' : 'Copy'}
                               </span>
                             </button>
                           )}
@@ -326,17 +483,19 @@ ON CONFLICT (email) DO UPDATE SET role = 'primary_admin', status = 'active';`;
                             </button>
                           )}
 
-                          {/* Delete permanently */}
+                          {/* Delete permanently (Triggers confirmation modal) */}
                           {!isSelfAdmin && (
                             <button
                               type="button"
-                              onClick={() => {
-                                if (window.confirm(isId ? `Hapus ${u.email} dari daftar whitelist?` : `Remove ${u.email} from whitelist?`)) {
-                                  onDeleteUser(u.id);
-                                }
-                              }}
+                              onClick={() =>
+                                setDeletionCandidate({
+                                  id: u.id,
+                                  email: u.email,
+                                  name: u.fullName,
+                                })
+                              }
                               className="p-1.5 rounded-lg border border-rose-200 dark:border-rose-900/40 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 cursor-pointer transition-colors"
-                              title={isId ? 'Hapus permanen' : 'Delete permanently'}
+                              title={isId ? 'Hapus akses akun' : 'Delete user access'}
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -355,12 +514,12 @@ ON CONFLICT (email) DO UPDATE SET role = 'primary_admin', status = 'active';`;
             <form onSubmit={handleAddSubmit} className="space-y-4 max-w-lg mx-auto py-2">
               <div className="space-y-1">
                 <h3 className="font-serif text-base font-bold text-[#2B241E] dark:text-[#EFE9E2]">
-                  {isId ? 'Daftarkan Akun Google / Email Pengguna' : 'Authorize New Google / Email User'}
+                  {isId ? 'Daftarkan Akun Google / Anggota Baru' : 'Authorize New Google / Member Account'}
                 </h3>
                 <p className="text-xs text-[#8F8275]">
                   {isId
-                    ? 'Setelah didaftarkan, pengguna dapat langsung login ke Notome menggunakan akun Google miliknya.'
-                    : 'Once registered, the user can immediately sign in to Notome using their Google account.'}
+                    ? 'Setelah didaftarkan, pengguna dapat langsung login ke Notome menggunakan tombol Google mereka.'
+                    : 'Once authorized, the user can immediately sign in to Notome using their Google identity.'}
                 </p>
               </div>
 
@@ -372,7 +531,7 @@ ON CONFLICT (email) DO UPDATE SET role = 'primary_admin', status = 'active';`;
 
               <div>
                 <label className="block text-xs font-medium text-[#594E44] dark:text-[#C5B8AA] mb-1">
-                  {isId ? 'Alamat Gmail Pengguna *' : 'User Gmail Address *'}
+                  {isId ? 'Alamat Gmail Anggota *' : 'Member Gmail Address *'}
                 </label>
                 <input
                   type="email"
@@ -399,15 +558,38 @@ ON CONFLICT (email) DO UPDATE SET role = 'primary_admin', status = 'active';`;
 
               <div>
                 <label className="block text-xs font-medium text-[#594E44] dark:text-[#C5B8AA] mb-1">
-                  {isId ? 'Catatan Tambahan (Opsional)' : 'Internal Notes (Optional)'}
+                  {isId ? 'Catatan Internal (Opsional)' : 'Internal Notes (Optional)'}
                 </label>
                 <input
                   type="text"
                   value={newNotes}
                   onChange={(e) => setNewNotes(e.target.value)}
-                  placeholder="Kolega tim / Keluarga"
+                  placeholder="Kolega / Sahabat"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] text-xs focus:outline-hidden focus:border-[#C85A32]"
                 />
+              </div>
+
+              {/* Automatic Gmail Notification Checkbox */}
+              <div className="p-3 rounded-xl bg-[#FAF7F2] dark:bg-[#25201C] border border-[#E0D7CB] dark:border-[#38312B]">
+                <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={autoNotifyGmail}
+                    onChange={(e) => setAutoNotifyGmail(e.target.checked)}
+                    className="mt-0.5 accent-[#C85A32] rounded"
+                  />
+                  <div className="space-y-0.5">
+                    <span className="text-xs font-semibold text-[#2B241E] dark:text-[#EFE9E2] flex items-center gap-1.5">
+                      <Mail className="w-3.5 h-3.5 text-[#C85A32]" />
+                      <span>{isId ? 'Buka Gmail otomatis untuk kirim notifikasi' : 'Automatically open Gmail to notify member'}</span>
+                    </span>
+                    <p className="text-[11px] text-[#8F8275]">
+                      {isId
+                        ? 'Setelah disimpan, tab Gmail akan terbuka dengan draf pesan resmi Notome berisi link login yang siap Anda kirimkan.'
+                        : 'After saving, a Gmail tab will open with the official invite letter ready to send.'}
+                    </p>
+                  </div>
+                </label>
               </div>
 
               <div className="pt-2 flex items-center gap-3">
@@ -424,7 +606,15 @@ ON CONFLICT (email) DO UPDATE SET role = 'primary_admin', status = 'active';`;
                   className="flex-1 py-2.5 rounded-xl bg-[#C85A32] text-white text-xs font-medium hover:bg-[#B34B25] active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>{submitting ? (isId ? 'Mendaftarkan...' : 'Registering...') : isId ? 'Daftarkan Akun Sekarang' : 'Authorize Account'}</span>
+                  <span>
+                    {submitting
+                      ? isId
+                        ? 'Mendaftarkan...'
+                        : 'Registering...'
+                      : isId
+                      ? 'Daftarkan & Kirim Notifikasi'
+                      : 'Authorize & Notify'}
+                  </span>
                 </button>
               </div>
             </form>
@@ -473,6 +663,58 @@ ON CONFLICT (email) DO UPDATE SET role = 'primary_admin', status = 'active';`;
           )}
         </div>
       </div>
+
+      {/* Confirmation & Notification Modal for Deleting User */}
+      {deletionCandidate && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-[#FFFDF9] dark:bg-[#1E1916] rounded-2xl border border-rose-200 dark:border-rose-900/50 p-6 max-w-md w-full shadow-2xl space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-950/60 flex items-center justify-center text-rose-600">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-serif text-base font-bold text-[#2B241E] dark:text-[#EFE9E2]">
+                  {isId ? 'Cabut Akses Pengguna?' : 'Revoke User Access?'}
+                </h3>
+                <p className="text-xs text-[#8F8275]">{deletionCandidate.email}</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-[#594E44] dark:text-[#C5B8AA] leading-relaxed">
+              {isId
+                ? 'Akun ini tidak akan lagi dapat login ke Notome. Anda dapat menghapus sekaligus membuka Gmail untuk mengirimkan pemberitahuan resmi bahwa akses mereka telah dinonaktifkan.'
+                : 'This account will no longer be permitted to log in. You can remove access and automatically open Gmail to inform them.'}
+            </p>
+
+            <div className="space-y-2 pt-2">
+              <button
+                type="button"
+                onClick={() => handleConfirmDelete(true)}
+                className="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer shadow-xs transition-colors"
+              >
+                <Mail className="w-3.5 h-3.5" />
+                <span>{isId ? 'Hapus & Beri Tahu via Gmail' : 'Delete & Notify via Gmail'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleConfirmDelete(false)}
+                className="w-full py-2 rounded-xl border border-[#D5CBC0] dark:border-[#403832] text-xs font-medium text-[#594E44] dark:text-[#C5B8AA] hover:bg-[#EFE8DD] dark:hover:bg-[#25201C] cursor-pointer transition-colors"
+              >
+                <span>{isId ? 'Hapus Saja (Tanpa Notifikasi)' : 'Delete Silently (No Email)'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setDeletionCandidate(null)}
+                className="w-full py-1.5 text-xs text-[#8F8275] hover:text-[#2D2823] cursor-pointer text-center"
+              >
+                {isId ? 'Batal' : 'Cancel'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
