@@ -9,6 +9,7 @@ export const ADMIN_NAME = 'Mike Rafael';
 
 export interface MemberNotificationResult {
   success: boolean;
+  automated: boolean;
   message: string;
   gmailComposeUrl: string;
   mailtoUrl: string;
@@ -91,7 +92,7 @@ export function buildMailtoUrl(to: string, subject: string, body: string): strin
 }
 
 /**
- * Dispatches an automated invite notification to the new member
+ * Dispatches automated invite notification (Serverless Background API + Gmail 1-Click Fallback)
  */
 export async function notifyMemberInvited(
   email: string,
@@ -101,21 +102,41 @@ export async function notifyMemberInvited(
   const gmailComposeUrl = buildGmailComposeUrl(email, subject, body);
   const mailtoUrl = buildMailtoUrl(email, subject, body);
 
-  // Simulate network dispatch with latency for in-app logging
-  await new Promise((resolve) => setTimeout(resolve, 600));
+  // Try background serverless dispatch
+  try {
+    const res = await fetch('/api/send-member-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ to: email, type: 'invite', name }),
+    });
 
-  console.log(`[Member Notification] Sent INVITE notification to ${email}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.automated && data.success) {
+        return {
+          success: true,
+          automated: true,
+          message: data.message || `Email undangan otomatis terkirim langsung ke ${email}!`,
+          gmailComposeUrl,
+          mailtoUrl,
+        };
+      }
+    }
+  } catch (err) {
+    console.info('Auto email endpoint not active yet. Using standard 1-click dispatch.', err);
+  }
 
   return {
     success: true,
-    message: `Notifikasi undangan telah disiapkan untuk ${email}.`,
+    automated: false,
+    message: `Akun ${email} berhasil didaftarkan. Siap dikirimkan notifikasi.`,
     gmailComposeUrl,
     mailtoUrl,
   };
 }
 
 /**
- * Dispatches an automated revocation/removal notification
+ * Dispatches automated revocation/removal notification (Serverless Background API + Gmail 1-Click Fallback)
  */
 export async function notifyMemberRemoved(
   email: string,
@@ -125,13 +146,34 @@ export async function notifyMemberRemoved(
   const gmailComposeUrl = buildGmailComposeUrl(email, subject, body);
   const mailtoUrl = buildMailtoUrl(email, subject, body);
 
-  await new Promise((resolve) => setTimeout(resolve, 600));
+  // Try background serverless dispatch
+  try {
+    const res = await fetch('/api/send-member-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ to: email, type: 'removal', name }),
+    });
 
-  console.log(`[Member Notification] Sent REMOVAL notification to ${email}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.automated && data.success) {
+        return {
+          success: true,
+          automated: true,
+          message: data.message || `Email pencabutan akses otomatis terkirim ke ${email}.`,
+          gmailComposeUrl,
+          mailtoUrl,
+        };
+      }
+    }
+  } catch (err) {
+    console.info('Auto email endpoint not active yet. Using standard 1-click dispatch.', err);
+  }
 
   return {
     success: true,
-    message: `Pemberitahuan pencabutan akses telah disiapkan untuk ${email}.`,
+    automated: false,
+    message: `Akses untuk ${email} telah dicabut.`,
     gmailComposeUrl,
     mailtoUrl,
   };

@@ -69,6 +69,8 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
     type: 'invited' | 'removed';
     email: string;
     name?: string;
+    automated: boolean;
+    message: string;
     gmailUrl: string;
     mailtoUrl: string;
   } | null>(null);
@@ -98,11 +100,11 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
     if (!res.success && res.error) {
       setErrorMsg(res.error);
     } else {
-      // Trigger notification helper
+      // Trigger notification helper (tries serverless API first, fallback to Gmail 1-click)
       const notifResult = await notifyMemberInvited(emailTrimmed, nameTrimmed);
 
-      // Auto-open Gmail if requested by admin
-      if (autoNotifyGmail && notifResult.gmailComposeUrl) {
+      // If NOT automated and admin requested auto Gmail opening, open Gmail tab
+      if (!notifResult.automated && autoNotifyGmail && notifResult.gmailComposeUrl) {
         window.open(notifResult.gmailComposeUrl, '_blank', 'noopener,noreferrer');
       }
 
@@ -110,6 +112,8 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
         type: 'invited',
         email: emailTrimmed,
         name: nameTrimmed,
+        automated: notifResult.automated,
+        message: notifResult.message,
         gmailUrl: notifResult.gmailComposeUrl,
         mailtoUrl: notifResult.mailtoUrl,
       });
@@ -137,7 +141,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
     if (res.success) {
       const notifResult = await notifyMemberRemoved(email, name);
 
-      if (withGmailNotification && notifResult.gmailComposeUrl) {
+      if (!notifResult.automated && withGmailNotification && notifResult.gmailComposeUrl) {
         window.open(notifResult.gmailComposeUrl, '_blank', 'noopener,noreferrer');
       }
 
@@ -145,6 +149,8 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
         type: 'removed',
         email,
         name,
+        automated: notifResult.automated,
+        message: notifResult.message,
         gmailUrl: notifResult.gmailComposeUrl,
         mailtoUrl: notifResult.mailtoUrl,
       });
@@ -292,37 +298,50 @@ ON CONFLICT (email) DO UPDATE SET role = 'primary_admin', status = 'active';`;
               <div className="flex items-start gap-2.5">
                 <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
                 <div>
-                  <div className="font-semibold">
-                    {notificationBanner.type === 'invited'
-                      ? isId
-                        ? `Akun ${notificationBanner.email} berhasil didaftarkan!`
-                        : `Account ${notificationBanner.email} successfully registered!`
-                      : isId
-                      ? `Akses untuk ${notificationBanner.email} telah dihapus.`
-                      : `Access for ${notificationBanner.email} has been revoked.`}
+                  <div className="font-semibold flex items-center gap-1.5 flex-wrap">
+                    <span>
+                      {notificationBanner.type === 'invited'
+                        ? isId
+                          ? `Akun ${notificationBanner.email} berhasil didaftarkan!`
+                          : `Account ${notificationBanner.email} successfully registered!`
+                        : isId
+                        ? `Akses untuk ${notificationBanner.email} telah dihapus.`
+                        : `Access for ${notificationBanner.email} has been revoked.`}
+                    </span>
+                    {notificationBanner.automated && (
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-600 text-white font-bold">
+                        {isId ? '🚀 Terkirim Otomatis' : '🚀 Auto Sent'}
+                      </span>
+                    )}
                   </div>
                   <p className="text-[11px] opacity-90 mt-0.5">
-                    {notificationBanner.type === 'invited'
+                    {notificationBanner.automated
                       ? isId
-                        ? 'Pengguna kini diizinkan masuk. Kirim notifikasi email agar mereka langsung tahu.'
-                        : 'User is now authorized. Send email notification so they know instantly.'
+                        ? `Email resmi Notome telah dikirimkan secara otomatis di latar belakang ke ${notificationBanner.email}.`
+                        : `Official notification email has been automatically sent in the background to ${notificationBanner.email}.`
+                      : notificationBanner.type === 'invited'
+                      ? isId
+                        ? 'Pengguna kini diizinkan masuk. Anda dapat mengirimkan email notifikasi via Gmail dalam 1 klik.'
+                        : 'User is authorized. You can send the notification via Gmail in 1 click.'
                       : isId
-                      ? 'Pemberitahuan pencabutan akses dapat dikirimkan ke Gmail mereka.'
-                      : 'You can notify the user via Gmail that their access was discontinued.'}
+                      ? 'Akses telah dihapus. Anda dapat membuka Gmail untuk memberitahukan pengguna.'
+                      : 'Access revoked. You can open Gmail to inform the user.'}
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
-                <a
-                  href={notificationBanner.gmailUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-3 py-1.5 rounded-lg bg-[#C85A32] text-white font-medium text-xs hover:bg-[#B34B25] flex items-center gap-1.5 shadow-xs transition-colors"
-                >
-                  <Mail className="w-3.5 h-3.5" />
-                  <span>{isId ? 'Buka Gmail (1-Klik)' : 'Open Gmail (1-Click)'}</span>
-                </a>
+                {!notificationBanner.automated && (
+                  <a
+                    href={notificationBanner.gmailUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-3 py-1.5 rounded-lg bg-[#C85A32] text-white font-medium text-xs hover:bg-[#B34B25] flex items-center gap-1.5 shadow-xs transition-colors"
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>{isId ? 'Buka Gmail (1-Klik)' : 'Open Gmail (1-Click)'}</span>
+                  </a>
+                )}
                 <button
                   type="button"
                   onClick={() => setNotificationBanner(null)}
