@@ -122,5 +122,14 @@ Rencana terperinci untuk menambahkan sistem konfirmasi hapus terpusat di seluruh
    - Di `Navigation.tsx`: Rancang bilah menu mobile 6 tab dengan visual ringkas, label text-[9px] kontras, dan touch hitbox yang lega.
    - Di `App.tsx`: Pastikan padding bawah `pb-28 md:pb-8` agar tidak tertutup thumb navigation bar di perangkat iOS Safari dan Android Chrome.
    - Di seluruh modal (`*Modal.tsx`): Terapkan `max-h-[88dvh]`, `overflow-y-auto`, dan tata letak tombol aksi yang pas di layar kecil tanpa terpotong.
-5. **Verifikasi & Build**:
-   - Jalankan `compile_applet` dan `lint_applet` untuk memastikan zero errors.
+5. **Penyelesaian Isu White Screen pada Pengaturan & Sinkronisasi**:
+   - **Root Cause**: Terjadi pelanggaran aturan hooks React (*Rules of Hooks violation*) di dalam `SettingsModal.tsx`. Terdapat hook `useState` (`isMassiveResetOpen`) yang dipanggil setelah *early return* `if (!isOpen) return null;`. Ketika modal dibuka, jumlah hooks yang dieksekusi bertambah dan memicu unhandled React error (*rendered more hooks than during previous render*) yang menyebabkan tampilan menjadi blank putih (*white screen*).
+   - **Solusi**: Seluruh hooks (`useState`, `useRef`, `useEffect`) dipindahkan ke level teratas sebelum `if (!isOpen) return null;`.
+   - **Safety & Sinkronisasi**: Menambahkan sinkronisasi state `calorieGoal` dan `sugarLimit` setiap kali modal dibuka, serta penjagaan *fallback safe defaults* untuk objek `preferences` dan kamus translasi.
+6. **Optimasi Responsivitas Desktop & Tablet (`Navigation.tsx` & Layouts)**:
+   - Header navigasi desktop menggunakan label adaptif: di layar tablet & laptop (`md` hingga `lg`), bilah navigasi atas menampilkan label ringkas (`shortLabel`: Film, Nutrisi, Hewan, Kalender, Catatan, Mimpi) agar tidak bertabrakan dengan brand wordmark dan utility tools.
+   - Di monitor desktop lebar (`xl:` $\ge 1280\text{px}$), bilah navigasi otomatis menampilkan nama lengkap modul (`label`).
+   - Tombol "Pengaturan & Sinkronisasi" dan "Panel Admin" adaptif dengan teks pendek di layar menengah dan teks penuh di layar desktop.
+   - Form modal diperluas ke `max-w-xl` di desktop dengan efek *backdrop blur*, penutupan dengan tombol Escape (*keyboard accessibility*), dan pemusatan vertikal/horizontal seimbang.
+7. **Verifikasi & Build**:
+   - Menjalankan `lint_applet` (`tsc --noEmit`) dan `compile_applet` (`npm run build`) dengan status berhasil 100%.

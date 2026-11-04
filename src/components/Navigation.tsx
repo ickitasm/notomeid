@@ -110,7 +110,8 @@ export const Navigation: React.FC<NavigationProps> = ({
                   }`}
                 >
                   <Icon className={`w-4 h-4 ${isActive ? 'text-[#C85A32]' : ''}`} />
-                  <span>{item.label}</span>
+                  <span className="hidden xl:inline">{item.label}</span>
+                  <span className="inline xl:hidden">{item.shortLabel}</span>
                 </button>
               );
             })}
@@ -155,7 +156,8 @@ export const Navigation: React.FC<NavigationProps> = ({
                 title="Buka Panel Manajemen Akses Undangan"
               >
                 <ShieldCheck className="w-3.5 h-3.5 text-[#C85A32]" />
-                <span className="hidden sm:inline">Panel Admin</span>
+                <span className="hidden xl:inline">Panel Admin</span>
+                <span className="hidden md:inline xl:hidden">Admin</span>
               </button>
             )}
 
@@ -167,7 +169,8 @@ export const Navigation: React.FC<NavigationProps> = ({
               title={t.syncAndData}
             >
               <Sliders className="w-3.5 h-3.5 text-[#8C6D4F]" />
-              <span className="hidden sm:inline">{t.syncAndData}</span>
+              <span className="hidden xl:inline">{t.syncAndData}</span>
+              <span className="hidden md:inline xl:hidden">{language === 'id' ? 'Pengaturan' : 'Settings'}</span>
             </button>
 
             {/* Profile Dropdown */}

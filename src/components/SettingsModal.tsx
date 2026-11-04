@@ -42,19 +42,42 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onImportData,
   onResetSeed,
   onClearAllData,
-  language,
+  language = 'id',
   onSelectLanguage,
 }) => {
-  const [calorieGoal, setCalorieGoal] = useState(preferences.defaultCalorieGoal);
-  const [sugarLimit, setSugarLimit] = useState(preferences.defaultSugarLimit);
+  const [calorieGoal, setCalorieGoal] = useState<number>(preferences?.defaultCalorieGoal ?? 2000);
+  const [sugarLimit, setSugarLimit] = useState<number>(preferences?.defaultSugarLimit ?? 36);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [isTestingSupabase, setIsTestingSupabase] = useState(false);
   const [activeTab, setActiveTab] = useState<'general' | 'cloud'>('general');
+  const [isMassiveResetOpen, setIsMassiveResetOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync state whenever modal opens or preferences update
+  React.useEffect(() => {
+    if (isOpen) {
+      setCalorieGoal(preferences?.defaultCalorieGoal ?? 2000);
+      setSugarLimit(preferences?.defaultSugarLimit ?? 36);
+      setStatusMessage(null);
+      setIsMassiveResetOpen(false);
+    }
+  }, [isOpen, preferences?.defaultCalorieGoal, preferences?.defaultSugarLimit]);
+
+  // Handle escape key
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen && !isMassiveResetOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, isMassiveResetOpen, onClose]);
 
   if (!isOpen) return null;
 
-  const t = translations[language].settings;
+  const activeLang: Language = language === 'en' ? 'en' : 'id';
+  const t = translations[activeLang]?.settings || translations.id.settings;
 
   const handleSaveGoals = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +86,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       defaultSugarLimit: Number(sugarLimit) || 36,
     });
     setStatusMessage(
-      language === 'id'
+      activeLang === 'id'
         ? 'Target nutrisi berhasil diperbarui.'
         : 'Nutritional baseline targets updated.'
     );
@@ -80,13 +103,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       const success = onImportData(content);
       if (success) {
         setStatusMessage(
-          language === 'id'
+          activeLang === 'id'
             ? 'Cadangan Notome berhasil dipulihkan!'
             : 'Notome backup successfully restored!'
         );
       } else {
         setStatusMessage(
-          language === 'id'
+          activeLang === 'id'
             ? 'Gagal: Format file cadangan JSON tidak valid.'
             : 'Error: Invalid JSON backup file.'
         );
@@ -97,8 +120,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     e.target.value = '';
   };
 
-  const [isMassiveResetOpen, setIsMassiveResetOpen] = useState(false);
-
   const handleTestSupabase = async () => {
     setIsTestingSupabase(true);
     const result = await testSupabaseConnection();
@@ -108,8 +129,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-xs">
-      <div className="w-full max-w-lg rounded-t-3xl sm:rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FAF7F2] dark:bg-[#1C1815] p-5 sm:p-6 text-[#2D2823] dark:text-[#EAE3DA] shadow-2xl max-h-[92vh] sm:max-h-[88vh] overflow-y-auto">
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-xs transition-opacity"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-lg sm:max-w-xl rounded-t-3xl sm:rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FAF7F2] dark:bg-[#1C1815] p-5 sm:p-6 text-[#2D2823] dark:text-[#EAE3DA] shadow-2xl max-h-[92vh] sm:max-h-[88vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Mobile Grab Handle */}
         <div className="w-10 h-1 bg-[#D5CBC0] dark:bg-[#3D352F] rounded-full mx-auto mb-3 sm:hidden" />
 
@@ -370,7 +399,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               onResetSeed();
             }
             setStatusMessage(
-              language === 'id'
+              activeLang === 'id'
                 ? mode === 'empty'
                   ? 'Seluruh data berhasil dikosongkan total.'
                   : 'Data awal bawaan Notome berhasil dipulihkan.'
@@ -380,7 +409,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             );
             setTimeout(() => setStatusMessage(null), 3000);
           }}
-          language={language}
+          language={activeLang}
         />
       </div>
     </div>
