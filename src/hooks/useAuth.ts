@@ -8,6 +8,23 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { InvitedUser } from '../types';
 
 export const PRIMARY_ADMIN_EMAIL = 'mike777rafael@gmail.com';
+export const PRIMARY_ADMIN_EMAILS = [
+  'mike777rafael@gmail.com',
+  'michael777rafael@gmail.com',
+];
+
+export function checkIsAdmin(email?: string | null): boolean {
+  if (!email) return false;
+  const clean = email.toLowerCase().trim();
+  const username = clean.split('@')[0];
+  return (
+    PRIMARY_ADMIN_EMAILS.some((adm) => adm.toLowerCase().trim() === clean) ||
+    username === 'mike777rafael' ||
+    username === 'michael777rafael' ||
+    clean.includes('mike777rafael') ||
+    clean.includes('michael777rafael')
+  );
+}
 
 export interface AppUser {
   id: string;
@@ -29,9 +46,19 @@ const LOCAL_INVITED_USERS_KEY = 'notome_invited_users_v1';
 const INITIAL_INVITED_USERS: InvitedUser[] = [
   {
     id: 'primary-admin-01',
-    email: PRIMARY_ADMIN_EMAIL,
+    email: 'mike777rafael@gmail.com',
     fullName: 'Mike Rafael',
     notes: 'Primary Admin Permanen',
+    role: 'primary_admin',
+    status: 'active',
+    invitedBy: 'system',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'primary-admin-02',
+    email: 'michael777rafael@gmail.com',
+    fullName: 'Michael Rafael',
+    notes: 'Primary Admin Permanen (Google Auth)',
     role: 'primary_admin',
     status: 'active',
     invitedBy: 'system',
@@ -42,7 +69,16 @@ const INITIAL_INVITED_USERS: InvitedUser[] = [
 function loadLocalInvitedUsers(): InvitedUser[] {
   try {
     const raw = localStorage.getItem(LOCAL_INVITED_USERS_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        const hasMichael = parsed.some((u: InvitedUser) => checkIsAdmin(u.email));
+        if (!hasMichael) {
+          return [...INITIAL_INVITED_USERS, ...parsed];
+        }
+        return parsed;
+      }
+    }
   } catch (e) {
     console.error('Failed to parse local invited users', e);
   }
@@ -109,9 +145,7 @@ export function useAuth() {
   const [checkingWhitelist, setCheckingWhitelist] = useState<boolean>(false);
   const [invitedUsers, setInvitedUsers] = useState<InvitedUser[]>(loadLocalInvitedUsers);
 
-  const isPrimaryAdmin = Boolean(
-    user && user.email?.toLowerCase().trim() === PRIMARY_ADMIN_EMAIL.toLowerCase().trim()
-  );
+  const isPrimaryAdmin = Boolean(user && checkIsAdmin(user.email));
 
   // Fetch invited users from Supabase for Primary Admin
   const fetchInvitedUsers = useCallback(async () => {
@@ -159,7 +193,7 @@ export function useAuth() {
     }
 
     // Primary admin is always authorized
-    if (user.email?.toLowerCase().trim() === PRIMARY_ADMIN_EMAIL.toLowerCase().trim()) {
+    if (checkIsAdmin(user.email)) {
       setIsWhitelisted(true);
       setCheckingWhitelist(false);
       fetchInvitedUsers();

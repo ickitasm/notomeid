@@ -122,7 +122,7 @@ export default function App() {
       />
 
       {/* Main Content Area - with mobile bottom padding to clear thumb navigation bar */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8 pb-28 sm:pb-32 md:pb-8">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8 pb-28 sm:pb-32 md:pb-8">
         {/* Verification / Auth Alert Banner */}
         {auth.notice && (
           <div

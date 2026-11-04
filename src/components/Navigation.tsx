@@ -74,7 +74,7 @@ export const Navigation: React.FC<NavigationProps> = ({
     <>
       {/* Top Header Bar */}
       <header className="sticky top-0 z-30 border-b border-[#E5DDD2] dark:border-[#2D2722] bg-[#FAF7F2]/95 dark:bg-[#161311]/95 backdrop-blur-md transition-colors">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-4 sm:gap-8">
+        <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4 lg:gap-6">
           {/* Zone 1: Brand wordmark */}
           <div className="flex items-center gap-2.5 shrink-0">
             <button
@@ -93,8 +93,8 @@ export const Navigation: React.FC<NavigationProps> = ({
             </button>
           </div>
 
-          {/* Zone 2: Desktop 6 concise nav tabs */}
-          <nav className="hidden md:flex items-center gap-1 xl:gap-1.5 text-xs lg:text-sm font-medium">
+          {/* Zone 2: Desktop 6 concise nav tabs inside adaptive centered pill */}
+          <nav className="hidden md:flex items-center gap-0.5 lg:gap-1 p-1 rounded-xl bg-[#EFE8DD]/70 dark:bg-[#201B17] border border-[#E0D7CB] dark:border-[#38312B] overflow-x-auto scrollbar-none max-w-full">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -103,13 +103,13 @@ export const Navigation: React.FC<NavigationProps> = ({
                   key={item.id}
                   type="button"
                   onClick={() => onTabChange(item.id)}
-                  className={`flex items-center gap-1.5 lg:gap-2 px-2.5 lg:px-3.5 py-1.5 lg:py-2 rounded-lg text-xs lg:text-sm font-medium transition-all whitespace-nowrap shrink-0 touch-manipulation cursor-pointer ${
+                  className={`flex items-center gap-1.5 lg:gap-2 px-2.5 lg:px-3 py-1.5 rounded-lg text-xs lg:text-sm font-medium transition-all whitespace-nowrap shrink-0 touch-manipulation cursor-pointer ${
                     isActive
-                      ? 'bg-[#EFE8DD] dark:bg-[#28221D] text-[#2B241E] dark:text-[#EFE9E2] font-semibold shadow-xs'
-                      : 'text-[#6F645A] dark:text-[#A89C90] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] hover:bg-[#F4ECE3] dark:hover:bg-[#201B17]'
+                      ? 'bg-[#FFFDF9] dark:bg-[#2A231D] text-[#2B241E] dark:text-[#EFE9E2] font-semibold shadow-xs'
+                      : 'text-[#6F645A] dark:text-[#A89C90] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] hover:bg-[#FAF7F2]/80 dark:hover:bg-[#1A1613]/50'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-[#C85A32]' : ''}`} />
+                  <Icon className={`w-3.5 h-3.5 lg:w-4 lg:h-4 ${isActive ? 'text-[#C85A32]' : ''}`} />
                   <span className="hidden xl:inline">{item.label}</span>
                   <span className="inline xl:hidden">{item.shortLabel}</span>
                 </button>
@@ -147,17 +147,16 @@ export const Navigation: React.FC<NavigationProps> = ({
               {theme === 'dark' ? <Sun className="w-4 h-4 text-[#D9822B]" /> : <Moon className="w-4 h-4 text-[#6F645A]" />}
             </button>
 
-            {/* Primary Admin Special Panel Button */}
+            {/* Primary Admin Special Panel Button - visible on both mobile and desktop */}
             {isPrimaryAdmin && onOpenAdminPanel && (
               <button
                 type="button"
                 onClick={onOpenAdminPanel}
-                className="min-h-[36px] px-2.5 sm:px-3 flex items-center gap-1.5 text-xs font-semibold rounded-lg border border-[#C85A32]/40 bg-[#C85A32]/10 text-[#C85A32] hover:bg-[#C85A32]/20 active:scale-95 transition-all whitespace-nowrap shrink-0 touch-manipulation cursor-pointer"
+                className="min-h-[36px] px-2 sm:px-2.5 md:px-3 flex items-center gap-1 sm:gap-1.5 text-xs font-semibold rounded-lg border border-[#C85A32]/40 bg-[#C85A32]/10 text-[#C85A32] hover:bg-[#C85A32]/20 active:scale-95 transition-all whitespace-nowrap shrink-0 touch-manipulation cursor-pointer"
                 title="Buka Panel Manajemen Akses Undangan"
               >
-                <ShieldCheck className="w-3.5 h-3.5 text-[#C85A32]" />
-                <span className="hidden xl:inline">Panel Admin</span>
-                <span className="hidden md:inline xl:hidden">Admin</span>
+                <ShieldCheck className="w-3.5 h-3.5 text-[#C85A32] shrink-0" />
+                <span className="inline text-[11px] sm:text-xs">Admin</span>
               </button>
             )}
 
@@ -224,10 +223,17 @@ export const Navigation: React.FC<NavigationProps> = ({
                           setIsProfileOpen(false);
                           onOpenAdminPanel();
                         }}
-                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg bg-[#C85A32]/10 hover:bg-[#C85A32]/20 text-[#C85A32] font-semibold transition-colors cursor-pointer"
+                        className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg bg-[#C85A32]/10 hover:bg-[#C85A32]/20 text-[#C85A32] font-semibold transition-colors cursor-pointer text-left"
                       >
-                        <ShieldCheck className="w-3.5 h-3.5" />
-                        <span>Panel Akses Undangan</span>
+                        <ShieldCheck className="w-4 h-4 text-[#C85A32] shrink-0" />
+                        <div>
+                          <div className="leading-tight text-xs font-semibold">
+                            {language === 'id' ? 'Buka Panel Admin' : 'Open Admin Panel'}
+                          </div>
+                          <div className="text-[10px] text-[#C85A32]/80 font-normal">
+                            {language === 'id' ? 'Kelola anggota & whitelist' : 'Manage members & whitelist'}
+                          </div>
+                        </div>
                       </button>
                     )}
 

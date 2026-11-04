@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import { InvitedUser } from '../../types';
 import { Language } from '../../lib/translations';
-import { PRIMARY_ADMIN_EMAIL } from '../../hooks/useAuth';
+import { PRIMARY_ADMIN_EMAIL, PRIMARY_ADMIN_EMAILS, checkIsAdmin } from '../../hooks/useAuth';
 import {
   notifyMemberInvited,
   notifyMemberRemoved,
@@ -177,19 +177,21 @@ ALTER TABLE public.invited_users ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can check own invite status" ON public.invited_users
     FOR SELECT USING (
         LOWER(email) = LOWER(auth.jwt() ->> 'email')
-        OR LOWER(auth.jwt() ->> 'email') = 'mike777rafael@gmail.com'
+        OR LOWER(auth.jwt() ->> 'email') IN ('mike777rafael@gmail.com', 'michael777rafael@gmail.com')
     );
 
 CREATE POLICY "Primary Admin full control on invites" ON public.invited_users
     FOR ALL USING (
-        LOWER(auth.jwt() ->> 'email') = 'mike777rafael@gmail.com'
+        LOWER(auth.jwt() ->> 'email') IN ('mike777rafael@gmail.com', 'michael777rafael@gmail.com')
     )
     WITH CHECK (
-        LOWER(auth.jwt() ->> 'email') = 'mike777rafael@gmail.com'
+        LOWER(auth.jwt() ->> 'email') IN ('mike777rafael@gmail.com', 'michael777rafael@gmail.com')
     );
 
 INSERT INTO public.invited_users (email, full_name, notes, role, status, invited_by)
-VALUES ('mike777rafael@gmail.com', 'Mike Rafael', 'Primary Admin Permanen', 'primary_admin', 'active', 'system')
+VALUES 
+    ('mike777rafael@gmail.com', 'Mike Rafael', 'Primary Admin Permanen', 'primary_admin', 'active', 'system'),
+    ('michael777rafael@gmail.com', 'Michael Rafael', 'Primary Admin Permanen (Google Auth)', 'primary_admin', 'active', 'system')
 ON CONFLICT (email) DO UPDATE SET role = 'primary_admin', status = 'active';`;
 
   const handleCopySql = () => {
@@ -393,7 +395,7 @@ ON CONFLICT (email) DO UPDATE SET role = 'primary_admin', status = 'active';`;
                   </div>
                 ) : (
                   filteredUsers.map((u) => {
-                    const isSelfAdmin = u.email.toLowerCase() === PRIMARY_ADMIN_EMAIL.toLowerCase();
+                    const isSelfAdmin = checkIsAdmin(u.email);
                     const inviteContent = getInviteEmailContent(u.email, u.fullName);
                     const gmailComposeUrl = buildGmailComposeUrl(
                       u.email,

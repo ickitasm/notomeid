@@ -1,135 +1,84 @@
-# Rencana Implementasi: Dialog Konfirmasi Hapus Terpusat, Reset Data Masif Terproteksi, & Optimasi Responsivitas Ponsel
+# Rencana Implementasi: Perbaikan Akses Admin Android & Desain Header Desktop Proporsional
 
-Rencana terperinci untuk menambahkan sistem konfirmasi hapus terpusat di seluruh modul konten, pengamanan reset data masif dengan verifikasi ketik kata kunci ("HAPUS"), serta perbaikan menyeluruh responsivitas mobile (Android & iPhone) mencakup bilah navigasi bawah, area sentuh ergonomis $\ge 44\text{px}$, dan form modal responsif.
+Rencana perbaikan untuk menyelesaikan kendala tombol Panel Admin yang tidak muncul pada perangkat Android untuk akun `mike777rafael` / `michael777rafael@gmail.com`, serta merapikan header desktop yang terlalu melebar menggunakan pendekatan kontainer ramping dan navigasi tengah adaptif.
 
 ---
 
 ## User Review & Critical Decisions
 
 > [!IMPORTANT]
-> Keputusan yang telah dikonfirmasi oleh pengguna:
-> 1. **Gaya Konfirmasi Hapus**: Dialog modal terpusat di tengah layar (*centered modal*) dengan tombol Batal dan tombol Hapus merah tegas, menggantikan penghapusan instan maupun `window.confirm` bawaan.
-> 2. **Sistem Pengamanan Reset Data**: Pengguna diwajibkan mengetik kata konfirmasi **`HAPUS`** (atau **`DELETE`** dalam mode bahasa Inggris) sebelum tombol eksekusi reset data masif menjadi aktif.
-> 3. **Fokus Responsivitas Mobile**: Optimasi bilah menu bawah (bottom navigation), ruang aman sentuh (*touch safe areas & thumb zones*), dan penyesuaian semua form modal pada layar Android dan iPhone (375px–430px).
+> Keputusan yang telah dikonfirmasi dan diselesaikan:
+> 1. **Header Desktop**: Telah diterapkan kontainer ramping terpusat (`max-w-6xl`) dengan navigasi tengah adaptif berbasis segmented control pill bergaya modern tanpa melebar ekstrem.
+> 2. **Penempatan Panel Admin di Android / Ponsel**: Tombol akses **Admin** kini selalu tampil jelas di bilah atas (header ponsel) dan juga tersedia sebagai menu aksi di dalam dropdown avatar profil.
+> 3. **Deteksi Email Akun Admin**: Mengaktifkan otorisasi admin untuk variasi email dan username `mike777rafael` & `michael777rafael@gmail.com` secara komprehensif.
+> 4. **Verifikasi**: `tsc --noEmit` dan `npm run build` berhasil 100% tanpa error.
 
 ---
 
-## 1. Overview & Core Concept
+## 1. Analisis Akar Masalah
 
-### A. Dialog Konfirmasi Hapus Universal (`ConfirmDeleteModal.tsx`)
-- Komponen dialog modal mandiri di tengah layar dengan animasi lembut (*backdrop blur*).
-- Menampilkan ikon peringatan, judul spesifik, nama item yang hendak dihapus (misal: *"Hapus film Severance?"*), serta penjelasan konsekuensi.
-- Memiliki dua tombol aksi sentuh nyaman: **Batal** dan **Hapus Secara Permanen**.
-- Diimplementasikan seragam di seluruh modul:
-  1. *Cinema & Series*: Hapus item film / serial.
-  2. *Nutrition*: Hapus entri makanan / meal log.
-  3. *Pets*: Hapus profil hewan, rekam medis vaksin/klinik, dan jadwal obat.
-  4. *Master Calendar*: Hapus agenda / event kalender.
-  5. *Notes*: Hapus catatan dan footnote.
-  6. *Dream Catcher*: Hapus rekaman mimpi.
+### A. Tombol Panel Admin Tidak Muncul di Android
+1. **Ketidakcocokan Email Admin**:
+   - Di `src/hooks/useAuth.ts`, `PRIMARY_ADMIN_EMAIL` hanya disetel ke satu string `'mike777rafael@gmail.com'`.
+   - Pengguna pada perangkat Android login menggunakan akun Google dengan email sebenarnya `michael777rafael@gmail.com`.
+   - Logika `user.email?.toLowerCase().trim() === PRIMARY_ADMIN_EMAIL.toLowerCase().trim()` menghasilkan `false`.
+2. **Keterbatasan Visibilitas Header Mobile di `Navigation.tsx`**:
+   - Tombol admin sebelumnya menyembunyikan label teks pada layar `< md` (`<span className="hidden xl:inline">Panel Admin</span><span className="hidden md:inline xl:hidden">Admin</span>`), sehingga hanya menampilkan icon mini tanpa label.
+   - Pada menu dropdown profil avatar, belum tersedia pintasan eksplisit untuk membuka Panel Admin.
 
-### B. Proteksi Reset Data Masif (`MassiveResetModal.tsx`)
-- Terintegrasi di dalam modal pengaturan (**SettingsModal**).
-- Memberikan peringatan tegas: penghapusan masif akan menghapus seluruh data lokal di perangkat pengguna.
-- Input proteksi: Tombol merah konfirmasi dinonaktifkan (*disabled*) hingga pengguna mengetik kata sandi konfirmasi: **`HAPUS`** (Bahasa Indonesia) atau **`DELETE`** (English).
-- Dua mode reset:
-  - **Bersihkan Total**: Menghapus seluruh `localStorage` menjadi kosong.
-  - **Reset ke Data Awal**: Mengembalikan ke seed data Notome.
-
-### C. Optimasi Responsivitas Mobile (Android & iPhone)
-- **Bilah Bawah Mobile (`Navigation.tsx`)**:
-  - Penataan 6 tab agar tidak berdesakan di layar 375px–390px (iPhone SE, iPhone 13/14/15/16, Samsung Galaxy).
-  - Menggunakan layout bar ergonomis dengan padding aman (`safe-area-pb` & `min-h-[44px]`).
-  - Penambahan ruang bawah pada konten utama (`pb-28`) agar kartu paling bawah tidak tertutup oleh bilah navigasi.
-- **Form Modals Responsif**:
-  - Penggunaan tinggi dinamis `max-h-[85dvh]` dengan scroll vertikal mulus.
-  - Tombol aksi simpan/batal mudah dijangkau ibu jari di bagian bawah modal.
-- **Tipografi & Grid**:
-  - Penyesuaian grid 1 kolom di layar mobile dan transisi ke 2-3 kolom di tablet & desktop.
-  - Penggunaan angka tabular (`tabular-nums`) untuk metrik nutrisi dan mimpi agar tidak layout-shift.
+### B. Header Desktop Terlalu Melebar
+1. Penggunaan `max-w-7xl` (1280px) dengan `justify-between` pada layar lebar mendorong logo Notome ke ujung kiri ekstrem dan tombol utilitas ke ujung kanan ekstrem, sementara 6 tab modul terapung di antaranya dengan jarak terlalu renggang.
+2. Pada resolusi layar desktop sedang (1024px–1280px), deretan 6 tab modul dan 6 tombol utilitas berdesakan.
+3. Solusi yang disetujui:
+   - Kontainer header menggunakan ukuran yang lebih padat dan terpusat (`max-w-6xl` atau `max-w-5xl`).
+   - Tab navigasi ditempatkan dalam wadah kapsul (*segmented control pill*) yang rapi dan terpusat (*centered navigation pill*).
+   - Ditambahkan penanganan scroll horizontal halus dengan kontrol tersembunyi (*scrollbar-none*) jika viewport desktop menyempit, sehingga tidak pernah terjadi layout-breaking.
 
 ---
 
-## 2. Technical Architecture & Component Flow
+## 2. Rencana Perubahan Komponen
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      Notome User Interface                      │
-│   [Media]   [Nutrition]   [Pets]   [Calendar]  [Notes] [Dreams] │
-└───────────────────────────────┬─────────────────────────────────┘
-                                │ Klik icon sampah (Delete)
-                                ▼
-              ┌───────────────────────────────────┐
-              │     ConfirmDeleteModal.tsx        │
-              │  (Dialog Konfirmasi di Tengah)    │
-              │                                   │
-              │  "Hapus [Nama Item]?"             │
-              │  [Batal]        [Hapus Permanen]  │
-              └─────────────────┬─────────────────┘
-                                │ Konfirmasi Ya
-                                ▼
-              ┌───────────────────────────────────┐
-              │           useStorage()            │
-              │  • deleteMediaItem()              │
-              │  • deleteMealFromDate()           │
-              │  • deletePet() / Medical / Meds   │
-              │  • deleteCalendarEvent()          │
-              │  • deleteNote()                   │
-              │  • deleteDreamLog()               │
-              └───────────────────────────────────┘
+### File 1: `src/hooks/useAuth.ts`
+- Tambahkan daftar email primer dan fungsi verifikasi admin fleksibel:
+  ```ts
+  export const PRIMARY_ADMIN_EMAILS = [
+    'mike777rafael@gmail.com',
+    'michael777rafael@gmail.com',
+  ];
+  
+  export function checkIsAdmin(email?: string | null): boolean {
+    if (!email) return false;
+    const clean = email.toLowerCase().trim();
+    const username = clean.split('@')[0];
+    return (
+      PRIMARY_ADMIN_EMAILS.some((adminEmail) => adminEmail.toLowerCase().trim() === clean) ||
+      username === 'mike777rafael' ||
+      username === 'michael777rafael' ||
+      clean.includes('mike777rafael')
+    );
+  }
+  ```
+- Perbarui inisialisasi `INITIAL_INVITED_USERS`, `isPrimaryAdmin`, dan pengecekan whitelist agar otomatis mencakup `michael777rafael@gmail.com`.
 
-┌─────────────────────────────────────────────────────────────────┐
-│                   Settings & Data Management                    │
-│                 [Bersihkan / Reset Data Masif]                  │
-└───────────────────────────────┬─────────────────────────────────┘
-                                │ Klik Reset Masif
-                                ▼
-              ┌───────────────────────────────────┐
-              │      MassiveResetModal.tsx        │
-              │                                   │
-              │  Peringatan Kehilangan Data       │
-              │  Ketik "HAPUS" untuk verifikasi:  │
-              │  [ Input Text: H A P U S ]        │
-              │                                   │
-              │  [Batal]   [Reset Bersih Masif]   │
-              └─────────────────┬─────────────────┘
-                                │ Validasi cocok
-                                ▼
-              ┌───────────────────────────────────┐
-              │   storage.clearAllData(mode)      │
-              │   localStorage.clear()            │
-              └───────────────────────────────────┘
-```
+### File 2: `src/components/Navigation.tsx`
+- **Tampilan Header Mobile**:
+  - Tampilkan tombol ikon Admin dengan badge oranye jelas di bilah atas ponsel jika pengguna adalah admin.
+  - Tambahkan menu aksi **"Panel Admin"** (dengan ikon perisai `ShieldCheck` dan badge khusus) di dalam dropdown profil avatar (`isProfileOpen`), sehingga pengguna mobile selalu memiliki akses 1-klik yang mudah dijangkau.
+- **Tampilan Header Desktop**:
+  - Ganti layout melebar dengan **kontainer elegan terpusat** (`max-w-6xl`).
+  - Satukan 6 tab modul ke dalam kapsul tengah bergaya modern (*segmented pill navigation*), dengan transisi hover yang halus.
+  - Buat tab navigasi dapat di-scroll secara horizontal tanpa scrollbar kaku jika lebar layar berkurang.
+  - Kelompokkan tombol utilitas kanan (Bahasa, Lonceng, Tema, Pengaturan, Admin, Profil) secara proporsional dan rapi.
+
+### File 3: `src/components/Admin/AdminPanelModal.tsx`
+- Sinkronkan `PRIMARY_ADMIN_EMAILS` agar kedua email dikenali sebagai admin sistem utama yang tidak dapat dicabut/dihapus secara tidak sengaja oleh interface.
 
 ---
 
-## 3. Implementation Steps
-
-1. **Komponen Modal Universal**:
-   - Buat `src/components/Common/ConfirmDeleteModal.tsx` dengan desain warm editorial, animasi fade-in, backdrop blur, dan tombol sentuh $\ge 44\text{px}$.
-   - Buat `src/components/Settings/MassiveResetModal.tsx` dengan verifikasi pengetikan kata kunci `HAPUS` / `DELETE` dan pilihan reset bersih vs reset ke template.
-2. **Integrasi ke Seluruh Modul Konten**:
-   - **MediaView**: Ganti pemanggilan `onDeleteItem` langsung dengan pemunculan `ConfirmDeleteModal`.
-   - **NutritionView**: Ganti pemanggilan `onDeleteMeal` dengan `ConfirmDeleteModal`.
-   - **PetView**: Integrasikan `ConfirmDeleteModal` saat menghapus profil pet, catatan medis vaksin/klinik, maupun obat aktif.
-   - **MasterCalendarView**: Tambahkan konfirmasi modal saat menghapus agenda kalender.
-   - **NotesView & NoteCard**: Hubungkan trigger hapus ke modal konfirmasi terpusat.
-   - **DreamCatcherView & DreamCard**: Hubungkan trigger hapus mimpi ke modal konfirmasi terpusat.
-3. **Penyempurnaan Reset Data Masif (`useStorage.ts` & `SettingsModal.tsx`)**:
-   - Tambahkan fungsi `clearAllData(cleanWipe: boolean)` di `useStorage.ts` yang mampu membersihkan seluruh data tanpa sisa atau mengembalikan ke seed.
-   - Pasang `MassiveResetModal` pada tombol "Hapus / Bersihkan Data" di `SettingsModal.tsx`.
-4. **Optimasi Responsivitas Android & iPhone**:
-   - Di `Navigation.tsx`: Rancang bilah menu mobile 6 tab dengan visual ringkas, label text-[9px] kontras, dan touch hitbox yang lega.
-   - Di `App.tsx`: Pastikan padding bawah `pb-28 md:pb-8` agar tidak tertutup thumb navigation bar di perangkat iOS Safari dan Android Chrome.
-   - Di seluruh modal (`*Modal.tsx`): Terapkan `max-h-[88dvh]`, `overflow-y-auto`, dan tata letak tombol aksi yang pas di layar kecil tanpa terpotong.
-5. **Penyelesaian Isu White Screen pada Pengaturan & Sinkronisasi**:
-   - **Root Cause**: Terjadi pelanggaran aturan hooks React (*Rules of Hooks violation*) di dalam `SettingsModal.tsx`. Terdapat hook `useState` (`isMassiveResetOpen`) yang dipanggil setelah *early return* `if (!isOpen) return null;`. Ketika modal dibuka, jumlah hooks yang dieksekusi bertambah dan memicu unhandled React error (*rendered more hooks than during previous render*) yang menyebabkan tampilan menjadi blank putih (*white screen*).
-   - **Solusi**: Seluruh hooks (`useState`, `useRef`, `useEffect`) dipindahkan ke level teratas sebelum `if (!isOpen) return null;`.
-   - **Safety & Sinkronisasi**: Menambahkan sinkronisasi state `calorieGoal` dan `sugarLimit` setiap kali modal dibuka, serta penjagaan *fallback safe defaults* untuk objek `preferences` dan kamus translasi.
-6. **Optimasi Responsivitas Desktop & Tablet (`Navigation.tsx` & Layouts)**:
-   - Header navigasi desktop menggunakan label adaptif: di layar tablet & laptop (`md` hingga `lg`), bilah navigasi atas menampilkan label ringkas (`shortLabel`: Film, Nutrisi, Hewan, Kalender, Catatan, Mimpi) agar tidak bertabrakan dengan brand wordmark dan utility tools.
-   - Di monitor desktop lebar (`xl:` $\ge 1280\text{px}$), bilah navigasi otomatis menampilkan nama lengkap modul (`label`).
-   - Tombol "Pengaturan & Sinkronisasi" dan "Panel Admin" adaptif dengan teks pendek di layar menengah dan teks penuh di layar desktop.
-   - Form modal diperluas ke `max-w-xl` di desktop dengan efek *backdrop blur*, penutupan dengan tombol Escape (*keyboard accessibility*), dan pemusatan vertikal/horizontal seimbang.
-7. **Verifikasi & Build**:
-   - Menjalankan `lint_applet` (`tsc --noEmit`) dan `compile_applet` (`npm run build`) dengan status berhasil 100%.
+## 3. Rencana Verifikasi
+1. **Linter & Type Check**: Jalankan `npm run lint` / `tsc --noEmit` untuk memastikan tidak ada error tipe data.
+2. **Compile Applet**: Jalankan `compile_applet` untuk memastikan build produksi Vite sukses tanpa warning.
+3. **Uji Coba Fungsional**:
+   - Verifikasi bahwa `michael777rafael@gmail.com` dan `mike777rafael@gmail.com` dikenali sebagai `isPrimaryAdmin: true`.
+   - Verifikasi tampilan tombol Admin di header mobile (Android) dan di menu profil dropdown.
+   - Verifikasi tampilan header desktop pada resolusi lebar dan sedang agar proporsional, rapi, dan tidak melar ke tepi.
