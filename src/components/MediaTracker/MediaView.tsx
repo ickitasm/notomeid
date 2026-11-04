@@ -21,6 +21,7 @@ import {
 import { MediaItem, MediaType, MediaStatus } from '../../types';
 import { MiniCalendar, CalendarHighlight } from '../MiniCalendar';
 import { MediaModal } from './MediaModal';
+import { ConfirmDeleteModal } from '../Common/ConfirmDeleteModal';
 import { translations, Language } from '../../lib/translations';
 
 interface MediaViewProps {
@@ -47,6 +48,7 @@ export const MediaView: React.FC<MediaViewProps> = ({
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<MediaItem | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<MediaItem | null>(null);
 
   // Compute stats
   const stats = useMemo(() => {
@@ -404,8 +406,8 @@ export const MediaView: React.FC<MediaViewProps> = ({
                         </button>
                         <button
                           type="button"
-                          onClick={() => onDeleteItem(item.id)}
-                          className="p-1.5 rounded hover:bg-rose-50 dark:hover:bg-rose-950/30 text-[#7B6F63] hover:text-rose-600 transition-colors"
+                          onClick={() => setItemToDelete(item)}
+                          className="p-1.5 rounded hover:bg-rose-50 dark:hover:bg-rose-950/30 text-[#7B6F63] hover:text-rose-600 transition-colors cursor-pointer"
                           title="Delete entry"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -529,6 +531,25 @@ export const MediaView: React.FC<MediaViewProps> = ({
         }}
         onSave={handleSaveModal}
         initialItem={editingItem}
+      />
+
+      {/* Centered Confirm Delete Modal */}
+      <ConfirmDeleteModal
+        isOpen={Boolean(itemToDelete)}
+        onClose={() => setItemToDelete(null)}
+        onConfirm={() => {
+          if (itemToDelete) {
+            onDeleteItem(itemToDelete.id);
+          }
+        }}
+        title={language === 'id' ? 'Hapus Film / Serial?' : 'Delete Movie or Series?'}
+        itemName={itemToDelete?.title}
+        description={
+          language === 'id'
+            ? 'Entri film/serial ini beserta progres episode dan penilaiannya akan dihapus secara permanen.'
+            : 'This media title along with its progress and rating will be permanently removed.'
+        }
+        language={language}
       />
     </div>
   );

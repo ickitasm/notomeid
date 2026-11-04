@@ -24,6 +24,7 @@ import { PetProfile, PetMedicalRecord, PetMedication, MedicalRecordType } from '
 import { MiniCalendar, CalendarHighlight } from '../MiniCalendar';
 import { PetModal } from './PetModal';
 import { MedicalRecordModal } from './MedicalRecordModal';
+import { ConfirmDeleteModal } from '../Common/ConfirmDeleteModal';
 import { translations, Language } from '../../lib/translations';
 
 interface PetViewProps {
@@ -67,6 +68,11 @@ export const PetView: React.FC<PetViewProps> = ({
   const [isEditingPet, setIsEditingPet] = useState(false);
   const [isRecordModalOpen, setIsRecordModalOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<PetMedicalRecord | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{
+    type: 'pet' | 'record' | 'medication';
+    id: string;
+    name: string;
+  } | null>(null);
 
   // Fallback to first pet if active was deleted
   const currentPet = useMemo(() => {
@@ -330,11 +336,7 @@ export const PetView: React.FC<PetViewProps> = ({
             {pets.length > 1 && (
               <button
                 type="button"
-                onClick={() => {
-                  if (confirm(`Are you sure you want to remove ${currentPet.name}'s profile?`)) {
-                    onDeletePet(currentPet.id);
-                  }
-                }}
+                onClick={() => setDeleteTarget({ type: 'pet', id: currentPet.id, name: currentPet.name })}
                 className="p-1.5 rounded-lg border border-[#E0D7CB] dark:border-[#38312B] hover:bg-rose-50 dark:hover:bg-rose-950/30 text-[#7B6F63] hover:text-rose-600 transition-colors"
                 title="Delete pet profile"
               >
@@ -465,7 +467,7 @@ export const PetView: React.FC<PetViewProps> = ({
                         </button>
                         <button
                           type="button"
-                          onClick={() => onDeleteMedicalRecord(record.id)}
+                          onClick={() => setDeleteTarget({ type: 'record', id: record.id, name: record.title })}
                           className="p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/30 text-[#7B6F63] hover:text-rose-600 transition-colors"
                           title="Delete record"
                         >
@@ -573,7 +575,7 @@ export const PetView: React.FC<PetViewProps> = ({
                       </button>
                       <button
                         type="button"
-                        onClick={() => onDeleteMedication(med.id)}
+                        onClick={() => setDeleteTarget({ type: 'medication', id: med.id, name: med.name })}
                         className="p-1 text-[#8F8275] hover:text-rose-600"
                         title="Remove medication"
                       >
@@ -683,6 +685,46 @@ export const PetView: React.FC<PetViewProps> = ({
         petId={currentPet.id}
         petName={currentPet.name}
         initialRecord={editingRecord}
+      />
+
+      {/* Confirmation Modal */}
+      <ConfirmDeleteModal
+        isOpen={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          if (!deleteTarget) return;
+          if (deleteTarget.type === 'pet') {
+            onDeletePet(deleteTarget.id);
+          } else if (deleteTarget.type === 'record') {
+            onDeleteMedicalRecord(deleteTarget.id);
+          } else if (deleteTarget.type === 'medication') {
+            onDeleteMedication(deleteTarget.id);
+          }
+          setDeleteTarget(null);
+        }}
+        title={
+          deleteTarget?.type === 'pet'
+            ? (language === 'id' ? 'Hapus Profil Peliharaan?' : 'Delete Pet Profile?')
+            : deleteTarget?.type === 'record'
+            ? (language === 'id' ? 'Hapus Rekam Medis?' : 'Delete Medical Record?')
+            : (language === 'id' ? 'Hapus Pengobatan?' : 'Delete Medication?')
+        }
+        itemName={deleteTarget?.name}
+        description={
+          deleteTarget?.type === 'pet'
+            ? (language === 'id'
+                ? 'Profil peliharaan beserta riwayat medis dan pengobatannya akan dihapus permanen.'
+                : 'This pet profile and all associated medical history will be permanently deleted.')
+            : deleteTarget?.type === 'record'
+            ? (language === 'id'
+                ? 'Catatan medis ini akan dihapus dari riwayat kesehatan peliharaan.'
+                : 'This medical record will be removed from your pet\'s health history.')
+            : (language === 'id'
+                ? 'Pengobatan ini akan dihapus dari daftar resep peliharaan.'
+                : 'This medication will be removed from your pet\'s prescription list.')
+        }
+        confirmText={language === 'id' ? 'Hapus' : 'Delete'}
+        cancelText={language === 'id' ? 'Batal' : 'Cancel'}
       />
     </div>
   );

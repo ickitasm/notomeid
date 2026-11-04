@@ -25,6 +25,7 @@ import {
   EventCategory,
 } from '../../types';
 import { EventModal } from './EventModal';
+import { ConfirmDeleteModal } from '../Common/ConfirmDeleteModal';
 import { translations, Language } from '../../lib/translations';
 
 interface MasterCalendarViewProps {
@@ -53,6 +54,7 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
   const [viewMode, setViewMode] = useState<'month' | 'agenda'>('month');
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState<CalendarEvent | null>(null);
 
   // Month navigation state
   const [currentYear, setCurrentYear] = useState(() => {
@@ -480,7 +482,7 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
                           {isCustom && (
                             <button
                               type="button"
-                              onClick={() => onDeleteEvent(ev.id)}
+                              onClick={() => setEventToDelete(ev)}
                               className="text-[#8F8275] hover:text-rose-600 p-0.5"
                               title="Delete event"
                             >
@@ -586,7 +588,7 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
                     {isCustom && (
                       <button
                         type="button"
-                        onClick={() => onDeleteEvent(ev.id)}
+                        onClick={() => setEventToDelete(ev)}
                         className="p-1.5 rounded hover:bg-rose-50 text-[#8F8275] hover:text-rose-600 transition-colors"
                         title="Delete custom event"
                       >
@@ -607,6 +609,27 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
         onClose={() => setIsModalOpen(false)}
         onSave={onAddEvent}
         initialDate={selectedDate}
+      />
+
+      {/* Delete Calendar Event Confirmation Modal */}
+      <ConfirmDeleteModal
+        isOpen={Boolean(eventToDelete)}
+        onClose={() => setEventToDelete(null)}
+        onConfirm={() => {
+          if (eventToDelete) {
+            onDeleteEvent(eventToDelete.id);
+            setEventToDelete(null);
+          }
+        }}
+        title={language === 'id' ? 'Hapus Agenda Kalender?' : 'Delete Calendar Event?'}
+        itemName={eventToDelete?.title}
+        description={
+          language === 'id'
+            ? 'Agenda pribadi ini akan dihapus dari jadwal kalender Anda.'
+            : 'This personal event will be removed from your calendar schedule.'
+        }
+        confirmText={language === 'id' ? 'Hapus Agenda' : 'Delete Event'}
+        cancelText={language === 'id' ? 'Batal' : 'Cancel'}
       />
     </div>
   );

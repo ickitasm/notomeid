@@ -22,6 +22,7 @@ import { DailyNutritionLog, MealItem, MealType } from '../../types';
 import { MiniCalendar, CalendarHighlight } from '../MiniCalendar';
 import { MealModal } from './MealModal';
 import { NutritionCharts } from './NutritionCharts';
+import { ConfirmDeleteModal } from '../Common/ConfirmDeleteModal';
 import { translations, Language } from '../../lib/translations';
 
 interface NutritionViewProps {
@@ -52,6 +53,7 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalDefaultMealType, setModalDefaultMealType] = useState<MealType>('breakfast');
   const [weightInputValue, setWeightInputValue] = useState('');
+  const [mealToDelete, setMealToDelete] = useState<{ date: string; meal: MealItem } | null>(null);
 
   // Active day's data
   const currentLog = useMemo(() => getLogForDate(selectedDate), [getLogForDate, selectedDate]);
@@ -450,8 +452,8 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
                               </div>
                               <button
                                 type="button"
-                                onClick={() => onDeleteMeal(selectedDate, meal.id)}
-                                className="p-1 rounded text-[#8F8275] hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+                                onClick={() => setMealToDelete({ date: selectedDate, meal })}
+                                className="p-1.5 rounded-lg text-[#8F8275] hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
                                 title="Remove meal item"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -519,6 +521,27 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
         onClose={() => setIsModalOpen(false)}
         onSave={(meal) => onAddMeal(selectedDate, meal)}
         defaultMealType={modalDefaultMealType}
+      />
+
+      {/* Delete Meal Confirmation Modal */}
+      <ConfirmDeleteModal
+        isOpen={Boolean(mealToDelete)}
+        onClose={() => setMealToDelete(null)}
+        onConfirm={() => {
+          if (mealToDelete) {
+            onDeleteMeal(mealToDelete.date, mealToDelete.meal.id);
+            setMealToDelete(null);
+          }
+        }}
+        title={language === 'id' ? 'Hapus Entri Makanan?' : 'Delete Meal Entry?'}
+        itemName={mealToDelete?.meal.name}
+        description={
+          language === 'id'
+            ? 'Entri makanan ini akan dihapus dari catatan harian nutrisi Anda.'
+            : 'This meal entry will be removed from your daily nutrition log.'
+        }
+        confirmText={language === 'id' ? 'Hapus Makanan' : 'Delete Meal'}
+        cancelText={language === 'id' ? 'Batal' : 'Cancel'}
       />
     </div>
   );

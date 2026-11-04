@@ -8,6 +8,7 @@ import { Plus, Search, Pin, Sparkles, BookOpen, Layers } from 'lucide-react';
 import { NoteItem, NoteCategory } from '../../types';
 import { NoteCard } from './NoteCard';
 import { NoteModal } from './NoteModal';
+import { ConfirmDeleteModal } from '../Common/ConfirmDeleteModal';
 import { translations, Language } from '../../lib/translations';
 
 interface NotesViewProps {
@@ -33,6 +34,7 @@ export const NotesView: React.FC<NotesViewProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingNote, setEditingNote] = useState<NoteItem | null>(null);
+  const [noteToDelete, setNoteToDelete] = useState<NoteItem | null>(null);
 
   // Filter notes based on category and search query
   const filteredNotes = useMemo(() => {
@@ -211,7 +213,7 @@ export const NotesView: React.FC<NotesViewProps> = ({
                     key={note.id}
                     note={note}
                     onEdit={handleOpenEdit}
-                    onDelete={onDeleteNote}
+                    onDelete={setNoteToDelete}
                     onTogglePin={onTogglePin}
                     language={language}
                   />
@@ -235,7 +237,7 @@ export const NotesView: React.FC<NotesViewProps> = ({
                     key={note.id}
                     note={note}
                     onEdit={handleOpenEdit}
-                    onDelete={onDeleteNote}
+                    onDelete={setNoteToDelete}
                     onTogglePin={onTogglePin}
                     language={language}
                   />
@@ -253,6 +255,27 @@ export const NotesView: React.FC<NotesViewProps> = ({
         onSave={handleSaveModal}
         initialNote={editingNote}
         language={language}
+      />
+
+      {/* Delete Note Confirmation Modal */}
+      <ConfirmDeleteModal
+        isOpen={Boolean(noteToDelete)}
+        onClose={() => setNoteToDelete(null)}
+        onConfirm={() => {
+          if (noteToDelete) {
+            onDeleteNote(noteToDelete.id);
+            setNoteToDelete(null);
+          }
+        }}
+        title={language === 'id' ? 'Hapus Catatan?' : 'Delete Note?'}
+        itemName={noteToDelete?.title}
+        description={
+          language === 'id'
+            ? 'Catatan beserta semua referensi dan catatan kakinya akan dihapus secara permanen.'
+            : 'This note and all its footnotes will be permanently deleted.'
+        }
+        confirmText={language === 'id' ? 'Hapus Catatan' : 'Delete Note'}
+        cancelText={language === 'id' ? 'Batal' : 'Cancel'}
       />
     </div>
   );

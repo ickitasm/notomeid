@@ -543,6 +543,32 @@ export function useStorage() {
     saveStored(STORAGE_KEYS.DREAMS, initialDreamLogs);
   }, []);
 
+  const clearAllData = useCallback((mode: 'empty' | 'seed') => {
+    if (mode === 'seed') {
+      resetToSeed();
+      return;
+    }
+
+    // Clean Wipe: empty all content records
+    setMediaItemsState([]);
+    setNutritionLogsState([]);
+    setPetsState([]);
+    setMedicalRecordsState([]);
+    setMedicationsState([]);
+    setCalendarEventsState([]);
+    setNotesState([]);
+    setDreamLogsState([]);
+
+    saveStored(STORAGE_KEYS.MEDIA, []);
+    saveStored(STORAGE_KEYS.NUTRITION, []);
+    saveStored(STORAGE_KEYS.PETS, []);
+    saveStored(STORAGE_KEYS.MEDICAL, []);
+    saveStored(STORAGE_KEYS.MEDS, []);
+    saveStored(STORAGE_KEYS.EVENTS, []);
+    saveStored(STORAGE_KEYS.NOTES, []);
+    saveStored(STORAGE_KEYS.DREAMS, []);
+  }, [resetToSeed]);
+
   return {
     preferences,
     updatePreferences,
@@ -590,9 +616,10 @@ export function useStorage() {
     addDreamLog,
     updateDreamLog,
     deleteDreamLog,
-    // Backup
+    // Backup & Reset
     exportAllData,
     importAllData,
     resetToSeed,
+    clearAllData,
   };
 }

@@ -9,6 +9,7 @@ import { DreamLog } from '../../types';
 import { DreamCard } from './DreamCard';
 import { DreamModal } from './DreamModal';
 import { DreamKpiDashboard } from './DreamKpiDashboard';
+import { ConfirmDeleteModal } from '../Common/ConfirmDeleteModal';
 import { translations, Language } from '../../lib/translations';
 
 interface DreamCatcherViewProps {
@@ -32,6 +33,7 @@ export const DreamCatcherView: React.FC<DreamCatcherViewProps> = ({
   const [filterMode, setFilterMode] = useState<'all' | 'lucid' | 'nightmare' | 'recurring'>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDream, setEditingDream] = useState<DreamLog | null>(null);
+  const [dreamToDelete, setDreamToDelete] = useState<DreamLog | null>(null);
 
   // Filter dreams based on search & mode
   const filteredDreams = useMemo(() => {
@@ -213,7 +215,7 @@ export const DreamCatcherView: React.FC<DreamCatcherViewProps> = ({
               key={dream.id}
               dream={dream}
               onEdit={handleOpenEdit}
-              onDelete={onDeleteDream}
+              onDelete={setDreamToDelete}
               language={language}
             />
           ))}
@@ -227,6 +229,27 @@ export const DreamCatcherView: React.FC<DreamCatcherViewProps> = ({
         onSave={handleSaveModal}
         initialDream={editingDream}
         language={language}
+      />
+
+      {/* Delete Dream Confirmation Modal */}
+      <ConfirmDeleteModal
+        isOpen={Boolean(dreamToDelete)}
+        onClose={() => setDreamToDelete(null)}
+        onConfirm={() => {
+          if (dreamToDelete) {
+            onDeleteDream(dreamToDelete.id);
+            setDreamToDelete(null);
+          }
+        }}
+        title={language === 'id' ? 'Hapus Catatan Mimpi?' : 'Delete Dream Log?'}
+        itemName={dreamToDelete?.title}
+        description={
+          language === 'id'
+            ? 'Catatan mimpi ini akan dihapus permanen dari jurnal impian Anda.'
+            : 'This dream log will be permanently removed from your dream journal.'
+        }
+        confirmText={language === 'id' ? 'Hapus Mimpi' : 'Delete Dream'}
+        cancelText={language === 'id' ? 'Batal' : 'Cancel'}
       />
     </div>
   );

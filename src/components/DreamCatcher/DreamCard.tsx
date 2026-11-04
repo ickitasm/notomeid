@@ -11,7 +11,7 @@ import { translations, Language } from '../../lib/translations';
 interface DreamCardProps {
   dream: DreamLog;
   onEdit: (dream: DreamLog) => void;
-  onDelete: (id: string) => void;
+  onDelete: (dream: DreamLog) => void;
   language: Language;
 }
 
@@ -94,11 +94,7 @@ export const DreamCard: React.FC<DreamCardProps> = ({
             </button>
             <button
               type="button"
-              onClick={() => {
-                if (window.confirm(t.deleteConfirm)) {
-                  onDelete(dream.id);
-                }
-              }}
+              onClick={() => onDelete(dream)}
               className="p-1.5 rounded-lg text-[#8F8275] hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
               title="Delete"
             >

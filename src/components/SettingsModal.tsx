@@ -18,6 +18,7 @@ import {
 import { UserPreferences } from '../types';
 import { isSupabaseConfigured, testSupabaseConnection } from '../lib/supabase';
 import { translations, Language } from '../lib/translations';
+import { MassiveResetModal } from './Settings/MassiveResetModal';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -27,6 +28,7 @@ interface SettingsModalProps {
   onExportData: () => void;
   onImportData: (jsonStr: string) => boolean;
   onResetSeed: () => void;
+  onClearAllData?: (mode: 'empty' | 'seed') => void;
   language: Language;
   onSelectLanguage: (lang: Language) => void;
 }
@@ -39,6 +41,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onExportData,
   onImportData,
   onResetSeed,
+  onClearAllData,
   language,
   onSelectLanguage,
 }) => {
@@ -94,21 +97,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     e.target.value = '';
   };
 
-  const handleResetConfirm = () => {
-    const confirmText =
-      language === 'id'
-        ? 'Kembalikan data ke pengaturan awal? Semua data tersimpan akan diatur ulang.'
-        : 'Reset data to initial state? All stored entries will be restored to default.';
-    if (confirm(confirmText)) {
-      onResetSeed();
-      setStatusMessage(
-        language === 'id'
-          ? 'Data awal berhasil dipulihkan.'
-          : 'Initial dataset restored.'
-      );
-      setTimeout(() => setStatusMessage(null), 2500);
-    }
-  };
+  const [isMassiveResetOpen, setIsMassiveResetOpen] = useState(false);
 
   const handleTestSupabase = async () => {
     setIsTestingSupabase(true);
@@ -306,10 +295,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <span className="text-[11px] text-[#7B6F63]">{t.clearData}:</span>
               <button
                 type="button"
-                onClick={handleResetConfirm}
-                className="flex items-center gap-1 px-2.5 py-1 text-[11px] rounded border border-rose-200 dark:border-rose-900/40 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 active:scale-95 transition-all touch-manipulation"
+                onClick={() => setIsMassiveResetOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-rose-300 dark:border-rose-900/60 text-rose-600 dark:text-rose-400 bg-rose-50/50 dark:bg-rose-950/20 hover:bg-rose-100 dark:hover:bg-rose-950/40 active:scale-95 transition-all touch-manipulation cursor-pointer"
               >
-                <RotateCcw className="w-3 h-3" />
+                <RotateCcw className="w-3.5 h-3.5" />
                 <span>{t.clearData}</span>
               </button>
             </div>
@@ -369,6 +358,30 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
         )}
+
+        {/* Massive Data Reset Modal */}
+        <MassiveResetModal
+          isOpen={isMassiveResetOpen}
+          onClose={() => setIsMassiveResetOpen(false)}
+          onExecuteReset={(mode) => {
+            if (onClearAllData) {
+              onClearAllData(mode);
+            } else {
+              onResetSeed();
+            }
+            setStatusMessage(
+              language === 'id'
+                ? mode === 'empty'
+                  ? 'Seluruh data berhasil dikosongkan total.'
+                  : 'Data awal bawaan Notome berhasil dipulihkan.'
+                : mode === 'empty'
+                ? 'All data completely wiped.'
+                : 'Default seed data restored.'
+            );
+            setTimeout(() => setStatusMessage(null), 3000);
+          }}
+          language={language}
+        />
       </div>
     </div>
   );
