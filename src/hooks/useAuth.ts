@@ -8,22 +8,13 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { InvitedUser } from '../types';
 
 export const PRIMARY_ADMIN_EMAIL = 'mike777rafael@gmail.com';
-export const PRIMARY_ADMIN_EMAILS = [
-  'mike777rafael@gmail.com',
-  'michael777rafael@gmail.com',
-];
+export const PRIMARY_ADMIN_EMAILS = [PRIMARY_ADMIN_EMAIL];
 
 export function checkIsAdmin(email?: string | null): boolean {
   if (!email) return false;
   const clean = email.toLowerCase().trim();
   const username = clean.split('@')[0];
-  return (
-    PRIMARY_ADMIN_EMAILS.some((adm) => adm.toLowerCase().trim() === clean) ||
-    username === 'mike777rafael' ||
-    username === 'michael777rafael' ||
-    clean.includes('mike777rafael') ||
-    clean.includes('michael777rafael')
-  );
+  return clean === PRIMARY_ADMIN_EMAIL || username === 'mike777rafael';
 }
 
 export interface AppUser {
@@ -52,17 +43,7 @@ const INITIAL_INVITED_USERS: InvitedUser[] = [
     role: 'primary_admin',
     status: 'active',
     invitedBy: 'system',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'primary-admin-02',
-    email: 'michael777rafael@gmail.com',
-    fullName: 'Michael Rafael',
-    notes: 'Primary Admin Permanen (Google Auth)',
-    role: 'primary_admin',
-    status: 'active',
-    invitedBy: 'system',
-    createdAt: new Date().toISOString(),
+    createdAt: '2026-11-03T00:00:00.000Z',
   },
 ];
 
@@ -72,11 +53,18 @@ function loadLocalInvitedUsers(): InvitedUser[] {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        const hasMichael = parsed.some((u: InvitedUser) => checkIsAdmin(u.email));
-        if (!hasMichael) {
-          return [...INITIAL_INVITED_USERS, ...parsed];
-        }
-        return parsed;
+        // Enforce: ONLY mike777rafael can have role 'primary_admin'
+        // Any other user (e.g. michael777rafael or other accounts) is strictly 'member'
+        const sanitized: InvitedUser[] = parsed.map((u: InvitedUser) => {
+          if (!checkIsAdmin(u.email) && u.role === 'primary_admin') {
+            return { ...u, role: 'member' as const };
+          }
+          return u;
+        });
+
+        const hasAdmin = sanitized.some((u: InvitedUser) => checkIsAdmin(u.email));
+        const result = hasAdmin ? sanitized : [...INITIAL_INVITED_USERS, ...sanitized];
+        return result;
       }
     }
   } catch (e) {
@@ -163,26 +151,37 @@ export function useAuth() {
       if (dbError) {
         console.warn('Supabase fetch invited_users note:', dbError.message);
         setInvitedUsers(loadLocalInvitedUsers());
-      } else if (data) {
+      } else if (data && data.length > 0) {
         const mapped: InvitedUser[] = data.map((d: any) => ({
           id: d.id,
           email: d.email,
           fullName: d.full_name,
           notes: d.notes,
-          role: d.role,
+          role: checkIsAdmin(d.email) ? 'primary_admin' : (d.role === 'primary_admin' ? 'member' : d.role),
           status: d.status,
           invitedBy: d.invited_by,
           createdAt: d.created_at,
           lastLoginAt: d.last_login_at,
         }));
-        setInvitedUsers(mapped);
-        saveLocalInvitedUsers(mapped);
+        const hasAdmin = mapped.some((u) => checkIsAdmin(u.email));
+        const finalUsers = hasAdmin ? mapped : [...INITIAL_INVITED_USERS, ...mapped];
+        setInvitedUsers(finalUsers);
+        saveLocalInvitedUsers(finalUsers);
+      } else {
+        // Table exists but has 0 rows, maintain local members instead of clearing
+        const local = loadLocalInvitedUsers();
+        setInvitedUsers(local);
       }
     } catch (err) {
       console.error('Error fetching invited users:', err);
       setInvitedUsers(loadLocalInvitedUsers());
     }
   }, []);
+
+  // Sync on initial mount
+  useEffect(() => {
+    fetchInvitedUsers();
+  }, [fetchInvitedUsers]);
 
   // Check Whitelist status when user changes
   useEffect(() => {

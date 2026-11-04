@@ -134,6 +134,24 @@ export interface InvitedUser {
   lastLoginAt?: string;
 }
 
+// --- UPDATE LOG TYPES ---
+export type UpdateLogCategory = 'fitur_baru' | 'perbaikan' | 'peningkatan' | 'rencana';
+
+export interface UpdateLog {
+  id: string;
+  title: string;
+  version: string;
+  date: string; // YYYY-MM-DD
+  category: UpdateLogCategory;
+  description: string;
+  likesCount: number;
+  likedBy: string[]; // user email or identifier
+  createdBy?: string;
+  authorName?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
 // --- NOTE MODULE TYPES ---
 export interface FootnoteItem {
   id: string;

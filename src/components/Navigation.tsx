@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Film, Utensils, HeartPulse, Calendar, Sun, Moon, Sliders, LogOut, CheckCircle2, Globe, ShieldCheck, BookOpen, MoonStar } from 'lucide-react';
+import { Film, Utensils, HeartPulse, Calendar, Sun, Moon, Sliders, LogOut, CheckCircle2, Globe, ShieldCheck, BookOpen, MoonStar, Sparkles } from 'lucide-react';
 import { AppUser } from '../hooks/useAuth';
 import { UpcomingAlert } from '../lib/notifications';
 import { NotificationPanel } from './Notifications/NotificationPanel';
@@ -19,6 +19,7 @@ interface NavigationProps {
   onToggleTheme: () => void;
   onOpenSettings: () => void;
   onOpenAdminPanel?: () => void;
+  onOpenUpdateLogs?: () => void;
   isPrimaryAdmin?: boolean;
   language: Language;
   onSelectLanguage: (lang: Language) => void;
@@ -34,6 +35,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   onToggleTheme,
   onOpenSettings,
   onOpenAdminPanel,
+  onOpenUpdateLogs,
   isPrimaryAdmin = false,
   language,
   onSelectLanguage,
@@ -160,6 +162,19 @@ export const Navigation: React.FC<NavigationProps> = ({
               </button>
             )}
 
+            {/* Update Logs & Roadmap Button */}
+            {onOpenUpdateLogs && (
+              <button
+                type="button"
+                onClick={onOpenUpdateLogs}
+                className="min-h-[36px] px-2 sm:px-2.5 flex items-center gap-1.5 text-xs font-semibold rounded-lg border border-[#E0D7CB] dark:border-[#38312B] bg-[#FFFDF9] dark:bg-[#1C1815] text-[#594E44] dark:text-[#C5B8AA] hover:bg-[#EFE8DD] dark:hover:bg-[#28221D] active:scale-95 transition-all whitespace-nowrap shrink-0 touch-manipulation cursor-pointer"
+                title={language === 'id' ? 'Lihat Log Pembaruan & Roadmap' : 'View Update Logs & Roadmap'}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#C85A32]" />
+                <span className="hidden sm:inline">{language === 'id' ? 'Log Update' : 'Updates'}</span>
+              </button>
+            )}
+
             {/* Settings & Data Button */}
             <button
               type="button"
@@ -234,6 +249,20 @@ export const Navigation: React.FC<NavigationProps> = ({
                             {language === 'id' ? 'Kelola anggota & whitelist' : 'Manage members & whitelist'}
                           </div>
                         </div>
+                      </button>
+                    )}
+
+                    {onOpenUpdateLogs && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsProfileOpen(false);
+                          onOpenUpdateLogs();
+                        }}
+                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-[#F4ECE3] dark:hover:bg-[#25201C] text-[#594E44] dark:text-[#C5B8AA] transition-colors cursor-pointer"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-[#C85A32]" />
+                        <span>{language === 'id' ? 'Log Pembaruan' : 'Update Logs'}</span>
                       </button>
                     )}
 

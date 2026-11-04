@@ -21,10 +21,11 @@ import {
   Send,
   AlertTriangle,
   CheckCircle2,
+  RefreshCw,
 } from 'lucide-react';
 import { InvitedUser } from '../../types';
 import { Language } from '../../lib/translations';
-import { PRIMARY_ADMIN_EMAIL, PRIMARY_ADMIN_EMAILS, checkIsAdmin } from '../../hooks/useAuth';
+import { PRIMARY_ADMIN_EMAIL, checkIsAdmin } from '../../hooks/useAuth';
 import {
   notifyMemberInvited,
   notifyMemberRemoved,
@@ -41,6 +42,7 @@ interface AdminPanelModalProps {
   onAddUser: (email: string, fullName?: string, notes?: string) => Promise<{ success: boolean; error?: string }>;
   onUpdateStatus: (id: string, status: 'active' | 'revoked') => Promise<{ success: boolean; error?: string }>;
   onDeleteUser: (id: string) => Promise<{ success: boolean; error?: string }>;
+  onRefresh?: () => Promise<void>;
   language: Language;
 }
 
@@ -51,9 +53,11 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
   onAddUser,
   onUpdateStatus,
   onDeleteUser,
+  onRefresh,
   language,
 }) => {
   const [tab, setTab] = useState<'list' | 'add' | 'sql'>('list');
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [search, setSearch] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newName, setNewName] = useState('');
@@ -160,6 +164,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
   };
 
   const sqlMigrationCode = `-- Jalankan di Supabase Dashboard -> SQL Editor:
+-- 1. Tabel Anggota Whitelist (Hanya mike777rafael@gmail.com sebagai Primary Admin)
 CREATE TABLE IF NOT EXISTS public.invited_users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email TEXT UNIQUE NOT NULL,
@@ -177,22 +182,54 @@ ALTER TABLE public.invited_users ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can check own invite status" ON public.invited_users
     FOR SELECT USING (
         LOWER(email) = LOWER(auth.jwt() ->> 'email')
-        OR LOWER(auth.jwt() ->> 'email') IN ('mike777rafael@gmail.com', 'michael777rafael@gmail.com')
+        OR LOWER(auth.jwt() ->> 'email') = 'mike777rafael@gmail.com'
     );
 
 CREATE POLICY "Primary Admin full control on invites" ON public.invited_users
     FOR ALL USING (
-        LOWER(auth.jwt() ->> 'email') IN ('mike777rafael@gmail.com', 'michael777rafael@gmail.com')
+        LOWER(auth.jwt() ->> 'email') = 'mike777rafael@gmail.com'
     )
     WITH CHECK (
-        LOWER(auth.jwt() ->> 'email') IN ('mike777rafael@gmail.com', 'michael777rafael@gmail.com')
+        LOWER(auth.jwt() ->> 'email') = 'mike777rafael@gmail.com'
     );
 
+-- Pastikan hanya mike777rafael@gmail.com yang menjadi Primary Admin
 INSERT INTO public.invited_users (email, full_name, notes, role, status, invited_by)
 VALUES 
-    ('mike777rafael@gmail.com', 'Mike Rafael', 'Primary Admin Permanen', 'primary_admin', 'active', 'system'),
-    ('michael777rafael@gmail.com', 'Michael Rafael', 'Primary Admin Permanen (Google Auth)', 'primary_admin', 'active', 'system')
-ON CONFLICT (email) DO UPDATE SET role = 'primary_admin', status = 'active';`;
+    ('mike777rafael@gmail.com', 'Mike Rafael', 'Primary Admin Permanen', 'primary_admin', 'active', 'system')
+ON CONFLICT (email) DO UPDATE SET role = 'primary_admin', status = 'active';
+
+-- 2. Tabel Log Pembaruan & Roadmap Rilis
+CREATE TABLE IF NOT EXISTS public.update_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title TEXT NOT NULL,
+    version TEXT DEFAULT 'v1.0.0',
+    date DATE DEFAULT CURRENT_DATE,
+    category TEXT DEFAULT 'fitur_baru',
+    description TEXT NOT NULL,
+    likes_count INTEGER DEFAULT 0,
+    liked_by JSONB DEFAULT '[]'::jsonb,
+    created_by TEXT DEFAULT 'mike777rafael@gmail.com',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.update_logs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can view update logs" ON public.update_logs
+    FOR SELECT USING (true);
+
+CREATE POLICY "Primary Admin can manage update logs" ON public.update_logs
+    FOR ALL USING (
+        LOWER(auth.jwt() ->> 'email') = 'mike777rafael@gmail.com'
+    )
+    WITH CHECK (
+        LOWER(auth.jwt() ->> 'email') = 'mike777rafael@gmail.com'
+    );
+
+CREATE POLICY "Members can toggle like on update logs" ON public.update_logs
+    FOR UPDATE USING (true)
+    WITH CHECK (true);`;
 
   const handleCopySql = () => {
     navigator.clipboard.writeText(sqlMigrationCode);
@@ -359,8 +396,8 @@ ON CONFLICT (email) DO UPDATE SET role = 'primary_admin', status = 'active';`;
           {/* TAB 1: LIST */}
           {tab === 'list' && (
             <div className="space-y-4">
-              {/* Search Bar & Add Button */}
-              <div className="flex items-center justify-between gap-3">
+              {/* Search Bar, Sync Button & Add Button */}
+              <div className="flex items-center justify-between gap-2 sm:gap-3">
                 <div className="relative flex-1">
                   <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#8F8275]" />
                   <input
@@ -371,6 +408,22 @@ ON CONFLICT (email) DO UPDATE SET role = 'primary_admin', status = 'active';`;
                     className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] text-xs focus:outline-hidden focus:border-[#C85A32]"
                   />
                 </div>
+                {onRefresh && (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setIsRefreshing(true);
+                      await onRefresh();
+                      setTimeout(() => setIsRefreshing(false), 500);
+                    }}
+                    disabled={isRefreshing}
+                    className="px-2.5 sm:px-3 py-2 rounded-xl border border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] text-[#594E44] dark:text-[#C5B8AA] hover:bg-[#EFE8DD] dark:hover:bg-[#2E2822] text-xs font-medium flex items-center gap-1.5 shrink-0 cursor-pointer shadow-xs transition-colors"
+                    title={isId ? 'Sinkronkan data live dari Supabase' : 'Sync live data from Supabase'}
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#C85A32]' : ''}`} />
+                    <span className="hidden sm:inline">{isId ? 'Sinkronkan' : 'Sync'}</span>
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => setTab('add')}

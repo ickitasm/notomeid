@@ -18,6 +18,8 @@ import { SettingsModal } from './components/SettingsModal';
 import { AuthView } from './components/Auth/AuthView';
 import { AccessDeniedView } from './components/Auth/AccessDeniedView';
 import { AdminPanelModal } from './components/Admin/AdminPanelModal';
+import { UpdateLogsModal } from './components/UpdateLogs/UpdateLogsModal';
+import { useUpdateLogs } from './hooks/useUpdateLogs';
 import { getUpcomingAlerts } from './lib/notifications';
 import { translations, Language } from './lib/translations';
 
@@ -25,9 +27,11 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('media');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
+  const [isUpdateLogsOpen, setIsUpdateLogsOpen] = useState(false);
 
   const storage = useStorage();
   const auth = useAuth();
+  const updateLogs = useUpdateLogs();
 
   const currentLanguage: Language = storage.preferences.language || 'id';
 
@@ -113,6 +117,7 @@ export default function App() {
         onToggleTheme={storage.toggleTheme}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenAdminPanel={() => setIsAdminPanelOpen(true)}
+        onOpenUpdateLogs={() => setIsUpdateLogsOpen(true)}
         isPrimaryAdmin={auth.isPrimaryAdmin}
         language={currentLanguage}
         onSelectLanguage={handleSelectLanguage}
@@ -318,9 +323,24 @@ export default function App() {
           onAddUser={auth.addInvitedUser}
           onUpdateStatus={auth.updateInvitedUserStatus}
           onDeleteUser={auth.deleteInvitedUser}
+          onRefresh={auth.fetchInvitedUsers}
           language={currentLanguage}
         />
       )}
+
+      {/* Public Update Logs & Roadmap Modal with Interactive Likes */}
+      <UpdateLogsModal
+        isOpen={isUpdateLogsOpen}
+        onClose={() => setIsUpdateLogsOpen(false)}
+        logs={updateLogs.logs}
+        isPrimaryAdmin={auth.isPrimaryAdmin}
+        currentUserEmail={auth.user?.email}
+        onAddLog={updateLogs.addLog}
+        onUpdateLog={updateLogs.updateLog}
+        onDeleteLog={updateLogs.deleteLog}
+        onToggleLike={updateLogs.toggleLike}
+        language={currentLanguage}
+      />
     </div>
   );
 }
