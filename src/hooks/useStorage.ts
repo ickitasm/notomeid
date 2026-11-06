@@ -254,6 +254,25 @@ export function useStorage() {
     [nutritionLogs, saveNutritionLogs]
   );
 
+  const updateMealInDate = useCallback(
+    (dateStr: string, mealId: string, updates: Partial<MealItem>) => {
+      const updatedLogs = nutritionLogs.map((log) => {
+        if (log.date !== dateStr) return log;
+        const nextMeals = log.meals.map((m) => (m.id === mealId ? { ...m, ...updates } : m));
+        const nextCalories = nextMeals.reduce((sum, m) => sum + (m.calories || 0), 0);
+        const nextSugar = nextMeals.reduce((sum, m) => sum + (m.sugarGrams || 0), 0);
+        return {
+          ...log,
+          meals: nextMeals,
+          caloriesConsumed: nextCalories,
+          sugarGrams: nextSugar,
+        };
+      });
+      saveNutritionLogs(updatedLogs);
+    },
+    [nutritionLogs, saveNutritionLogs]
+  );
+
   const updateWeightForDate = useCallback(
     (dateStr: string, weightKg: number) => {
       const existing = nutritionLogs.find((l) => l.date === dateStr);
@@ -396,6 +415,10 @@ export function useStorage() {
     };
     saveCalendarEvents([newEvent, ...calendarEvents]);
     return newEvent;
+  }, [calendarEvents, saveCalendarEvents]);
+
+  const updateCalendarEvent = useCallback((id: string, updates: Partial<CalendarEvent>) => {
+    saveCalendarEvents(calendarEvents.map((e) => (e.id === id ? { ...e, ...updates } : e)));
   }, [calendarEvents, saveCalendarEvents]);
 
   const deleteCalendarEvent = useCallback((id: string) => {
@@ -583,6 +606,7 @@ export function useStorage() {
     nutritionLogs,
     getLogForDate,
     addMealToDate,
+    updateMealInDate,
     deleteMealFromDate,
     updateWeightForDate,
     updateWaterForDate,
@@ -604,6 +628,7 @@ export function useStorage() {
     // Events
     calendarEvents,
     addCalendarEvent,
+    updateCalendarEvent,
     deleteCalendarEvent,
     // Notes
     notes,

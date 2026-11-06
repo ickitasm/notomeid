@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Calendar as CalendarIcon, Clock } from 'lucide-react';
 import { CalendarEvent, EventCategory } from '../../types';
 
@@ -12,6 +12,7 @@ interface EventModalProps {
   onClose: () => void;
   onSave: (event: Omit<CalendarEvent, 'id'>) => void;
   initialDate?: string;
+  initialEvent?: CalendarEvent | null;
 }
 
 export const EventModal: React.FC<EventModalProps> = ({
@@ -19,12 +20,30 @@ export const EventModal: React.FC<EventModalProps> = ({
   onClose,
   onSave,
   initialDate,
+  initialEvent,
 }) => {
-  const [title, setTitle] = useState('');
-  const [date, setDate] = useState(initialDate || new Date().toISOString().slice(0, 10));
-  const [time, setTime] = useState('19:00');
-  const [category, setCategory] = useState<EventCategory>('personal');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState(initialEvent?.title || '');
+  const [date, setDate] = useState(initialEvent?.date || initialDate || new Date().toISOString().slice(0, 10));
+  const [time, setTime] = useState(initialEvent?.time || '19:00');
+  const [category, setCategory] = useState<EventCategory>(initialEvent?.category || 'personal');
+  const [description, setDescription] = useState(initialEvent?.description || '');
+
+  // Synchronize state when initialEvent, initialDate, or isOpen changes
+  useEffect(() => {
+    if (initialEvent) {
+      setTitle(initialEvent.title || '');
+      setDate(initialEvent.date || initialDate || new Date().toISOString().slice(0, 10));
+      setTime(initialEvent.time || '19:00');
+      setCategory(initialEvent.category || 'personal');
+      setDescription(initialEvent.description || '');
+    } else {
+      setTitle('');
+      setDate(initialDate || new Date().toISOString().slice(0, 10));
+      setTime('19:00');
+      setCategory('personal');
+      setDescription('');
+    }
+  }, [initialEvent, initialDate, isOpen]);
 
   if (!isOpen) return null;
 
@@ -50,7 +69,9 @@ export const EventModal: React.FC<EventModalProps> = ({
 
         <div className="flex items-center justify-between pb-3 border-b border-[#E4DCDB] dark:border-[#352F2B]">
           <div>
-            <h3 className="font-serif text-lg font-bold">Add Calendar Event</h3>
+            <h3 className="font-serif text-lg font-bold">
+              {initialEvent ? 'Edit Calendar Event' : 'Add Calendar Event'}
+            </h3>
             <p className="text-xs text-[#7B6F63] dark:text-[#9F9184]">
               Schedule a personal reminder, watch session, or vet reminder.
             </p>
@@ -161,7 +182,7 @@ export const EventModal: React.FC<EventModalProps> = ({
               type="submit"
               className="px-5 py-2 rounded-lg bg-[#C4933F] text-white text-xs font-medium hover:bg-[#AE7F30] transition-colors"
             >
-              Add Event
+              {initialEvent ? 'Save Changes' : 'Add Event'}
             </button>
           </div>
         </form>

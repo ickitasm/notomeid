@@ -17,6 +17,7 @@ import {
   Trash2,
   AlertCircle,
   CheckCircle2,
+  Edit2,
 } from 'lucide-react';
 import { DailyNutritionLog, MealItem, MealType } from '../../types';
 import { MiniCalendar, CalendarHighlight } from '../MiniCalendar';
@@ -29,6 +30,7 @@ interface NutritionViewProps {
   logs: DailyNutritionLog[];
   getLogForDate: (date: string) => DailyNutritionLog;
   onAddMeal: (date: string, meal: Omit<MealItem, 'id'>) => void;
+  onUpdateMeal?: (date: string, mealId: string, updates: Partial<MealItem>) => void;
   onDeleteMeal: (date: string, mealId: string) => void;
   onUpdateWeight: (date: string, weightKg: number) => void;
   onUpdateWater: (date: string, deltaMl: number) => void;
@@ -41,6 +43,7 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
   logs,
   getLogForDate,
   onAddMeal,
+  onUpdateMeal,
   onDeleteMeal,
   onUpdateWeight,
   onUpdateWater,
@@ -52,6 +55,7 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalDefaultMealType, setModalDefaultMealType] = useState<MealType>('breakfast');
+  const [editingMeal, setEditingMeal] = useState<{ date: string; meal: MealItem } | null>(null);
   const [weightInputValue, setWeightInputValue] = useState('');
   const [mealToDelete, setMealToDelete] = useState<{ date: string; meal: MealItem } | null>(null);
 
@@ -99,8 +103,27 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
   const remainingCalories = (currentLog.calorieGoal || calorieGoal) - currentLog.caloriesConsumed;
 
   const handleOpenAddMeal = (type: MealType) => {
+    setEditingMeal(null);
     setModalDefaultMealType(type);
     setIsModalOpen(true);
+  };
+
+  const handleEditMeal = (meal: MealItem) => {
+    setEditingMeal({ date: selectedDate, meal });
+    setModalDefaultMealType(meal.mealType);
+    setIsModalOpen(true);
+  };
+
+  const handleSaveMeal = (mealData: Omit<MealItem, 'id'>) => {
+    if (editingMeal) {
+      if (onUpdateMeal) {
+        onUpdateMeal(editingMeal.date, editingMeal.meal.id, mealData);
+      }
+    } else {
+      onAddMeal(selectedDate, mealData);
+    }
+    setEditingMeal(null);
+    setIsModalOpen(false);
   };
 
   const handleSaveWeight = (e: React.FormEvent) => {
@@ -450,14 +473,24 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
                                   {meal.sugarGrams}g sugar
                                 </div>
                               </div>
-                              <button
-                                type="button"
-                                onClick={() => setMealToDelete({ date: selectedDate, meal })}
-                                className="p-1.5 rounded-lg text-[#8F8275] hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
-                                title="Remove meal item"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
+                              <div className="flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => handleEditMeal(meal)}
+                                  className="p-1.5 rounded-lg text-[#8F8275] hover:text-[#5B7A58] hover:bg-[#5B7A58]/10 transition-colors"
+                                  title="Edit meal item"
+                                >
+                                  <Edit2 className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setMealToDelete({ date: selectedDate, meal })}
+                                  className="p-1.5 rounded-lg text-[#8F8275] hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+                                  title="Remove meal item"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
                             </div>
                           </div>
                         ))}
@@ -517,10 +550,15 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
 
       {/* Meal Entry Modal */}
       <MealModal
+        key={editingMeal ? editingMeal.meal.id : `new-meal-${modalDefaultMealType}`}
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={(meal) => onAddMeal(selectedDate, meal)}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingMeal(null);
+        }}
+        onSave={handleSaveMeal}
         defaultMealType={modalDefaultMealType}
+        initialMeal={editingMeal ? editingMeal.meal : null}
       />
 
       {/* Delete Meal Confirmation Modal */}

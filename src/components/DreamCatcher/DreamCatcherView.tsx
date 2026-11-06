@@ -72,6 +72,7 @@ export const DreamCatcherView: React.FC<DreamCatcherViewProps> = ({
     } else {
       onAddDream(data);
     }
+    setEditingDream(null);
   };
 
   return (
@@ -224,8 +225,12 @@ export const DreamCatcherView: React.FC<DreamCatcherViewProps> = ({
 
       {/* Dream Add/Edit Modal */}
       <DreamModal
+        key={editingDream ? editingDream.id : 'new-dream'}
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingDream(null);
+        }}
         onSave={handleSaveModal}
         initialDream={editingDream}
         language={language}

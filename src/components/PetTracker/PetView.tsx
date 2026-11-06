@@ -661,8 +661,12 @@ export const PetView: React.FC<PetViewProps> = ({
 
       {/* Pet Registration / Edit Modal */}
       <PetModal
+        key={isEditingPet && currentPet ? currentPet.id : 'new-pet'}
         isOpen={isPetModalOpen}
-        onClose={() => setIsPetModalOpen(false)}
+        onClose={() => {
+          setIsPetModalOpen(false);
+          setIsEditingPet(false);
+        }}
         onSave={(data) => {
           if (isEditingPet && currentPet) {
             onUpdatePet(currentPet.id, data);
@@ -670,12 +674,15 @@ export const PetView: React.FC<PetViewProps> = ({
             const newPet = onAddPet(data);
             setActivePetId(newPet.id);
           }
+          setIsEditingPet(false);
+          setIsPetModalOpen(false);
         }}
         initialPet={isEditingPet ? currentPet : null}
       />
 
       {/* Medical Record Modal */}
       <MedicalRecordModal
+        key={editingRecord ? editingRecord.id : 'new-record'}
         isOpen={isRecordModalOpen}
         onClose={() => {
           setIsRecordModalOpen(false);

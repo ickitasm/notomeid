@@ -86,6 +86,7 @@ export const NotesView: React.FC<NotesViewProps> = ({
     } else {
       onAddNote(data);
     }
+    setEditingNote(null);
   };
 
   const categories: { id: string; label: string }[] = [
@@ -250,8 +251,12 @@ export const NotesView: React.FC<NotesViewProps> = ({
 
       {/* Note Add/Edit Modal */}
       <NoteModal
+        key={editingNote ? editingNote.id : 'new-note'}
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingNote(null);
+        }}
         onSave={handleSaveModal}
         initialNote={editingNote}
         language={language}

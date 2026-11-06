@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, HeartPulse } from 'lucide-react';
 import { PetProfile, PetSpecies, PetGender } from '../../types';
 
@@ -25,13 +25,44 @@ export const PetModal: React.FC<PetModalProps> = ({
   const [breed, setBreed] = useState(initialPet?.breed || '');
   const [birthDate, setBirthDate] = useState(initialPet?.birthDate || '2023-01-01');
   const [gender, setGender] = useState<PetGender>(initialPet?.gender || 'male');
-  const [weightKg, setWeightKg] = useState<number>(initialPet?.weightKg || 12);
+  const [weightKg, setWeightKg] = useState<number>(initialPet?.weightKg ?? 12);
   const [microchipId, setMicrochipId] = useState(initialPet?.microchipId || '');
   const [avatarUrl, setAvatarUrl] = useState(initialPet?.avatarUrl || '');
   const [allergiesInput, setAllergiesInput] = useState(initialPet?.allergies?.join(', ') || '');
   const [dietaryNotes, setDietaryNotes] = useState(initialPet?.dietaryNotes || '');
   const [vetClinicName, setVetClinicName] = useState(initialPet?.vetClinicName || '');
   const [emergencyContact, setEmergencyContact] = useState(initialPet?.emergencyContact || '');
+
+  // Synchronize state when initialPet or isOpen changes
+  useEffect(() => {
+    if (initialPet) {
+      setName(initialPet.name || '');
+      setSpecies(initialPet.species || 'dog');
+      setBreed(initialPet.breed || '');
+      setBirthDate(initialPet.birthDate || '2023-01-01');
+      setGender(initialPet.gender || 'male');
+      setWeightKg(typeof initialPet.weightKg === 'number' ? initialPet.weightKg : 12);
+      setMicrochipId(initialPet.microchipId || '');
+      setAvatarUrl(initialPet.avatarUrl || '');
+      setAllergiesInput(initialPet.allergies ? initialPet.allergies.join(', ') : '');
+      setDietaryNotes(initialPet.dietaryNotes || '');
+      setVetClinicName(initialPet.vetClinicName || '');
+      setEmergencyContact(initialPet.emergencyContact || '');
+    } else {
+      setName('');
+      setSpecies('dog');
+      setBreed('');
+      setBirthDate('2023-01-01');
+      setGender('male');
+      setWeightKg(12);
+      setMicrochipId('');
+      setAvatarUrl('');
+      setAllergiesInput('');
+      setDietaryNotes('');
+      setVetClinicName('');
+      setEmergencyContact('');
+    }
+  }, [initialPet, isOpen]);
 
   if (!isOpen) return null;
 

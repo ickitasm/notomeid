@@ -15,6 +15,7 @@ import {
   Tag,
   Clock,
   Trash2,
+  Edit2,
 } from 'lucide-react';
 import {
   CalendarEvent,
@@ -35,6 +36,7 @@ interface MasterCalendarViewProps {
   medicalRecords: PetMedicalRecord[];
   pets: PetProfile[];
   onAddEvent: (event: Omit<CalendarEvent, 'id'>) => void;
+  onUpdateEvent?: (id: string, updates: Partial<CalendarEvent>) => void;
   onDeleteEvent: (id: string) => void;
   language?: Language;
 }
@@ -46,6 +48,7 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
   medicalRecords,
   pets,
   onAddEvent,
+  onUpdateEvent,
   onDeleteEvent,
   language = 'id',
 }) => {
@@ -54,7 +57,30 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
   const [viewMode, setViewMode] = useState<'month' | 'agenda'>('month');
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
   const [eventToDelete, setEventToDelete] = useState<CalendarEvent | null>(null);
+
+  const handleOpenAddEvent = () => {
+    setEditingEvent(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEditEvent = (event: CalendarEvent) => {
+    setEditingEvent(event);
+    setIsModalOpen(true);
+  };
+
+  const handleSaveEvent = (data: Omit<CalendarEvent, 'id'>) => {
+    if (editingEvent) {
+      if (onUpdateEvent) {
+        onUpdateEvent(editingEvent.id, data);
+      }
+    } else {
+      onAddEvent(data);
+    }
+    setEditingEvent(null);
+    setIsModalOpen(false);
+  };
 
   // Month navigation state
   const [currentYear, setCurrentYear] = useState(() => {
@@ -252,7 +278,7 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
 
         <button
           type="button"
-          onClick={() => setIsModalOpen(true)}
+          onClick={handleOpenAddEvent}
           className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-[#C4933F] text-white text-xs sm:text-sm font-medium hover:bg-[#AE7F30] transition-colors shadow-xs whitespace-nowrap self-start md:self-auto cursor-pointer"
         >
           <Plus className="w-4 h-4" />
@@ -480,14 +506,24 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
                             {style.label}
                           </span>
                           {isCustom && (
-                            <button
-                              type="button"
-                              onClick={() => setEventToDelete(ev)}
-                              className="text-[#8F8275] hover:text-rose-600 p-0.5"
-                              title="Delete event"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
+                            <div className="flex items-center gap-1">
+                              <button
+                                type="button"
+                                onClick={() => handleEditEvent(ev)}
+                                className="text-[#8F8275] hover:text-[#C4933F] p-0.5"
+                                title="Edit event"
+                              >
+                                <Edit2 className="w-3 h-3" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEventToDelete(ev)}
+                                className="text-[#8F8275] hover:text-rose-600 p-0.5"
+                                title="Delete event"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            </div>
                           )}
                         </div>
 
@@ -586,14 +622,24 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
                     </div>
 
                     {isCustom && (
-                      <button
-                        type="button"
-                        onClick={() => setEventToDelete(ev)}
-                        className="p-1.5 rounded hover:bg-rose-50 text-[#8F8275] hover:text-rose-600 transition-colors"
-                        title="Delete custom event"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => handleEditEvent(ev)}
+                          className="p-1.5 rounded hover:bg-[#EFE8DD] dark:hover:bg-[#28221D] text-[#8F8275] hover:text-[#C4933F] transition-colors"
+                          title="Edit custom event"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEventToDelete(ev)}
+                          className="p-1.5 rounded hover:bg-rose-50 text-[#8F8275] hover:text-rose-600 transition-colors"
+                          title="Delete custom event"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     )}
                   </div>
                 );
@@ -605,10 +651,15 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
 
       {/* Add Custom Event Modal */}
       <EventModal
+        key={editingEvent ? editingEvent.id : `new-evt-${selectedDate}`}
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={onAddEvent}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingEvent(null);
+        }}
+        onSave={handleSaveEvent}
         initialDate={selectedDate}
+        initialEvent={editingEvent}
       />
 
       {/* Delete Calendar Event Confirmation Modal */}

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Film, Tv, Star, Calendar } from 'lucide-react';
 import { MediaItem, MediaType, MediaStatus } from '../../types';
 
@@ -28,7 +28,7 @@ export const MediaModal: React.FC<MediaModalProps> = ({
   const [title, setTitle] = useState(initialItem?.title || '');
   const [type, setType] = useState<MediaType>(initialItem?.type || 'series');
   const [status, setStatus] = useState<MediaStatus>(initialItem?.status || 'watching');
-  const [rating, setRating] = useState<number>(initialItem?.rating || 8.5);
+  const [rating, setRating] = useState<number>(initialItem?.rating ?? 8.5);
   const [releaseDate, setReleaseDate] = useState(initialItem?.releaseDate || '');
   const [scheduledWatchDate, setScheduledWatchDate] = useState(initialItem?.scheduledWatchDate || '');
   const [posterUrl, setPosterUrl] = useState(initialItem?.posterUrl || '');
@@ -40,6 +40,39 @@ export const MediaModal: React.FC<MediaModalProps> = ({
   const [totalEpisodes, setTotalEpisodes] = useState(initialItem?.seriesDetails?.totalEpisodes || 10);
   const [currentSeason, setCurrentSeason] = useState(initialItem?.seriesDetails?.currentSeason || 1);
   const [currentEpisode, setCurrentEpisode] = useState(initialItem?.seriesDetails?.currentEpisode || 1);
+
+  // Synchronize state when initialItem or isOpen changes
+  useEffect(() => {
+    if (initialItem) {
+      setTitle(initialItem.title || '');
+      setType(initialItem.type || 'series');
+      setStatus(initialItem.status || 'watching');
+      setRating(typeof initialItem.rating === 'number' ? initialItem.rating : 8.5);
+      setReleaseDate(initialItem.releaseDate || '');
+      setScheduledWatchDate(initialItem.scheduledWatchDate || '');
+      setPosterUrl(initialItem.posterUrl || '');
+      setNotes(initialItem.notes || '');
+      setSelectedGenres(initialItem.genres && initialItem.genres.length > 0 ? initialItem.genres : ['Sci-Fi', 'Drama']);
+      setTotalSeasons(initialItem.seriesDetails?.totalSeasons || 1);
+      setTotalEpisodes(initialItem.seriesDetails?.totalEpisodes || 10);
+      setCurrentSeason(initialItem.seriesDetails?.currentSeason || 1);
+      setCurrentEpisode(initialItem.seriesDetails?.currentEpisode || 1);
+    } else {
+      setTitle('');
+      setType('series');
+      setStatus('watching');
+      setRating(8.5);
+      setReleaseDate('');
+      setScheduledWatchDate('');
+      setPosterUrl('');
+      setNotes('');
+      setSelectedGenres(['Sci-Fi', 'Drama']);
+      setTotalSeasons(1);
+      setTotalEpisodes(10);
+      setCurrentSeason(1);
+      setCurrentEpisode(1);
+    }
+  }, [initialItem, isOpen]);
 
   if (!isOpen) return null;
 

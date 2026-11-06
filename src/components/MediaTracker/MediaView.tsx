@@ -524,6 +524,7 @@ export const MediaView: React.FC<MediaViewProps> = ({
 
       {/* Add / Edit Modal */}
       <MediaModal
+        key={editingItem ? editingItem.id : 'new-media'}
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);

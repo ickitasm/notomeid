@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Utensils, Sparkles } from 'lucide-react';
 import { MealItem, MealType } from '../../types';
 
@@ -12,6 +12,7 @@ interface MealModalProps {
   onClose: () => void;
   onSave: (meal: Omit<MealItem, 'id'>) => void;
   defaultMealType?: MealType;
+  initialMeal?: MealItem | null;
 }
 
 const COMMON_PRESETS: { name: string; mealType: MealType; cal: number; sugar: number; protein: number }[] = [
@@ -31,18 +32,44 @@ export const MealModal: React.FC<MealModalProps> = ({
   onClose,
   onSave,
   defaultMealType = 'breakfast',
+  initialMeal,
 }) => {
-  const [mealType, setMealType] = useState<MealType>(defaultMealType);
-  const [name, setName] = useState('');
-  const [calories, setCalories] = useState<number>(350);
-  const [sugarGrams, setSugarGrams] = useState<number>(5);
-  const [proteinGrams, setProteinGrams] = useState<number>(20);
-  const [carbsGrams, setCarbsGrams] = useState<number>(30);
-  const [fatGrams, setFatGrams] = useState<number>(10);
+  const [mealType, setMealType] = useState<MealType>(initialMeal?.mealType || defaultMealType);
+  const [name, setName] = useState(initialMeal?.name || '');
+  const [calories, setCalories] = useState<number>(initialMeal?.calories ?? 350);
+  const [sugarGrams, setSugarGrams] = useState<number>(initialMeal?.sugarGrams ?? 5);
+  const [proteinGrams, setProteinGrams] = useState<number>(initialMeal?.proteinGrams ?? 20);
+  const [carbsGrams, setCarbsGrams] = useState<number>(initialMeal?.carbsGrams ?? 30);
+  const [fatGrams, setFatGrams] = useState<number>(initialMeal?.fatGrams ?? 10);
   const [time, setTime] = useState(() => {
+    if (initialMeal?.time) return initialMeal.time;
     const now = new Date();
     return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
   });
+
+  // Synchronize state when initialMeal or isOpen changes
+  useEffect(() => {
+    if (initialMeal) {
+      setMealType(initialMeal.mealType || defaultMealType);
+      setName(initialMeal.name || '');
+      setCalories(initialMeal.calories || 0);
+      setSugarGrams(initialMeal.sugarGrams || 0);
+      setProteinGrams(initialMeal.proteinGrams || 0);
+      setCarbsGrams(initialMeal.carbsGrams || 0);
+      setFatGrams(initialMeal.fatGrams || 0);
+      setTime(initialMeal.time || '');
+    } else {
+      setMealType(defaultMealType);
+      setName('');
+      setCalories(350);
+      setSugarGrams(5);
+      setProteinGrams(20);
+      setCarbsGrams(30);
+      setFatGrams(10);
+      const now = new Date();
+      setTime(`${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`);
+    }
+  }, [initialMeal, defaultMealType, isOpen]);
 
   if (!isOpen) return null;
 
@@ -79,7 +106,9 @@ export const MealModal: React.FC<MealModalProps> = ({
 
         <div className="flex items-center justify-between pb-3 border-b border-[#E4DCDB] dark:border-[#352F2B]">
           <div>
-            <h3 className="font-serif text-lg font-bold">Log Food & Beverage</h3>
+            <h3 className="font-serif text-lg font-bold">
+              {initialMeal ? 'Edit Food & Beverage' : 'Log Food & Beverage'}
+            </h3>
             <p className="text-xs text-[#7B6F63] dark:text-[#9F9184]">
               Accurately track calories and watch daily sugar intake.
             </p>
@@ -243,7 +272,7 @@ export const MealModal: React.FC<MealModalProps> = ({
               type="submit"
               className="px-5 py-2 rounded-lg bg-[#5B7A58] text-white text-xs font-medium hover:bg-[#4D674A] transition-colors"
             >
-              Save Food Entry
+              {initialMeal ? 'Update Food Entry' : 'Save Food Entry'}
             </button>
           </div>
         </form>

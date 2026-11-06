@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Syringe, Stethoscope, Pill, Scissors } from 'lucide-react';
 import { PetMedicalRecord, MedicalRecordType } from '../../types';
 
@@ -42,6 +42,31 @@ export const MedicalRecordModal: React.FC<MedicalRecordModalProps> = ({
   const [cost, setCost] = useState<number | undefined>(initialRecord?.cost);
   const [completed, setCompleted] = useState<boolean>(initialRecord ? initialRecord.completed : true);
   const [notes, setNotes] = useState(initialRecord?.notes || '');
+
+  // Synchronize state when initialRecord or isOpen changes
+  useEffect(() => {
+    if (initialRecord) {
+      setType(initialRecord.type || 'vaccine');
+      setTitle(initialRecord.title || '');
+      setDate(initialRecord.date || new Date().toISOString().slice(0, 10));
+      setNextDueDate(initialRecord.nextDueDate || '');
+      setClinicName(initialRecord.clinicName || 'Harmony Animal Hospital');
+      setVeterinarian(initialRecord.veterinarian || '');
+      setCost(initialRecord.cost);
+      setCompleted(typeof initialRecord.completed === 'boolean' ? initialRecord.completed : true);
+      setNotes(initialRecord.notes || '');
+    } else {
+      setType('vaccine');
+      setTitle('');
+      setDate(new Date().toISOString().slice(0, 10));
+      setNextDueDate('');
+      setClinicName('Harmony Animal Hospital');
+      setVeterinarian('');
+      setCost(undefined);
+      setCompleted(true);
+      setNotes('');
+    }
+  }, [initialRecord, isOpen]);
 
   if (!isOpen) return null;
 

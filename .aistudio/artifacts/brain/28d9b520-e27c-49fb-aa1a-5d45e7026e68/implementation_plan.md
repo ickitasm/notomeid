@@ -33,8 +33,19 @@ Implementation record for preparing Notome for public on-air deployment: removin
    - Reframed `SettingsModal` and `Navigation` around "Cloud Sync" / "Sinkronisasi Cloud" and "Settings & Sync" / "Pengaturan & Sinkronisasi".
    - Preserved all actual functional features (Google OAuth login, session handling, cloud sync test utility).
 
-5. **Verification**:
+5. **Cross-Module Edit Form State Synchronization Bug Fixes**:
+   - Diagnosed root cause: modal form components (`MediaModal`, `PetModal`, `MedicalRecordModal`, `MealModal`, `EventModal`) lacked synchronization `useEffect` hooks and unique `key` props, causing form fields to retain default/initial empty states rather than binding to the selected record on edit.
+   - Fixed across all modules:
+     - **Cinema & Series (`MediaModal` & `MediaView`)**: Added `useEffect([initialItem, isOpen])` to rebind all fields (title, season, episode, genres, rating, notes, dates) and added `key={editingItem ? editingItem.id : 'new-media'}`.
+     - **Pet Profiles (`PetModal` & `PetView`)**: Added `useEffect([initialPet, isOpen])` to sync pet profile fields and added dynamic `key` plus clean reset on modal dismissal.
+     - **Pet Medical Records (`MedicalRecordModal` & `PetView`)**: Added `useEffect([initialRecord, isOpen])` to sync treatment/vaccination dates, clinic, cost, status, notes, and added dynamic `key`.
+     - **Daily Nutrition (`MealModal` & `NutritionView`)**: Added full edit capability with `initialMeal` support, `updateMealInDate` in `useStorage`, meal edit button in daily log list, and dynamic `key`.
+     - **Master Calendar (`EventModal` & `MasterCalendarView`)**: Added full edit capability with `initialEvent` support, `updateCalendarEvent` in `useStorage`, edit buttons in month and agenda views, and dynamic `key`.
+     - **Notes & Dream Catcher (`NotesView` & `DreamCatcherView`)**: Added clean state reset (`setEditingNote(null)`, `setEditingDream(null)`) on save and modal close, with dynamic remount keys.
+
+6. **Verification**:
    - `tsc --noEmit` passed with 0 errors.
-   - Vite production build compiled successfully.
+   - Vite production build compiled successfully (`compile_applet` passed).
+   - `lint_applet` passed with zero errors.
    - `grep -rni "database" src/` returned zero matches.
    - `grep -rni "demo" src/` returned zero matches.

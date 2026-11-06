@@ -176,6 +176,7 @@ export default function App() {
             logs={storage.nutritionLogs}
             getLogForDate={storage.getLogForDate}
             onAddMeal={storage.addMealToDate}
+            onUpdateMeal={storage.updateMealInDate}
             onDeleteMeal={storage.deleteMealFromDate}
             onUpdateWeight={storage.updateWeightForDate}
             onUpdateWater={storage.updateWaterForDate}
@@ -211,6 +212,7 @@ export default function App() {
             medicalRecords={storage.medicalRecords}
             pets={storage.pets}
             onAddEvent={storage.addCalendarEvent}
+            onUpdateEvent={storage.updateCalendarEvent}
             onDeleteEvent={storage.deleteCalendarEvent}
             language={currentLanguage}
           />
