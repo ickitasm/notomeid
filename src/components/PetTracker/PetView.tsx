@@ -24,6 +24,7 @@ import { PetProfile, PetMedicalRecord, PetMedication, MedicalRecordType } from '
 import { MiniCalendar, CalendarHighlight } from '../MiniCalendar';
 import { PetModal } from './PetModal';
 import { MedicalRecordModal } from './MedicalRecordModal';
+import { MedicationModal } from './MedicationModal';
 import { ConfirmDeleteModal } from '../Common/ConfirmDeleteModal';
 import { translations, Language } from '../../lib/translations';
 
@@ -69,6 +70,8 @@ export const PetView: React.FC<PetViewProps> = ({
   const [isEditingPet, setIsEditingPet] = useState(false);
   const [isRecordModalOpen, setIsRecordModalOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<PetMedicalRecord | null>(null);
+  const [isMedicationModalOpen, setIsMedicationModalOpen] = useState(false);
+  const [editingMedication, setEditingMedication] = useState<PetMedication | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{
     type: 'pet' | 'record' | 'medication';
     id: string;
@@ -161,6 +164,25 @@ export const PetView: React.FC<PetViewProps> = ({
       onAddMedicalRecord(data);
     }
     setEditingRecord(null);
+  };
+
+  const handleOpenAddMedication = () => {
+    setEditingMedication(null);
+    setIsMedicationModalOpen(true);
+  };
+
+  const handleEditMedication = (med: PetMedication) => {
+    setEditingMedication(med);
+    setIsMedicationModalOpen(true);
+  };
+
+  const handleSaveMedication = (data: Omit<PetMedication, 'id'>) => {
+    if (editingMedication) {
+      onUpdateMedication(editingMedication.id, data);
+    } else {
+      onAddMedication(data);
+    }
+    setEditingMedication(null);
   };
 
   return (
@@ -561,24 +583,11 @@ export const PetView: React.FC<PetViewProps> = ({
               </div>
               <button
                 type="button"
-                onClick={() => {
-                  const name = prompt('Medication name (e.g. NexGard Spectra, Probiotics):');
-                  if (!name) return;
-                  const dosage = prompt('Dosage (e.g. 1 chewable, 2 drops):', '1 unit') || '1 unit';
-                  const frequency = prompt('Frequency (e.g. Monthly, Daily morning):', 'Daily') || 'Daily';
-                  onAddMedication({
-                    petId: currentPet.id,
-                    name,
-                    dosage,
-                    frequency,
-                    startDate: new Date().toISOString().slice(0, 10),
-                    isActive: true,
-                  });
-                }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#E0D7CB] dark:border-[#38312B] text-xs font-semibold hover:bg-[#F3ECE4] dark:hover:bg-[#25201C] transition-colors cursor-pointer"
+                onClick={handleOpenAddMedication}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#E0D7CB] dark:border-[#38312B] bg-[#FFFDF9] dark:bg-[#1C1815] text-xs font-semibold hover:bg-[#F3ECE4] dark:hover:bg-[#25201C] transition-all cursor-pointer active:scale-95 shadow-xs"
               >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Add Medication</span>
+                <Plus className="w-3.5 h-3.5 text-[#A86438]" />
+                <span>{language === 'id' ? 'Tambah Obat' : 'Add Medication'}</span>
               </button>
             </div>
 
@@ -607,19 +616,33 @@ export const PetView: React.FC<PetViewProps> = ({
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => handleEditMedication(med)}
+                        className="p-1.5 rounded-lg text-[#8F8275] hover:text-[#A86438] hover:bg-[#A86438]/10 transition-colors cursor-pointer"
+                        title={language === 'id' ? 'Edit pengobatan' : 'Edit medication'}
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
                       <button
                         type="button"
                         onClick={() => onUpdateMedication(med.id, { isActive: !med.isActive })}
-                        className="px-2.5 py-1 rounded-lg text-xs font-medium border border-[#E0D7CB] dark:border-[#38312B] hover:bg-[#F3ECE4] dark:hover:bg-[#25201C] transition-colors cursor-pointer"
+                        className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
+                          med.isActive
+                            ? 'border-[#E0D7CB] dark:border-[#38312B] text-[#7B6F63] hover:bg-[#F3ECE4] dark:hover:bg-[#25201C]'
+                            : 'border-[#5B7A58]/30 bg-[#5B7A58]/10 text-[#5B7A58] hover:bg-[#5B7A58]/20'
+                        }`}
                       >
-                        {med.isActive ? 'Pause' : 'Activate'}
+                        {med.isActive
+                          ? language === 'id' ? 'Jeda' : 'Pause'
+                          : language === 'id' ? 'Aktifkan' : 'Activate'}
                       </button>
                       <button
                         type="button"
                         onClick={() => setDeleteTarget({ type: 'medication', id: med.id, name: med.name })}
-                        className="p-1.5 rounded-lg text-[#8F8275] hover:text-rose-600 cursor-pointer"
-                        title="Remove medication"
+                        className="p-1.5 rounded-lg text-[#8F8275] hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
+                        title={language === 'id' ? 'Hapus pengobatan' : 'Remove medication'}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -737,6 +760,23 @@ export const PetView: React.FC<PetViewProps> = ({
           petId={currentPet.id}
           petName={currentPet.name}
           initialRecord={editingRecord}
+        />
+      )}
+
+      {/* Themed Medication / Supplement Modal */}
+      {currentPet && (
+        <MedicationModal
+          key={editingMedication ? editingMedication.id : 'new-medication'}
+          isOpen={isMedicationModalOpen}
+          onClose={() => {
+            setIsMedicationModalOpen(false);
+            setEditingMedication(null);
+          }}
+          onSave={handleSaveMedication}
+          petId={currentPet.id}
+          petName={currentPet.name}
+          initialMedication={editingMedication}
+          language={language}
         />
       )}
 
