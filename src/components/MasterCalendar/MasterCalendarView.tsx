@@ -261,17 +261,17 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Editorial Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-[#E4DCDB] dark:border-[#352F2B]">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 pb-6 border-b border-[#E4DCDB] dark:border-[#352F2B]">
         <div>
-          <div className="text-xs uppercase tracking-widest font-mono text-[#C4933F] font-semibold mb-1">
+          <div className="text-xs uppercase tracking-widest font-mono text-[#C4933F] font-semibold mb-1.5">
             {t.tag}
           </div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#2B241E] dark:text-[#EFE9E2]">
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-[#2B241E] dark:text-[#EFE9E2]">
             {t.title}
           </h1>
-          <p className="text-xs sm:text-sm text-[#7B6F63] dark:text-[#9F9184] mt-1 max-w-2xl">
+          <p className="text-sm sm:text-base text-[#7B6F63] dark:text-[#9F9184] mt-1.5 max-w-2xl leading-relaxed">
             {t.subtitle}
           </p>
         </div>
@@ -279,17 +279,17 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
         <button
           type="button"
           onClick={handleOpenAddEvent}
-          className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-[#C4933F] text-white text-xs sm:text-sm font-medium hover:bg-[#AE7F30] transition-colors shadow-xs whitespace-nowrap self-start md:self-auto cursor-pointer"
+          className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#C4933F] text-white text-xs sm:text-sm font-semibold hover:bg-[#AE7F30] transition-all shadow-sm whitespace-nowrap self-start md:self-auto cursor-pointer active:scale-95"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-4.5 h-4.5" />
           <span>{t.addEventBtn}</span>
         </button>
       </div>
 
       {/* Control Toolbar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-2 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815]">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3.5 p-3 rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] shadow-xs">
         {/* Category Filters */}
-        <div className="flex items-center gap-1 overflow-x-auto text-xs">
+        <div className="flex items-center gap-1.5 overflow-x-auto text-xs sm:text-sm">
           {[
             { id: 'all', label: t.allEvents },
             { id: 'media', label: t.mediaCategory, color: '#C85A32' },
@@ -301,7 +301,7 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
               key={cat.id}
               type="button"
               onClick={() => setSelectedCategory(cat.id as EventCategory | 'all')}
-              className={`px-3 py-1.5 rounded-lg font-medium transition-colors whitespace-nowrap cursor-pointer ${
+              className={`px-3.5 py-2 rounded-xl font-medium transition-colors whitespace-nowrap cursor-pointer ${
                 selectedCategory === cat.id
                   ? 'bg-[#EFE8DD] dark:bg-[#28221D] text-[#2B241E] dark:text-[#EFE9E2] font-semibold shadow-xs'
                   : 'text-[#6F645A] dark:text-[#A89C90] hover:text-[#2B241E] hover:bg-[#F4ECE3] dark:hover:bg-[#25201C]'
@@ -309,7 +309,7 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
             >
               {cat.color && (
                 <span
-                  className="inline-block w-2 h-2 rounded-full mr-1.5"
+                  className="inline-block w-2.5 h-2.5 rounded-full mr-2"
                   style={{ backgroundColor: cat.color }}
                 />
               )}
@@ -319,11 +319,11 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
         </div>
 
         {/* View mode toggle */}
-        <div className="flex items-center gap-1 p-1 bg-[#F4ECE3] dark:bg-[#25201C] rounded-lg self-end sm:self-auto">
+        <div className="flex items-center gap-1.5 p-1.5 bg-[#F4ECE3] dark:bg-[#25201C] rounded-xl self-end sm:self-auto">
           <button
             type="button"
             onClick={() => setViewMode('month')}
-            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+            className={`px-3.5 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-colors cursor-pointer ${
               viewMode === 'month'
                 ? 'bg-white dark:bg-[#161311] text-[#2B241E] dark:text-[#EFE9E2] shadow-xs font-semibold'
                 : 'text-[#6F645A] dark:text-[#A89C90]'
@@ -334,7 +334,7 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
           <button
             type="button"
             onClick={() => setViewMode('agenda')}
-            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+            className={`px-3.5 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-colors cursor-pointer ${
               viewMode === 'agenda'
                 ? 'bg-white dark:bg-[#161311] text-[#2B241E] dark:text-[#EFE9E2] shadow-xs font-semibold'
                 : 'text-[#6F645A] dark:text-[#A89C90]'
@@ -347,19 +347,19 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
 
       {/* Main Content Area */}
       {viewMode === 'month' ? (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
           {/* 3-Column Month Calendar Grid */}
-          <div className="lg:col-span-3 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-5">
+          <div className="lg:col-span-3 rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-6 sm:p-7 shadow-xs">
             {/* Month Header */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2.5">
                 <CalendarIcon className="w-5 h-5 text-[#C4933F]" />
-                <h2 className="font-serif text-lg sm:text-xl font-bold tracking-tight">
+                <h2 className="font-serif text-xl sm:text-2xl font-bold tracking-tight">
                   {monthNames[currentMonth]} {currentYear}
                 </h2>
               </div>
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => {
@@ -368,7 +368,7 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
                     setCurrentMonth(today.getMonth());
                     setSelectedDate(today.toISOString().slice(0, 10));
                   }}
-                  className="px-2.5 py-1 text-xs font-medium rounded-md border border-[#E0D7CB] dark:border-[#38312B] hover:bg-[#F3ECE4] dark:hover:bg-[#25201C] transition-colors"
+                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-[#E0D7CB] dark:border-[#38312B] hover:bg-[#F3ECE4] dark:hover:bg-[#25201C] transition-colors cursor-pointer"
                 >
                   Current Month
                 </button>
@@ -376,7 +376,7 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
                   type="button"
                   onClick={handlePrevMonth}
                   aria-label="Previous month"
-                  className="p-1 rounded-md hover:bg-[#F3ECE4] dark:hover:bg-[#25201C] text-[#6F645A] dark:text-[#A89C90]"
+                  className="p-1.5 rounded-lg hover:bg-[#F3ECE4] dark:hover:bg-[#25201C] text-[#6F645A] dark:text-[#A89C90] cursor-pointer"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
@@ -384,7 +384,7 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
                   type="button"
                   onClick={handleNextMonth}
                   aria-label="Next month"
-                  className="p-1 rounded-md hover:bg-[#F3ECE4] dark:hover:bg-[#25201C] text-[#6F645A] dark:text-[#A89C90]"
+                  className="p-1.5 rounded-lg hover:bg-[#F3ECE4] dark:hover:bg-[#25201C] text-[#6F645A] dark:text-[#A89C90] cursor-pointer"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
@@ -392,7 +392,7 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
             </div>
 
             {/* Days of Week header */}
-            <div className="grid grid-cols-7 text-center mb-2 font-mono text-xs text-[#8F8275]">
+            <div className="grid grid-cols-7 text-center mb-3 font-mono text-xs sm:text-sm text-[#8F8275] font-semibold">
               {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((d) => (
                 <div key={d} className="py-1">
                   <span className="hidden sm:inline">{d}</span>
@@ -402,7 +402,7 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
             </div>
 
             {/* Days Grid */}
-            <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
+            <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
               {days.map((item) => {
                 const dayEvents = eventsByDate[item.dateStr] || [];
                 const isSelected = item.dateStr === selectedDate;
@@ -412,7 +412,7 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
                   <div
                     key={item.dateStr}
                     onClick={() => setSelectedDate(item.dateStr)}
-                    className={`min-h-[85px] sm:min-h-[105px] p-1.5 sm:p-2 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
+                    className={`min-h-[105px] sm:min-h-[125px] p-2 sm:p-2.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
                       isSelected
                         ? 'border-[#C4933F] bg-[#FAF3E8] dark:bg-[#2A2318] shadow-xs'
                         : item.isCurrentMonth
@@ -422,29 +422,29 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
                   >
                     <div className="flex items-center justify-between">
                       <span
-                        className={`text-xs font-mono tabular-nums ${
+                        className={`text-xs sm:text-sm font-mono tabular-nums ${
                           isToday
-                            ? 'w-5 h-5 rounded-full bg-[#C4933F] text-white flex items-center justify-center font-bold'
+                            ? 'w-6 h-6 rounded-full bg-[#C4933F] text-white flex items-center justify-center font-bold'
                             : 'font-medium text-[#2B241E] dark:text-[#EFE9E2]'
                         }`}
                       >
                         {item.day}
                       </span>
                       {dayEvents.length > 0 && (
-                        <span className="text-[10px] font-mono font-medium text-[#7B6F63]">
+                        <span className="text-xs font-mono font-semibold text-[#7B6F63]">
                           {dayEvents.length}
                         </span>
                       )}
                     </div>
 
                     {/* Events items strip inside cell */}
-                    <div className="space-y-1 mt-1 overflow-hidden">
+                    <div className="space-y-1 mt-1.5 overflow-hidden">
                       {dayEvents.slice(0, 2).map((ev) => {
                         const style = categoryColor(ev.category);
                         return (
                           <div
                             key={ev.id}
-                            className="text-[10px] truncate px-1 py-0.5 rounded leading-tight font-medium"
+                            className="text-xs truncate px-1.5 py-0.5 rounded-md leading-tight font-medium"
                             style={{ backgroundColor: `${style.dot}20`, color: style.dot }}
                             title={ev.title}
                           >
@@ -453,7 +453,7 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
                         );
                       })}
                       {dayEvents.length > 2 && (
-                        <div className="text-[9px] text-[#8F8275] font-mono">
+                        <div className="text-[10px] text-[#8F8275] font-mono">
                           +{dayEvents.length - 2} more
                         </div>
                       )}
@@ -465,8 +465,8 @@ export const MasterCalendarView: React.FC<MasterCalendarViewProps> = ({
           </div>
 
           {/* Right Column: Selected Date Event Details */}
-          <div className="space-y-4">
-            <div className="rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-4">
+          <div className="space-y-6">
+            <div className="rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-5 sm:p-6 shadow-xs">
               <div className="flex items-center justify-between pb-3 border-b border-[#EAE2D8] dark:border-[#2E2823]">
                 <div>
                   <h3 className="font-serif text-sm font-bold text-[#2B241E] dark:text-[#EFE9E2]">

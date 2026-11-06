@@ -162,73 +162,78 @@ export const PetView: React.FC<PetViewProps> = ({
     setEditingRecord(null);
   };
 
-  if (!currentPet) {
-    return (
-      <div className="p-12 text-center rounded-xl border border-dashed border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815]">
-        <HeartPulse className="w-8 h-8 mx-auto text-[#A86438] mb-2" />
-        <h3 className="font-serif text-lg font-bold">No Pets Registered</h3>
-        <p className="text-xs text-[#7B6F63] mt-1 max-w-sm mx-auto">
-          Add your dog, cat, or other beloved companions to track vaccination boosters and medical records.
-        </p>
-        <button
-          type="button"
-          onClick={() => {
-            setIsEditingPet(false);
-            setIsPetModalOpen(true);
-          }}
-          className="mt-4 px-4 py-2 rounded-lg bg-[#A86438] text-white text-xs font-medium hover:bg-[#92542B] transition-colors"
-        >
-          Register First Pet
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Editorial Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-[#E4DCDB] dark:border-[#352F2B]">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 pb-6 border-b border-[#E4DCDB] dark:border-[#352F2B]">
         <div>
-          <div className="text-xs uppercase tracking-widest font-mono text-[#A86438] font-semibold mb-1">
+          <div className="text-xs uppercase tracking-widest font-mono text-[#A86438] font-semibold mb-1.5">
             {t.tag}
           </div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#2B241E] dark:text-[#EFE9E2]">
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-[#2B241E] dark:text-[#EFE9E2]">
             {t.title}
           </h1>
-          <p className="text-xs sm:text-sm text-[#7B6F63] dark:text-[#9F9184] mt-1 max-w-2xl">
+          <p className="text-sm sm:text-base text-[#7B6F63] dark:text-[#9F9184] mt-1.5 max-w-2xl leading-relaxed">
             {t.subtitle}
           </p>
         </div>
 
         {/* Action buttons */}
-        <div className="flex items-center gap-2 self-start md:self-auto">
+        <div className="flex items-center gap-2.5 self-start md:self-auto">
           <button
             type="button"
             onClick={() => {
               setIsEditingPet(false);
               setIsPetModalOpen(true);
             }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#E0D7CB] dark:border-[#38312B] bg-[#FFFDF9] dark:bg-[#1C1815] text-xs font-medium hover:bg-[#F3ECE4] dark:hover:bg-[#25201C] transition-colors whitespace-nowrap cursor-pointer"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>{t.addPetBtn}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setEditingRecord(null);
-              setIsRecordModalOpen(true);
-            }}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#A86438] text-white text-xs font-medium hover:bg-[#92542B] transition-colors shadow-xs whitespace-nowrap cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#E0D7CB] dark:border-[#38312B] bg-[#FFFDF9] dark:bg-[#1C1815] text-xs sm:text-sm font-semibold hover:bg-[#F3ECE4] dark:hover:bg-[#25201C] transition-all whitespace-nowrap cursor-pointer shadow-xs active:scale-95"
           >
             <Plus className="w-4 h-4" />
-            <span>{t.logRecordBtn}</span>
+            <span>{t.addPetBtn}</span>
           </button>
+          {currentPet && (
+            <button
+              type="button"
+              onClick={() => {
+                setEditingRecord(null);
+                setIsRecordModalOpen(true);
+              }}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#A86438] text-white text-xs sm:text-sm font-semibold hover:bg-[#92542B] transition-all shadow-xs whitespace-nowrap cursor-pointer active:scale-95"
+            >
+              <Plus className="w-4.5 h-4.5" />
+              <span>{t.logRecordBtn}</span>
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Pet Switcher Bar */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1">
+      {!currentPet ? (
+        <div className="p-14 text-center rounded-2xl border border-dashed border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815]">
+          <HeartPulse className="w-10 h-10 mx-auto text-[#A86438] mb-3" />
+          <h3 className="font-serif text-xl font-bold text-[#2B241E] dark:text-[#EFE9E2]">
+            {language === 'id' ? 'Belum Ada Profil Hewan Peliharaan' : 'No Pets Registered'}
+          </h3>
+          <p className="text-xs sm:text-sm text-[#7B6F63] dark:text-[#9F9184] mt-1.5 max-w-sm mx-auto leading-relaxed">
+            {language === 'id'
+              ? 'Daftarkan anjing, kucing, kelinci, atau hewan peliharaan lainnya untuk mencatat riwayat vaksin, booster, dan rekam medis.'
+              : 'Add your dog, cat, or other beloved companions to track vaccination boosters and medical records.'}
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setIsEditingPet(false);
+              setIsPetModalOpen(true);
+            }}
+            className="mt-5 px-6 py-3 rounded-xl bg-[#A86438] hover:bg-[#92542B] text-white text-xs sm:text-sm font-semibold transition-all shadow-xs inline-flex items-center gap-2 cursor-pointer active:scale-95"
+          >
+            <Plus className="w-4.5 h-4.5" />
+            <span>{language === 'id' ? 'Daftarkan Hewan Pertama' : 'Register First Pet'}</span>
+          </button>
+        </div>
+      ) : (
+        <>
+          {/* Pet Switcher Bar */}
+          <div className="flex items-center gap-2.5 overflow-x-auto pb-1.5">
         {pets.map((pet) => {
           const isActive = pet.id === currentPet.id;
           const speciesIcon = pet.species === 'dog' ? '🐕' : pet.species === 'cat' ? '🐈' : pet.species === 'bird' ? '🦜' : '🐇';
@@ -237,26 +242,26 @@ export const PetView: React.FC<PetViewProps> = ({
               key={pet.id}
               type="button"
               onClick={() => setActivePetId(pet.id)}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-medium transition-all whitespace-nowrap ${
+              className={`flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
                 isActive
                   ? 'border-[#A86438] bg-[#A86438]/10 text-[#A86438] font-semibold shadow-xs'
                   : 'border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] text-[#6F645A] dark:text-[#A89C90] hover:bg-[#F4ECE3] dark:hover:bg-[#25201C]'
               }`}
             >
-              <span>{speciesIcon}</span>
+              <span className="text-base">{speciesIcon}</span>
               <span>{pet.name}</span>
-              <span className="text-[11px] text-[#8F8275]">· {pet.breed}</span>
+              <span className="text-xs text-[#8F8275]">· {pet.breed}</span>
             </button>
           );
         })}
       </div>
 
       {/* Pet Biography Showcase Card */}
-      <div className="rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-5">
+      <div className="rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-6 sm:p-7 shadow-xs">
         <div className="flex flex-col md:flex-row items-start justify-between gap-6">
           <div className="flex items-start gap-4">
             {/* Pet Avatar with styled fallback */}
-            <div className="w-20 h-20 rounded-2xl overflow-hidden shrink-0 border border-[#E0D7CB] dark:border-[#38312B] bg-[#F7F2EB] dark:bg-[#25201C] flex items-center justify-center">
+            <div className="w-24 h-24 rounded-2xl overflow-hidden shrink-0 border border-[#E0D7CB] dark:border-[#38312B] bg-[#F7F2EB] dark:bg-[#25201C] flex items-center justify-center shadow-xs">
               {currentPet.avatarUrl ? (
                 <img
                   src={currentPet.avatarUrl}
@@ -265,7 +270,7 @@ export const PetView: React.FC<PetViewProps> = ({
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-3xl">
+                <span className="text-4xl">
                   {currentPet.species === 'dog' ? '🐕' : currentPet.species === 'cat' ? '🐈' : '🐾'}
                 </span>
               )}
@@ -273,17 +278,17 @@ export const PetView: React.FC<PetViewProps> = ({
 
             {/* Core Identity */}
             <div>
-              <div className="flex items-center gap-2">
-                <h2 className="font-serif text-2xl font-bold text-[#2B241E] dark:text-[#EFE9E2]">
+              <div className="flex items-center gap-2.5">
+                <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#2B241E] dark:text-[#EFE9E2]">
                   {currentPet.name}
                 </h2>
-                <span className="text-xs capitalize px-2 py-0.5 rounded-full border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FAF7F2] dark:bg-[#221C18] text-[#7B6F63]">
+                <span className="text-xs sm:text-sm capitalize px-2.5 py-0.5 rounded-full border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FAF7F2] dark:bg-[#221C18] text-[#7B6F63]">
                   {currentPet.gender}
                 </span>
               </div>
 
               {/* Unboxed metadata row */}
-              <div className="flex items-center flex-wrap gap-2 text-xs text-[#7B6F63] dark:text-[#9F9184] mt-1 font-mono">
+              <div className="flex items-center flex-wrap gap-2.5 text-xs sm:text-sm text-[#7B6F63] dark:text-[#9F9184] mt-1.5 font-mono">
                 <span>{currentPet.breed}</span>
                 <span>·</span>
                 <span>{calculateAge(currentPet.birthDate)}</span>
@@ -300,19 +305,19 @@ export const PetView: React.FC<PetViewProps> = ({
               </div>
 
               {/* Allergies & Diet Warning */}
-              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+              <div className="mt-3.5 flex flex-wrap items-center gap-2.5 text-xs sm:text-sm">
                 {currentPet.allergies.length > 0 ? (
-                  <div className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-2 py-1 rounded-md border border-amber-200 dark:border-amber-900/40">
-                    <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
+                  <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-1.5 rounded-xl border border-amber-200 dark:border-amber-900/40">
+                    <ShieldAlert className="w-4 h-4 shrink-0" />
                     <span>Allergies: {currentPet.allergies.join(', ')}</span>
                   </div>
                 ) : (
-                  <span className="text-[#8F8275] text-[11px]">No known drug or food allergies</span>
+                  <span className="text-[#8F8275] text-xs">No known drug or food allergies</span>
                 )}
 
                 {currentPet.vetClinicName && (
-                  <div className="flex items-center gap-1 text-[#7B6F63] text-xs">
-                    <Stethoscope className="w-3.5 h-3.5 text-[#A86438]" />
+                  <div className="flex items-center gap-1.5 text-[#7B6F63] text-xs sm:text-sm">
+                    <Stethoscope className="w-4 h-4 text-[#A86438]" />
                     <span>Primary Clinic: {currentPet.vetClinicName}</span>
                   </div>
                 )}
@@ -328,7 +333,7 @@ export const PetView: React.FC<PetViewProps> = ({
                 setIsEditingPet(true);
                 setIsPetModalOpen(true);
               }}
-              className="p-1.5 rounded-lg border border-[#E0D7CB] dark:border-[#38312B] hover:bg-[#F3ECE4] dark:hover:bg-[#25201C] text-[#7B6F63] hover:text-[#2B241E] transition-colors"
+              className="p-2 rounded-xl border border-[#E0D7CB] dark:border-[#38312B] hover:bg-[#F3ECE4] dark:hover:bg-[#25201C] text-[#7B6F63] hover:text-[#2B241E] transition-colors cursor-pointer"
               title="Edit profile & health parameters"
             >
               <Edit2 className="w-4 h-4" />
@@ -337,7 +342,7 @@ export const PetView: React.FC<PetViewProps> = ({
               <button
                 type="button"
                 onClick={() => setDeleteTarget({ type: 'pet', id: currentPet.id, name: currentPet.name })}
-                className="p-1.5 rounded-lg border border-[#E0D7CB] dark:border-[#38312B] hover:bg-rose-50 dark:hover:bg-rose-950/30 text-[#7B6F63] hover:text-rose-600 transition-colors"
+                className="p-2 rounded-xl border border-[#E0D7CB] dark:border-[#38312B] hover:bg-rose-50 dark:hover:bg-rose-950/30 text-[#7B6F63] hover:text-rose-600 transition-colors cursor-pointer"
                 title="Delete pet profile"
               >
                 <Trash2 className="w-4 h-4" />
@@ -348,7 +353,7 @@ export const PetView: React.FC<PetViewProps> = ({
 
         {/* Dietary note if present */}
         {currentPet.dietaryNotes && (
-          <div className="mt-4 pt-3 border-t border-[#EAE2D8] dark:border-[#2E2823] text-xs text-[#6F645A] dark:text-[#A89C90] italic">
+          <div className="mt-4 pt-3.5 border-t border-[#EAE2D8] dark:border-[#2E2823] text-xs sm:text-sm text-[#6F645A] dark:text-[#A89C90] italic leading-relaxed">
             Dietary & Care Note: "{currentPet.dietaryNotes}"
           </div>
         )}
@@ -356,20 +361,20 @@ export const PetView: React.FC<PetViewProps> = ({
 
       {/* Upcoming Reminders Alert Bar */}
       {upcomingAlerts.length > 0 && (
-        <div className="p-3.5 rounded-xl border border-[#D9822B]/40 bg-[#FAF4ED] dark:bg-[#251F19] text-xs space-y-2">
-          <div className="flex items-center gap-2 font-serif font-bold text-[#D9822B]">
-            <AlertTriangle className="w-4 h-4" />
+        <div className="p-4 sm:p-5 rounded-2xl border border-[#D9822B]/40 bg-[#FAF4ED] dark:bg-[#251F19] text-xs sm:text-sm space-y-3 shadow-xs">
+          <div className="flex items-center gap-2 font-serif font-bold text-[#D9822B] text-sm sm:text-base">
+            <AlertTriangle className="w-4.5 h-4.5" />
             <span>Upcoming Veterinary & Vaccination Due Dates</span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {upcomingAlerts.map((rec) => (
               <div
                 key={rec.id}
-                className="flex items-center justify-between p-2 rounded-lg bg-white/70 dark:bg-[#1C1815]/70 border border-[#EAE2D8] dark:border-[#38312B]"
+                className="flex items-center justify-between p-3 rounded-xl bg-white/70 dark:bg-[#1C1815]/70 border border-[#EAE2D8] dark:border-[#38312B]"
               >
                 <div>
                   <div className="font-medium text-[#2B241E] dark:text-[#EFE9E2]">{rec.title}</div>
-                  <div className="text-[11px] font-mono text-[#7B6F63]">
+                  <div className="text-xs font-mono text-[#7B6F63] mt-0.5">
                     Due Date: {rec.nextDueDate || rec.date}
                   </div>
                 </div>
@@ -377,7 +382,7 @@ export const PetView: React.FC<PetViewProps> = ({
                   <button
                     type="button"
                     onClick={() => onUpdateMedicalRecord(rec.id, { completed: true })}
-                    className="px-2 py-1 rounded bg-[#5B7A58] text-white text-[11px] font-medium hover:bg-[#4D674A] transition-colors"
+                    className="px-3 py-1.5 rounded-lg bg-[#5B7A58] text-white text-xs font-semibold hover:bg-[#4D674A] transition-colors cursor-pointer"
                   >
                     Mark Done
                   </button>
@@ -389,26 +394,26 @@ export const PetView: React.FC<PetViewProps> = ({
       )}
 
       {/* Two Column Layout: Records & Side Embedded Calendar */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* Main Column: Medical Records & Medications */}
         <div className="lg:col-span-2 space-y-6">
           {/* Medical History Section */}
-          <div className="space-y-3">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-2 border-b border-[#E4DCDB] dark:border-[#352F2B]">
-              <h3 className="font-serif text-lg font-bold text-[#2B241E] dark:text-[#EFE9E2]">
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-[#E4DCDB] dark:border-[#352F2B]">
+              <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#2B241E] dark:text-[#EFE9E2]">
                 Medical Timeline ({currentRecords.length})
               </h3>
 
               {/* Record type filter tabs */}
-              <div className="flex items-center gap-1 overflow-x-auto text-xs">
+              <div className="flex items-center gap-1.5 overflow-x-auto text-xs sm:text-sm">
                 {(['all', 'vaccine', 'checkup', 'deworming', 'medication'] as const).map((t) => (
                   <button
                     key={t}
                     type="button"
                     onClick={() => setSelectedRecordType(t)}
-                    className={`px-2.5 py-1 rounded-md capitalize transition-colors whitespace-nowrap ${
+                    className={`px-3 py-1.5 rounded-lg capitalize transition-colors whitespace-nowrap cursor-pointer ${
                       selectedRecordType === t
-                        ? 'bg-[#A86438] text-white font-semibold'
+                        ? 'bg-[#A86438] text-white font-semibold shadow-xs'
                         : 'border border-[#E0D7CB] dark:border-[#38312B] text-[#6F645A] dark:text-[#A89C90] hover:bg-[#F3ECE4] dark:hover:bg-[#25201C]'
                     }`}
                   >
@@ -419,15 +424,15 @@ export const PetView: React.FC<PetViewProps> = ({
             </div>
 
             {filteredRecords.length === 0 ? (
-              <div className="p-8 text-center rounded-xl border border-dashed border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] text-xs text-[#7B6F63]">
+              <div className="p-10 text-center rounded-2xl border border-dashed border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] text-xs sm:text-sm text-[#7B6F63]">
                 No records recorded under this category.
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {filteredRecords.map((record) => (
                   <div
                     key={record.id}
-                    className="p-4 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] space-y-2 hover:border-[#A86438]/40 transition-colors"
+                    className="p-5 sm:p-6 rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] space-y-3 hover:border-[#A86438]/40 transition-colors shadow-xs"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
@@ -440,44 +445,44 @@ export const PetView: React.FC<PetViewProps> = ({
                             {record.date}
                           </span>
                           {record.completed ? (
-                            <span className="inline-flex items-center gap-1 text-[11px] text-[#5B7A58] font-medium">
-                              <CheckCircle2 className="w-3.5 h-3.5" /> Completed
+                            <span className="inline-flex items-center gap-1.5 text-xs text-[#5B7A58] font-medium">
+                              <CheckCircle2 className="w-4 h-4" /> Completed
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 text-[11px] text-[#D9822B] font-medium">
-                              <Clock className="w-3.5 h-3.5" /> Scheduled
+                            <span className="inline-flex items-center gap-1.5 text-xs text-[#D9822B] font-medium">
+                              <Clock className="w-4 h-4" /> Scheduled
                             </span>
                           )}
                         </div>
 
-                        <h4 className="font-serif text-base font-bold text-[#2B241E] dark:text-[#EFE9E2] mt-1">
+                        <h4 className="font-serif text-lg font-bold text-[#2B241E] dark:text-[#EFE9E2] mt-1.5">
                           {record.title}
                         </h4>
                       </div>
 
                       {/* Record Actions */}
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1.5">
                         <button
                           type="button"
                           onClick={() => handleEditRecord(record)}
-                          className="p-1 rounded hover:bg-[#EFE8DD] dark:hover:bg-[#28221D] text-[#7B6F63] transition-colors"
+                          className="p-2 rounded-lg hover:bg-[#EFE8DD] dark:hover:bg-[#28221D] text-[#7B6F63] transition-colors cursor-pointer"
                           title="Edit record"
                         >
-                          <Edit2 className="w-3.5 h-3.5" />
+                          <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           type="button"
                           onClick={() => setDeleteTarget({ type: 'record', id: record.id, name: record.title })}
-                          className="p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/30 text-[#7B6F63] hover:text-rose-600 transition-colors"
+                          className="p-2 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30 text-[#7B6F63] hover:text-rose-600 transition-colors cursor-pointer"
                           title="Delete record"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
 
                     {/* Metadata strip */}
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#6F645A] dark:text-[#A89C90]">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs sm:text-sm text-[#6F645A] dark:text-[#A89C90]">
                       {record.clinicName && (
                         <span>Clinic: <strong>{record.clinicName}</strong></span>
                       )}
@@ -491,14 +496,14 @@ export const PetView: React.FC<PetViewProps> = ({
 
                     {/* Next Due Date Booster Banner */}
                     {record.nextDueDate && (
-                      <div className="flex items-center gap-1.5 text-xs font-mono text-[#A86438] bg-[#F7F2EB] dark:bg-[#25201C] px-2.5 py-1 rounded-md">
-                        <CalendarIcon className="w-3.5 h-3.5" />
+                      <div className="flex items-center gap-2 text-xs sm:text-sm font-mono text-[#A86438] bg-[#F7F2EB] dark:bg-[#25201C] px-3 py-1.5 rounded-lg">
+                        <CalendarIcon className="w-4 h-4" />
                         <span>Next Booster / Due Date: <strong>{record.nextDueDate}</strong></span>
                       </div>
                     )}
 
                     {record.notes && (
-                      <p className="text-xs text-[#7B6F63] dark:text-[#9F9184] italic pt-1">
+                      <p className="text-xs sm:text-sm text-[#7B6F63] dark:text-[#9F9184] italic pt-1 leading-relaxed">
                         "{record.notes}"
                       </p>
                     )}
@@ -509,11 +514,11 @@ export const PetView: React.FC<PetViewProps> = ({
           </div>
 
           {/* Active Medications & Preventive Chews */}
-          <div className="rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-5">
-            <div className="flex items-center justify-between pb-3 border-b border-[#EAE2D8] dark:border-[#2E2823]">
-              <div className="flex items-center gap-2">
-                <Pill className="w-4 h-4 text-[#A86438]" />
-                <h3 className="font-serif text-base font-bold text-[#2B241E] dark:text-[#EFE9E2]">
+          <div className="rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-6 sm:p-7 shadow-xs">
+            <div className="flex items-center justify-between pb-3.5 border-b border-[#EAE2D8] dark:border-[#2E2823]">
+              <div className="flex items-center gap-2.5">
+                <Pill className="w-4.5 h-4.5 text-[#A86438]" />
+                <h3 className="font-serif text-base sm:text-lg font-bold text-[#2B241E] dark:text-[#EFE9E2]">
                   Prescriptions & Supplements ({currentMeds.length})
                 </h3>
               </div>
@@ -533,35 +538,35 @@ export const PetView: React.FC<PetViewProps> = ({
                     isActive: true,
                   });
                 }}
-                className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-[#E0D7CB] dark:border-[#38312B] text-xs font-medium hover:bg-[#F3ECE4] dark:hover:bg-[#25201C] transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#E0D7CB] dark:border-[#38312B] text-xs font-semibold hover:bg-[#F3ECE4] dark:hover:bg-[#25201C] transition-colors cursor-pointer"
               >
-                <Plus className="w-3 h-3" />
+                <Plus className="w-3.5 h-3.5" />
                 <span>Add Medication</span>
               </button>
             </div>
 
             {currentMeds.length === 0 ? (
-              <div className="py-4 text-xs text-[#8F8275] italic text-center">
+              <div className="py-5 text-xs sm:text-sm text-[#8F8275] italic text-center">
                 No active medications or supplements logged for {currentPet.name}.
               </div>
             ) : (
-              <div className="divide-y divide-[#EAE2D8] dark:divide-[#2E2823] mt-2">
+              <div className="divide-y divide-[#EAE2D8] dark:divide-[#2E2823] mt-2.5">
                 {currentMeds.map((med) => (
-                  <div key={med.id} className="py-3 flex items-center justify-between gap-3 text-xs">
+                  <div key={med.id} className="py-3.5 flex items-center justify-between gap-3 text-xs sm:text-sm">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-[#2B241E] dark:text-[#EFE9E2]">
+                        <span className="font-medium text-[#2B241E] dark:text-[#EFE9E2] text-sm">
                           {med.name}
                         </span>
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded ${med.isActive ? 'bg-[#5B7A58]/15 text-[#5B7A58]' : 'bg-[#E0D7CB] text-[#7B6F63]'}`}>
+                        <span className={`text-xs px-2 py-0.5 rounded-md font-semibold ${med.isActive ? 'bg-[#5B7A58]/15 text-[#5B7A58]' : 'bg-[#E0D7CB] text-[#7B6F63]'}`}>
                           {med.isActive ? 'Active' : 'Completed'}
                         </span>
                       </div>
-                      <div className="text-[11px] text-[#7B6F63] font-mono mt-0.5">
+                      <div className="text-xs text-[#7B6F63] font-mono mt-0.5">
                         {med.dosage} · {med.frequency}
                       </div>
                       {med.notes && (
-                        <div className="text-[11px] text-[#8F8275] italic mt-0.5">{med.notes}</div>
+                        <div className="text-xs text-[#8F8275] italic mt-0.5">{med.notes}</div>
                       )}
                     </div>
 
@@ -569,17 +574,17 @@ export const PetView: React.FC<PetViewProps> = ({
                       <button
                         type="button"
                         onClick={() => onUpdateMedication(med.id, { isActive: !med.isActive })}
-                        className="px-2 py-1 rounded text-[11px] border border-[#E0D7CB] dark:border-[#38312B] hover:bg-[#F3ECE4] dark:hover:bg-[#25201C] transition-colors"
+                        className="px-2.5 py-1 rounded-lg text-xs font-medium border border-[#E0D7CB] dark:border-[#38312B] hover:bg-[#F3ECE4] dark:hover:bg-[#25201C] transition-colors cursor-pointer"
                       >
                         {med.isActive ? 'Pause' : 'Activate'}
                       </button>
                       <button
                         type="button"
                         onClick={() => setDeleteTarget({ type: 'medication', id: med.id, name: med.name })}
-                        className="p-1 text-[#8F8275] hover:text-rose-600"
+                        className="p-1.5 rounded-lg text-[#8F8275] hover:text-rose-600 cursor-pointer"
                         title="Remove medication"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -590,13 +595,13 @@ export const PetView: React.FC<PetViewProps> = ({
         </div>
 
         {/* Right Column: Embedded Pet Care Mini-Calendar */}
-        <div className="space-y-4">
-          <div className="rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-4">
-            <div className="mb-3">
-              <h3 className="font-serif text-sm font-bold text-[#2B241E] dark:text-[#EFE9E2]">
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-5 sm:p-6 shadow-xs">
+            <div className="mb-4">
+              <h3 className="font-serif text-base font-bold text-[#2B241E] dark:text-[#EFE9E2]">
                 Pet Care & Vet Schedule
               </h3>
-              <p className="text-[11px] text-[#7B6F63] dark:text-[#9F9184]">
+              <p className="text-xs text-[#7B6F63] dark:text-[#9F9184] mt-0.5">
                 Mini-calendar highlighting vaccine boosters & checkups
               </p>
             </div>
@@ -658,6 +663,8 @@ export const PetView: React.FC<PetViewProps> = ({
           </div>
         </div>
       </div>
+      </>
+    )}
 
       {/* Pet Registration / Edit Modal */}
       <PetModal
@@ -681,18 +688,20 @@ export const PetView: React.FC<PetViewProps> = ({
       />
 
       {/* Medical Record Modal */}
-      <MedicalRecordModal
-        key={editingRecord ? editingRecord.id : 'new-record'}
-        isOpen={isRecordModalOpen}
-        onClose={() => {
-          setIsRecordModalOpen(false);
-          setEditingRecord(null);
-        }}
-        onSave={handleSaveRecord}
-        petId={currentPet.id}
-        petName={currentPet.name}
-        initialRecord={editingRecord}
-      />
+      {currentPet && (
+        <MedicalRecordModal
+          key={editingRecord ? editingRecord.id : 'new-record'}
+          isOpen={isRecordModalOpen}
+          onClose={() => {
+            setIsRecordModalOpen(false);
+            setEditingRecord(null);
+          }}
+          onSave={handleSaveRecord}
+          petId={currentPet.id}
+          petName={currentPet.name}
+          initialRecord={editingRecord}
+        />
+      )}
 
       {/* Confirmation Modal */}
       <ConfirmDeleteModal

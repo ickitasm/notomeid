@@ -99,20 +99,20 @@ export const NotesView: React.FC<NotesViewProps> = ({
   ];
 
   return (
-    <div className="space-y-6 sm:space-y-8 animate-fade-in">
+    <div className="space-y-8 animate-fade-in">
       {/* Editorial Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-5 border-b border-[#E5DDD2] dark:border-[#2D2722]">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-5 pb-6 border-b border-[#E5DDD2] dark:border-[#2D2722]">
         <div>
-          <div className="flex items-center gap-2 text-xs font-mono font-medium text-[#D97706] mb-1">
-            <BookOpen className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-2 text-xs font-mono font-semibold text-[#D97706] mb-1.5">
+            <BookOpen className="w-4 h-4" />
             <span>{t.tag}</span>
             <span className="text-[#A09384]">·</span>
             <span className="text-[#8F8275]">{notes.length} Total</span>
           </div>
-          <h2 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#2B241E] dark:text-[#EFE9E2]">
+          <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-[#2B241E] dark:text-[#EFE9E2]">
             {t.title}
           </h2>
-          <p className="text-xs sm:text-sm text-[#7B6F63] dark:text-[#9F9184] mt-1 max-w-2xl leading-relaxed">
+          <p className="text-sm sm:text-base text-[#7B6F63] dark:text-[#9F9184] mt-1.5 max-w-2xl leading-relaxed">
             {t.subtitle}
           </p>
         </div>
@@ -121,15 +121,15 @@ export const NotesView: React.FC<NotesViewProps> = ({
         <button
           type="button"
           onClick={handleOpenAdd}
-          className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#D97706] hover:bg-[#B45309] text-white font-medium text-xs sm:text-sm shadow-xs transition-all active:scale-95 touch-manipulation cursor-pointer shrink-0"
+          className="flex items-center justify-center gap-2.5 px-5 py-3 rounded-xl bg-[#D97706] hover:bg-[#B45309] text-white font-semibold text-xs sm:text-sm shadow-sm transition-all active:scale-95 touch-manipulation cursor-pointer shrink-0"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-4.5 h-4.5" />
           <span>{t.addBtn}</span>
         </button>
       </div>
 
       {/* Toolbar: Search & Category Filter Controls */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3.5">
         {/* Search Input */}
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8F8275]" />
@@ -138,12 +138,12 @@ export const NotesView: React.FC<NotesViewProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t.searchPlaceholder}
-            className="w-full pl-10 pr-4 py-2 rounded-xl border border-[#E0D7CB] dark:border-[#38312B] bg-[#FFFDF9] dark:bg-[#1C1815] text-xs sm:text-sm text-[#2B241E] dark:text-[#EFE9E2] placeholder-[#A09384] focus:outline-hidden focus:ring-2 focus:ring-[#D97706]/30 transition-all"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#E0D7CB] dark:border-[#38312B] bg-[#FFFDF9] dark:bg-[#1C1815] text-xs sm:text-sm text-[#2B241E] dark:text-[#EFE9E2] placeholder-[#A09384] focus:outline-hidden focus:ring-2 focus:ring-[#D97706]/30 transition-all"
           />
         </div>
 
         {/* Category Filter Tabs */}
-        <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
           {categories.map((cat) => {
             const isActive = selectedCategory === cat.id;
             return (
@@ -151,7 +151,7 @@ export const NotesView: React.FC<NotesViewProps> = ({
                 key={cat.id}
                 type="button"
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors touch-manipulation cursor-pointer shrink-0 ${
+                className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition-colors touch-manipulation cursor-pointer shrink-0 ${
                   isActive
                     ? 'bg-[#EFE8DD] dark:bg-[#28221D] text-[#2B241E] dark:text-[#EFE9E2] font-semibold shadow-xs'
                     : 'text-[#7B6F63] dark:text-[#9F9184] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] hover:bg-[#F4ECE3] dark:hover:bg-[#201B17]'

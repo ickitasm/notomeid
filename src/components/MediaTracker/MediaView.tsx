@@ -121,17 +121,17 @@ export const MediaView: React.FC<MediaViewProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Editorial Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-[#E4DCDB] dark:border-[#352F2B]">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 pb-6 border-b border-[#E4DCDB] dark:border-[#352F2B]">
         <div>
-          <div className="text-xs uppercase tracking-widest font-mono text-[#C85A32] font-semibold mb-1">
+          <div className="text-xs uppercase tracking-widest font-mono text-[#C85A32] font-semibold mb-1.5">
             {t.tag}
           </div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#2B241E] dark:text-[#EFE9E2]">
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-[#2B241E] dark:text-[#EFE9E2]">
             {t.title}
           </h1>
-          <p className="text-xs sm:text-sm text-[#7B6F63] dark:text-[#9F9184] mt-1 max-w-2xl">
+          <p className="text-sm sm:text-base text-[#7B6F63] dark:text-[#9F9184] mt-1.5 max-w-2xl leading-relaxed">
             {t.subtitle}
           </p>
         </div>
@@ -142,63 +142,63 @@ export const MediaView: React.FC<MediaViewProps> = ({
             setEditingItem(null);
             setIsModalOpen(true);
           }}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#C85A32] text-white text-xs sm:text-sm font-medium hover:bg-[#B34B25] transition-colors shadow-xs whitespace-nowrap self-start md:self-auto cursor-pointer"
+          className="flex items-center gap-2.5 px-5 py-3 rounded-xl bg-[#C85A32] text-white text-sm font-medium hover:bg-[#B34B25] transition-all shadow-sm whitespace-nowrap self-start md:self-auto cursor-pointer active:scale-95"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-4.5 h-4.5" />
           <span>{t.addBtn}</span>
         </button>
       </div>
 
       {/* KPI Stats Strip */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-3.5 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815]">
-          <div className="text-[11px] font-medium text-[#7B6F63] dark:text-[#9F9184]">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5">
+        <div className="p-4 sm:p-5 rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815]">
+          <div className="text-xs font-semibold text-[#7B6F63] dark:text-[#9F9184]">
             {t.totalLib}
           </div>
-          <div className="mt-1 font-serif text-2xl font-bold text-[#2B241E] dark:text-[#EFE9E2] font-mono tabular-nums">
+          <div className="mt-1.5 font-serif text-2xl sm:text-3xl font-bold text-[#2B241E] dark:text-[#EFE9E2] font-mono tabular-nums">
             {stats.total}
           </div>
         </div>
-        <div className="p-3.5 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815]">
-          <div className="text-[11px] font-medium text-[#7B6F63] dark:text-[#9F9184]">
+        <div className="p-4 sm:p-5 rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815]">
+          <div className="text-xs font-semibold text-[#7B6F63] dark:text-[#9F9184]">
             {t.currentlyWatching}
           </div>
-          <div className="mt-1 font-serif text-2xl font-bold text-[#C85A32] font-mono tabular-nums">
+          <div className="mt-1.5 font-serif text-2xl sm:text-3xl font-bold text-[#C85A32] font-mono tabular-nums">
             {stats.watching}
           </div>
         </div>
-        <div className="p-3.5 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815]">
-          <div className="text-[11px] font-medium text-[#7B6F63] dark:text-[#9F9184]">
+        <div className="p-4 sm:p-5 rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815]">
+          <div className="text-xs font-semibold text-[#7B6F63] dark:text-[#9F9184]">
             {t.episodesLogged}
           </div>
-          <div className="mt-1 font-serif text-2xl font-bold text-[#5B7A58] font-mono tabular-nums">
+          <div className="mt-1.5 font-serif text-2xl sm:text-3xl font-bold text-[#5B7A58] font-mono tabular-nums">
             {stats.totalEpisodes}
           </div>
         </div>
-        <div className="p-3.5 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815]">
-          <div className="text-[11px] font-medium text-[#7B6F63] dark:text-[#9F9184]">
+        <div className="p-4 sm:p-5 rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815]">
+          <div className="text-xs font-semibold text-[#7B6F63] dark:text-[#9F9184]">
             {t.completed}
           </div>
-          <div className="mt-1 font-serif text-2xl font-bold text-[#2B241E] dark:text-[#EFE9E2] font-mono tabular-nums">
+          <div className="mt-1.5 font-serif text-2xl sm:text-3xl font-bold text-[#2B241E] dark:text-[#EFE9E2] font-mono tabular-nums">
             {stats.completed}
           </div>
         </div>
       </div>
 
       {/* Two Column Layout: Main Content (Filters + Grid) & Side Mini-Calendar */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* Main 2-column wide content */}
-        <div className="lg:col-span-2 space-y-4">
+        <div className="lg:col-span-2 space-y-6">
           {/* Filter Bar & Search */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-2 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815]">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3.5 p-3 rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815]">
             {/* Type tabs */}
-            <div className="flex items-center gap-1 overflow-x-auto p-1 bg-[#F4ECE3] dark:bg-[#25201C] rounded-lg">
+            <div className="flex items-center gap-1.5 overflow-x-auto p-1.5 bg-[#F4ECE3] dark:bg-[#25201C] rounded-xl">
               {(['all', 'movie', 'series'] as const).map((typeVal) => (
                 <button
                   key={typeVal}
                   type="button"
                   onClick={() => setSelectedType(typeVal)}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap cursor-pointer ${
+                  className={`px-3.5 py-2 text-xs sm:text-sm font-medium rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                     selectedType === typeVal
                       ? 'bg-white dark:bg-[#161311] text-[#2B241E] dark:text-[#EFE9E2] shadow-xs font-semibold'
                       : 'text-[#6F645A] dark:text-[#A89C90] hover:text-[#2B241E] dark:hover:text-[#EFE9E2]'
@@ -210,13 +210,13 @@ export const MediaView: React.FC<MediaViewProps> = ({
             </div>
 
             {/* Status tabs */}
-            <div className="flex items-center gap-1 overflow-x-auto">
+            <div className="flex items-center gap-1.5 overflow-x-auto">
               {(['all', 'watching', 'watchlist', 'completed'] as const).map((s) => (
                 <button
                   key={s}
                   type="button"
                   onClick={() => setSelectedStatus(s)}
-                  className={`px-2.5 py-1 text-xs rounded-md border transition-colors whitespace-nowrap cursor-pointer ${
+                  className={`px-3 py-1.5 text-xs sm:text-sm rounded-lg border transition-colors whitespace-nowrap cursor-pointer ${
                     selectedStatus === s
                       ? 'border-[#C85A32] bg-[#C85A32]/10 text-[#C85A32] font-semibold'
                       : 'border-transparent text-[#6F645A] dark:text-[#A89C90] hover:bg-[#F4ECE3] dark:hover:bg-[#25201C]'
@@ -234,24 +234,24 @@ export const MediaView: React.FC<MediaViewProps> = ({
             </div>
 
             {/* Search Input */}
-            <div className="relative min-w-[160px]">
-              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#8F8275]" />
+            <div className="relative min-w-[180px]">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#8F8275]" />
               <input
                 type="text"
                 placeholder={t.searchPlaceholder}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-8 pr-3 py-1.5 rounded-lg border border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] text-xs focus:outline-hidden focus:border-[#C85A32]"
+                className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] text-xs sm:text-sm focus:outline-hidden focus:border-[#C85A32]"
               />
             </div>
           </div>
 
           {/* Cards List */}
           {filteredItems.length === 0 ? (
-            <div className="p-12 text-center rounded-xl border border-dashed border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815]">
-              <Film className="w-8 h-8 mx-auto text-[#8F8275] mb-2" />
-              <h3 className="font-serif text-base font-semibold">{t.noResults}</h3>
-              <p className="text-xs text-[#7B6F63] mt-1 max-w-sm mx-auto">
+            <div className="p-14 text-center rounded-2xl border border-dashed border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815]">
+              <Film className="w-10 h-10 mx-auto text-[#8F8275] mb-3" />
+              <h3 className="font-serif text-lg font-semibold">{t.noResults}</h3>
+              <p className="text-xs sm:text-sm text-[#7B6F63] mt-1.5 max-w-sm mx-auto leading-relaxed">
                 {t.noResultsDesc}
               </p>
               <button
@@ -261,13 +261,13 @@ export const MediaView: React.FC<MediaViewProps> = ({
                   setSelectedStatus('all');
                   setSearchQuery('');
                 }}
-                className="mt-3 px-3 py-1.5 rounded-lg border border-[#E0D7CB] dark:border-[#38312B] text-xs font-medium hover:bg-[#F4ECE3] dark:hover:bg-[#25201C] cursor-pointer"
+                className="mt-4 px-4 py-2 rounded-xl border border-[#E0D7CB] dark:border-[#38312B] text-xs sm:text-sm font-medium hover:bg-[#F4ECE3] dark:hover:bg-[#25201C] cursor-pointer transition-colors"
               >
                 {t.resetFilters}
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
               {filteredItems.map((item) => {
                 const isSeries = item.type === 'series' && item.seriesDetails;
                 const details = item.seriesDetails;
@@ -281,43 +281,43 @@ export const MediaView: React.FC<MediaViewProps> = ({
                 return (
                   <div
                     key={item.id}
-                    className="flex flex-col justify-between rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-4 transition-all hover:border-[#C85A32]/40"
+                    className="flex flex-col justify-between rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-5 sm:p-6 transition-all hover:border-[#C85A32]/40 hover:shadow-xs"
                   >
                     <div>
                       {/* Top Header */}
-                      <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-2">
                           {item.type === 'series' ? (
-                            <span className="flex items-center gap-1 text-[11px] font-medium text-[#C85A32]">
-                              <Tv className="w-3.5 h-3.5" />
+                            <span className="flex items-center gap-1.5 text-xs font-semibold text-[#C85A32]">
+                              <Tv className="w-4 h-4" />
                               TV Series
                             </span>
                           ) : (
-                            <span className="flex items-center gap-1 text-[11px] font-medium text-[#5B7A58]">
-                              <Film className="w-3.5 h-3.5" />
+                            <span className="flex items-center gap-1.5 text-xs font-semibold text-[#5B7A58]">
+                              <Film className="w-4 h-4" />
                               Movie
                             </span>
                           )}
                           <span className="text-[#8F8275] text-xs">·</span>
-                          <span className="text-[11px] font-mono tabular-nums text-[#7B6F63] dark:text-[#9F9184]">
+                          <span className="text-xs font-mono tabular-nums text-[#7B6F63] dark:text-[#9F9184]">
                             {item.releaseDate ? item.releaseDate.slice(0, 4) : 'TBA'}
                           </span>
                         </div>
 
                         {/* Rating */}
-                        <div className="flex items-center gap-1 text-xs font-mono tabular-nums font-semibold text-amber-600 dark:text-amber-400">
-                          <Star className="w-3.5 h-3.5 fill-current" />
+                        <div className="flex items-center gap-1.5 text-xs sm:text-sm font-mono tabular-nums font-semibold text-amber-600 dark:text-amber-400">
+                          <Star className="w-4 h-4 fill-current" />
                           <span>{item.rating.toFixed(1)}</span>
                         </div>
                       </div>
 
                       {/* Title */}
-                      <h3 className="font-serif text-lg font-bold text-[#2B241E] dark:text-[#EFE9E2] mt-1.5 leading-snug">
+                      <h3 className="font-serif text-lg sm:text-xl font-bold text-[#2B241E] dark:text-[#EFE9E2] mt-2.5 leading-snug">
                         {item.title}
                       </h3>
 
                       {/* Unboxed Metadata Genres */}
-                      <div className="flex items-center flex-wrap gap-1.5 text-[11px] text-[#7B6F63] dark:text-[#9F9184] mt-1">
+                      <div className="flex items-center flex-wrap gap-2 text-xs text-[#7B6F63] dark:text-[#9F9184] mt-1.5">
                         {item.genres.map((g, idx) => (
                           <React.Fragment key={g}>
                             <span>{g}</span>
@@ -328,18 +328,18 @@ export const MediaView: React.FC<MediaViewProps> = ({
 
                       {/* Episodic Progress (if TV Series) */}
                       {isSeries && details && (
-                        <div className="mt-3 p-3 rounded-lg bg-[#FAF7F2] dark:bg-[#25201C] border border-[#E9E1D6] dark:border-[#38302A] space-y-2">
-                          <div className="flex items-center justify-between text-xs">
+                        <div className="mt-3.5 p-3.5 sm:p-4 rounded-xl bg-[#FAF7F2] dark:bg-[#25201C] border border-[#E9E1D6] dark:border-[#38302A] space-y-2.5">
+                          <div className="flex items-center justify-between text-xs sm:text-sm">
                             <span className="font-medium text-[#2B241E] dark:text-[#EFE9E2]">
                               Season {details.currentSeason} · Episode {details.currentEpisode} of {details.totalEpisodes}
                             </span>
-                            <span className="font-mono tabular-nums text-[11px] text-[#7B6F63]">
+                            <span className="font-mono tabular-nums text-xs text-[#7B6F63]">
                               {progressPercent}%
                             </span>
                           </div>
 
                           {/* Progress bar */}
-                          <div className="w-full h-1.5 bg-[#E4DCDB] dark:bg-[#38312B] rounded-full overflow-hidden">
+                          <div className="w-full h-2 bg-[#E4DCDB] dark:bg-[#38312B] rounded-full overflow-hidden">
                             <div
                               className="h-full bg-[#C85A32] rounded-full transition-all duration-300"
                               style={{ width: `${progressPercent}%` }}
@@ -348,7 +348,7 @@ export const MediaView: React.FC<MediaViewProps> = ({
 
                           {/* Quick Step Button */}
                           <div className="flex items-center justify-between pt-1">
-                            <span className="text-[11px] text-[#7B6F63]">
+                            <span className="text-xs text-[#7B6F63]">
                               {item.status === 'completed'
                                 ? 'Finished series'
                                 : `${details.totalEpisodes - details.currentEpisode} ep left`}
@@ -357,9 +357,9 @@ export const MediaView: React.FC<MediaViewProps> = ({
                               type="button"
                               onClick={() => onIncrementEpisode(item.id)}
                               disabled={details.currentEpisode >= details.totalEpisodes}
-                              className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#C85A32] text-white text-[11px] font-medium hover:bg-[#B34B25] disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#C85A32] text-white text-xs font-medium hover:bg-[#B34B25] disabled:opacity-40 disabled:pointer-events-none transition-colors active:scale-95"
                             >
-                              <Play className="w-3 h-3 fill-white" />
+                              <Play className="w-3.5 h-3.5 fill-white" />
                               <span>+1 Episode</span>
                             </button>
                           </div>
@@ -368,24 +368,24 @@ export const MediaView: React.FC<MediaViewProps> = ({
 
                       {/* Movie Status or Notes */}
                       {item.notes && (
-                        <p className="mt-2 text-xs text-[#6F645A] dark:text-[#A89C90] line-clamp-2 italic">
+                        <p className="mt-2.5 text-xs sm:text-sm text-[#6F645A] dark:text-[#A89C90] line-clamp-2 italic leading-relaxed">
                           "{item.notes}"
                         </p>
                       )}
 
                       {/* Scheduled watch date label */}
                       {item.scheduledWatchDate && (
-                        <div className="mt-3 flex items-center gap-1.5 text-[11px] text-[#C85A32] font-mono tabular-nums">
-                          <CalendarIcon className="w-3.5 h-3.5" />
+                        <div className="mt-3.5 flex items-center gap-2 text-xs text-[#C85A32] font-mono tabular-nums">
+                          <CalendarIcon className="w-4 h-4" />
                           <span>Watch scheduled: {item.scheduledWatchDate}</span>
                         </div>
                       )}
                     </div>
 
                     {/* Card Actions Bottom */}
-                    <div className="flex items-center justify-between pt-3 mt-4 border-t border-[#E4DCDB] dark:border-[#352F2B]">
+                    <div className="flex items-center justify-between pt-3.5 mt-5 border-t border-[#E4DCDB] dark:border-[#352F2B]">
                       {/* Status Tag (Quiet unboxed) */}
-                      <span className="text-[11px] font-medium uppercase tracking-wider text-[#7B6F63] dark:text-[#9F9184]">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-[#7B6F63] dark:text-[#9F9184]">
                         {item.status === 'watching'
                           ? 'In Progress'
                           : item.status === 'watchlist'
@@ -395,22 +395,22 @@ export const MediaView: React.FC<MediaViewProps> = ({
                           : 'On Hold'}
                       </span>
 
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1.5">
                         <button
                           type="button"
                           onClick={() => handleEdit(item)}
-                          className="p-1.5 rounded hover:bg-[#EFE8DD] dark:hover:bg-[#28221D] text-[#7B6F63] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] transition-colors"
+                          className="p-2 rounded-lg hover:bg-[#EFE8DD] dark:hover:bg-[#28221D] text-[#7B6F63] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] transition-colors cursor-pointer"
                           title="Edit movie or series details"
                         >
-                          <Edit2 className="w-3.5 h-3.5" />
+                          <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           type="button"
                           onClick={() => setItemToDelete(item)}
-                          className="p-1.5 rounded hover:bg-rose-50 dark:hover:bg-rose-950/30 text-[#7B6F63] hover:text-rose-600 transition-colors cursor-pointer"
+                          className="p-2 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30 text-[#7B6F63] hover:text-rose-600 transition-colors cursor-pointer"
                           title="Delete entry"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
@@ -422,14 +422,14 @@ export const MediaView: React.FC<MediaViewProps> = ({
         </div>
 
         {/* Right column: Embedded Entertainment Mini-Calendar & Upcoming Schedule */}
-        <div className="space-y-4">
-          <div className="rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-4">
-            <div className="flex items-center justify-between mb-3">
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-5 sm:p-6">
+            <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="font-serif text-sm font-bold text-[#2B241E] dark:text-[#EFE9E2]">
+                <h3 className="font-serif text-base font-bold text-[#2B241E] dark:text-[#EFE9E2]">
                   {t.calendarTitle}
                 </h3>
-                <p className="text-[11px] text-[#7B6F63] dark:text-[#9F9184]">
+                <p className="text-xs text-[#7B6F63] dark:text-[#9F9184] mt-0.5">
                   {t.calendarSubtitle}
                 </p>
               </div>

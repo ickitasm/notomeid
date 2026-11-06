@@ -45,66 +45,66 @@ export const DreamCard: React.FC<DreamCardProps> = ({
 
   return (
     <div
-      className={`group relative flex flex-col justify-between p-5 rounded-2xl border transition-all duration-200 bg-[#FFFDF9] dark:bg-[#1C1815] ${
+      className={`group relative flex flex-col justify-between p-6 sm:p-7 rounded-2xl border transition-all duration-200 bg-[#FFFDF9] dark:bg-[#1C1815] shadow-xs ${
         dream.isNightmare
-          ? 'border-rose-300/70 dark:border-rose-900/50 shadow-xs'
+          ? 'border-rose-300/70 dark:border-rose-900/50'
           : dream.lucidityScore >= 3
-          ? 'border-[#6366F1]/40 dark:border-[#6366F1]/30 shadow-xs'
+          ? 'border-[#6366F1]/40 dark:border-[#6366F1]/30'
           : 'border-[#E5DDD2] dark:border-[#2D2722] hover:border-[#D0C4B4] dark:hover:border-[#3E3630]'
       }`}
     >
       <div>
         {/* Top Header Strip */}
-        <div className="flex items-center justify-between gap-2 mb-2.5">
+        <div className="flex items-center justify-between gap-2.5 mb-3">
           <div className="flex flex-wrap items-center gap-2 text-xs">
             {/* Emotion Badge */}
             <span
-              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[11px] font-medium ${emotionInfo.color}`}
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold ${emotionInfo.color}`}
             >
-              <EmotionIcon className="w-3 h-3" />
+              <EmotionIcon className="w-3.5 h-3.5" />
               <span>{emotionLabel}</span>
             </span>
 
             {/* Recurring Tag */}
             {dream.isRecurring && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-sky-300 dark:border-sky-900/50 bg-sky-50 dark:bg-sky-950/30 text-sky-700 dark:text-sky-300 text-[10px] font-semibold">
-                <RefreshCw className="w-2.5 h-2.5" />
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-sky-300 dark:border-sky-900/50 bg-sky-50 dark:bg-sky-950/30 text-sky-700 dark:text-sky-300 text-xs font-semibold">
+                <RefreshCw className="w-3 h-3" />
                 <span>{t.recurringBadge}</span>
               </span>
             )}
 
             {/* Nightmare Tag */}
             {dream.isNightmare && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-rose-300 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300 text-[10px] font-semibold">
-                <AlertCircle className="w-2.5 h-2.5" />
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-rose-300 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300 text-xs font-semibold">
+                <AlertCircle className="w-3 h-3" />
                 <span>{t.nightmareBadge}</span>
               </span>
             )}
           </div>
 
           {/* Action buttons */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={() => onEdit(dream)}
-              className="p-1.5 rounded-lg text-[#8F8275] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] hover:bg-[#F4ECE3] dark:hover:bg-[#25201C] transition-colors cursor-pointer"
+              className="p-2 rounded-xl text-[#8F8275] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] hover:bg-[#F4ECE3] dark:hover:bg-[#25201C] transition-colors cursor-pointer"
               title="Edit"
             >
-              <Edit3 className="w-3.5 h-3.5" />
+              <Edit3 className="w-4 h-4" />
             </button>
             <button
               type="button"
               onClick={() => onDelete(dream)}
-              className="p-1.5 rounded-lg text-[#8F8275] hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
+              className="p-2 rounded-xl text-[#8F8275] hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
               title="Delete"
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <Trash2 className="w-4 h-4" />
             </button>
           </div>
         </div>
 
         {/* Date and Wake Time */}
-        <div className="text-[11px] font-mono text-[#8F8275] mb-2 flex items-center gap-2">
+        <div className="text-xs font-mono text-[#8F8275] mb-2.5 flex items-center gap-2">
           <span className="tabular-nums">{formattedDate}</span>
           {dream.wakeTime && (
             <>
@@ -115,7 +115,7 @@ export const DreamCard: React.FC<DreamCardProps> = ({
         </div>
 
         {/* Dream Title */}
-        <h4 className="font-serif text-lg font-bold text-[#2B241E] dark:text-[#EFE9E2] leading-snug tracking-tight mb-2">
+        <h4 className="font-serif text-lg sm:text-xl font-bold text-[#2B241E] dark:text-[#EFE9E2] leading-snug tracking-tight mb-2.5">
           {dream.title}
         </h4>
 
@@ -126,14 +126,14 @@ export const DreamCard: React.FC<DreamCardProps> = ({
 
         {/* Tags metadata strip */}
         {dream.tags && dream.tags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5 mt-3 pt-3 border-t border-[#EAE2D8]/80 dark:border-[#28221D]">
+          <div className="flex flex-wrap items-center gap-2 mt-3.5 pt-3.5 border-t border-[#EAE2D8]/80 dark:border-[#28221D]">
             {dream.tags.map((tag, idx) => (
               <span
                 key={tag}
-                className="text-[11px] text-[#7B6F63] dark:text-[#9F9184] font-medium"
+                className="text-xs text-[#7B6F63] dark:text-[#9F9184] font-medium"
               >
                 #{tag}
-                {idx < dream.tags.length - 1 && <span className="text-[#A09384] ml-1.5">·</span>}
+                {idx < dream.tags.length - 1 && <span className="text-[#A09384] ml-2">·</span>}
               </span>
             ))}
           </div>

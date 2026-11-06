@@ -68,7 +68,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
 
   return (
     <div
-      className={`group relative flex flex-col justify-between p-5 rounded-2xl border transition-all duration-200 bg-[#FFFDF9] dark:bg-[#1C1815] ${
+      className={`group relative flex flex-col justify-between p-6 sm:p-7 rounded-2xl border transition-all duration-200 bg-[#FFFDF9] dark:bg-[#1C1815] ${
         note.isPinned
           ? 'border-[#D97706]/40 shadow-sm ring-1 ring-[#D97706]/20'
           : 'border-[#E5DDD2] dark:border-[#2D2722] hover:border-[#D0C4B4] dark:hover:border-[#3E3630] shadow-xs'
@@ -76,43 +76,43 @@ export const NoteCard: React.FC<NoteCardProps> = ({
     >
       <div>
         {/* Top Header Strip: Category & Pin & Actions */}
-        <div className="flex items-center justify-between gap-2 mb-2.5">
-          <div className="flex items-center gap-2 text-xs font-semibold">
-            <span className={`tracking-wider uppercase text-[11px] font-mono ${accentClass}`}>
+        <div className="flex items-center justify-between gap-2.5 mb-3">
+          <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold">
+            <span className={`tracking-wider uppercase text-xs font-mono ${accentClass}`}>
               {categoryLabel}
             </span>
             <span className="text-[#8F8275] font-normal" aria-hidden="true">·</span>
-            <span className="text-[#8F8275] text-[11px] font-mono tabular-nums">
+            <span className="text-[#8F8275] text-xs font-mono tabular-nums">
               {formattedDate}
             </span>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             {/* Pin Toggle */}
             <button
               type="button"
               onClick={() => onTogglePin(note.id)}
-              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+              className={`p-2 rounded-xl transition-colors cursor-pointer ${
                 note.isPinned
                   ? 'text-[#D97706] hover:bg-[#D97706]/10'
                   : 'text-[#8F8275] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] hover:bg-[#F4ECE3] dark:hover:bg-[#25201C]'
               }`}
               title={note.isPinned ? t.unpinTooltip : t.pinTooltip}
             >
-              <Pin className={`w-3.5 h-3.5 ${note.isPinned ? 'fill-[#D97706]' : ''}`} />
+              <Pin className={`w-4 h-4 ${note.isPinned ? 'fill-[#D97706]' : ''}`} />
             </button>
 
             {/* Copy Button */}
             <button
               type="button"
               onClick={handleCopy}
-              className="p-1.5 rounded-lg text-[#8F8275] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] hover:bg-[#F4ECE3] dark:hover:bg-[#25201C] transition-colors cursor-pointer"
+              className="p-2 rounded-xl text-[#8F8275] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] hover:bg-[#F4ECE3] dark:hover:bg-[#25201C] transition-colors cursor-pointer"
               title={t.copyNote}
             >
               {isCopied ? (
-                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                <Check className="w-4 h-4 text-emerald-600" />
               ) : (
-                <Copy className="w-3.5 h-3.5" />
+                <Copy className="w-4 h-4" />
               )}
             </button>
 
@@ -120,26 +120,26 @@ export const NoteCard: React.FC<NoteCardProps> = ({
             <button
               type="button"
               onClick={() => onEdit(note)}
-              className="p-1.5 rounded-lg text-[#8F8275] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] hover:bg-[#F4ECE3] dark:hover:bg-[#25201C] transition-colors cursor-pointer"
+              className="p-2 rounded-xl text-[#8F8275] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] hover:bg-[#F4ECE3] dark:hover:bg-[#25201C] transition-colors cursor-pointer"
               title="Edit"
             >
-              <Edit3 className="w-3.5 h-3.5" />
+              <Edit3 className="w-4 h-4" />
             </button>
 
             {/* Delete Button */}
             <button
               type="button"
               onClick={() => onDelete(note)}
-              className="p-1.5 rounded-lg text-[#8F8275] hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
+              className="p-2 rounded-xl text-[#8F8275] hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
               title="Delete"
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <Trash2 className="w-4 h-4" />
             </button>
           </div>
         </div>
 
         {/* Note Title */}
-        <h4 className="font-serif text-lg font-bold text-[#2B241E] dark:text-[#EFE9E2] leading-snug tracking-tight mb-2">
+        <h4 className="font-serif text-lg sm:text-xl font-bold text-[#2B241E] dark:text-[#EFE9E2] leading-snug tracking-tight mb-2.5">
           {note.title}
         </h4>
 
@@ -150,14 +150,14 @@ export const NoteCard: React.FC<NoteCardProps> = ({
 
         {/* Tags Metadata Strip (Clean Unboxed) */}
         {note.tags && note.tags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5 mt-3 pt-3 border-t border-[#EAE2D8]/80 dark:border-[#28221D]">
+          <div className="flex flex-wrap items-center gap-2 mt-3.5 pt-3.5 border-t border-[#EAE2D8]/80 dark:border-[#28221D]">
             {note.tags.map((tag, idx) => (
               <span
                 key={tag}
-                className="text-[11px] text-[#7B6F63] dark:text-[#9F9184] font-medium"
+                className="text-xs text-[#7B6F63] dark:text-[#9F9184] font-medium"
               >
                 #{tag}
-                {idx < note.tags.length - 1 && <span className="text-[#A09384] ml-1.5">·</span>}
+                {idx < note.tags.length - 1 && <span className="text-[#A09384] ml-2">·</span>}
               </span>
             ))}
           </div>
