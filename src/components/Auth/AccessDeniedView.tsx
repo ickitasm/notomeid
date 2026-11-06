@@ -7,13 +7,14 @@ import React, { useState } from 'react';
 import { ShieldAlert, LogOut, Mail, Copy, Check, Globe, Sun, Moon } from 'lucide-react';
 import { Language } from '../../lib/translations';
 import { AppUser } from '../../hooks/useAuth';
+import { ThemeMode } from '../../types';
 
 interface AccessDeniedViewProps {
   user: AppUser;
   onSignOut: () => void;
   language: Language;
   onSelectLanguage: (lang: Language) => void;
-  theme: 'light' | 'dark';
+  theme: ThemeMode;
   onToggleTheme: () => void;
 }
 

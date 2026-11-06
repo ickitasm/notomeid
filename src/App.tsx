@@ -115,6 +115,7 @@ export default function App() {
         onTabChange={setActiveTab}
         theme={storage.preferences.theme}
         onToggleTheme={storage.toggleTheme}
+        onSetTheme={storage.setTheme}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenAdminPanel={() => setIsAdminPanelOpen(true)}
         onOpenUpdateLogs={() => setIsUpdateLogsOpen(true)}

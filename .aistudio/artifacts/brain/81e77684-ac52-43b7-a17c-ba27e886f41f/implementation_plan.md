@@ -1,131 +1,104 @@
-# Rencana Desain & Optimasi Khusus Mobile (Android & iPhone)
+# Sistem 4 Tema Tampilan Notome (Cinema Velvet & Romantic Rose)
 
-Mendefinisikan arsitektur antarmuka dan pengalaman pengguna (UX) terfokus mobile (*touch-first mobile web application*) untuk Notome di perangkat Android dan iPhone, merapikan kepadatan bilah atas, menata kalender mini dengan sistem tab adaptif, serta mengonsolidasi bingkai kontainer mobile yang proporsional.
+Implementasi sistem multi-tema editorial dengan 4 mode tampilan yang dapat dipilih: **Warm Paper** (krem klasik), **Roast Dark** (hitam kopi sangrai), **Cinema Velvet** (merah tua elegan khas bioskop noir), dan **Romantic Rose** (pink mawar romantis yang lembut), lengkap dengan pemilih tema berpratinjau warna di menu profil dan modal pengaturan.
 
----
-
-## User Review & Critical Decisions
+### User Review & Critical Decisions
 
 > [!IMPORTANT]
-> **Keputusan Pengguna yang Telah Dikonfirmasi (Fase 1):**
-> 1. **Penyederhanaan Bilah Atas (Header Mobile)**: Tampilkan hanya logo Notome, pemilih bahasa (`ID`/`EN`), dan avatar profil di bilah atas. Ikon utilitas sekunder (Notifikasi, Mode Gelap/Terang, Log Update, Pengaturan, dan Panel Admin) dipindahkan ke dalam laci menu profil (*profile drawer*) yang lapang dan sentuh-ramah (*touch-friendly*).
-> 2. **Penataan Kalender Mini & Jadwal**: Mengganti penumpukan vertikal kalender di bawah daftar konten dengan **sistem beralih tab segmen mobile** (misal: `[🎬 Daftar Tayangan]` vs `[📅 Kalender Nonton]`). Pengguna dapat beralih dengan 1 sentuhan tanpa harus menggulir jauh ke bagian bawah layar.
-> 3. **Format Lebar Tampilan Utama**: Mengadopsi **bingkai aplikasi mobile terpusat** (`max-w-md sm:max-w-lg`) yang ramping dan ergonomis di semua layar, memberikan kenyamanan genggam optimal dengan safe area atas dan bawah.
+> Berdasarkan jawaban klarifikasi yang telah dikonfirmasi:
+> - **4 Tema Lengkap**: Menyediakan 4 tema terpadu (Warm Paper, Roast Dark, Cinema Velvet, dan Romantic Rose).
+> - **Aksesibilitas Pemilih Tema**: Ditempatkan di menu profil sentuh dan modal pengaturan data, lengkap dengan pratinjau warna (*color swatch preview*).
+> - **Nuansa Warna**: Cinema Velvet berbasis latar gelap pekat bioskop (`#120406` / `#1E080B`) dengan aksen beludru merah kirmizi (`#E11D48` & `#BE123C`), sedangkan Romantic Rose berbasis latar lembut krem-mawar (`#FDF7F8` / `#FFF9FA`) dengan aksen mawar romantis (`#DB2777` & `#F472B6`).
 
 ---
 
 ## 1. Overview & Core Concept
 
-- **Tujuan Utama**: Mengubah pengalaman Notome dari situs bergaya desktop yang dipaksa responsif menjadi **aplikasi web mobile murni (Mobile Web App Experience)** yang mulus, ringan, dan pas di genggaman satu tangan pada ponsel Android dan iPhone.
-- **Masalah yang Diatasi**:
-  - Bilah atas (*header*) di layar ponsel sebelumnya memuat 7 ikon horizontal berjejer (`Logo`, `ID`, `Lonceng`, `Matahari/Bulan`, `Admin`, `Log Update`, `Pengaturan`, `Avatar`) yang menyebabkan tabrakan visual dan desakan horizontal di layar sempit.
-  - Di modul Film, Nutrisi, dan Hewan, kalender mini dan jadwal bertumpuk di paling bawah layar setelah daftar item yang panjang, membuat navigasi tanggal tersembunyi dan tidak seimbang.
-  - Footer bertingkat bergaya desktop yang memenuhi layar bawah di atas bilah navigasi jempol (*thumb navigation bar*).
-- **Nilai Bagi Pengguna**: Pengalaman visual tenang, bersih, dengan target sentuh minimal 44px–48px dan pemanfaatan vertikal layar ponsel yang efisien.
+Fitur ini memperkaya atmosfer personal santuari Notome dengan memberikan opsi estetika visual yang mendalam:
+1. **Warm Paper** (`light`): Suasana arsip kertas hangat, terakota editorial, dan limestone.
+2. **Roast Dark** (`dark`): Suasana malam pekat kopi sangrai, obsidian, dan aksen tembaga.
+3. **Cinema Velvet** (`cinema`): Atmosfer teater bioskop megah dengan latar merah marun gelap pekat, velvet bordeaux, dan kilau ruby elegan. Sangat cocok untuk sesi nonton film dan logging malam hari.
+4. **Romantic Rose** (`romantic`): Atmosfer lembut mawar romantis, kertas blush halus, garis pembatas dusty-rose, dan tipografi antik yang menenangkan.
 
 ---
 
 ## 2. User Experience & Visual Design
 
-### Key User Flows & Penataan Tata Letak Mobile
+### Palet Warna & Karakter Tema
 
 ```
-[ ANATOMI LAYAR MOBILE NOTOME ]
-
-+---------------------------------------------------+
-|  [N] Notome                  [🌐 ID]  [(M) Profil] |  <- Header Ramping (52px)
-+---------------------------------------------------+
-|  [ SUB-VIEW TABS:  🎬 Koleksi  |  📅 Kalender   ]  |  <- Switcher Segmen Praktis
-+---------------------------------------------------+
-|                                                   |
-|   • Konten Aktif Terpilih                         |
-|   • Kartu Ringkasan KPI (Grid 2 Kolom Kompak)     |
-|   • Formulir & Kartu Konten Proporsional          |  <- Zona Gulir Nyaman
-|   • Ruang Kosong Bernapas (Padding seimbang)      |
-|                                                   |
-+---------------------------------------------------+
-|  [ 🎬 ]  [ 🍽️ ]  [ 🐾 ]  [ 📅 ]  [ 📝 ]  [ 🌙 ]   |  <- Bilah Navigasi Bawah
-|  Film    Nutrisi  Hewan   Kalender Catatan Mimpi  |     (Zona Sentuh Jempol)
-+---------------------------------------------------+
+┌────────────────────────────────────────────────────────────────────────┐
+│                   4 PALET TEMA NOTOME EDITORIAL                        │
+├──────────────────┬──────────────────┬──────────────────┬───────────────┤
+│ 1. Warm Paper    │ 2. Roast Dark    │ 3. Cinema Velvet │ 4. Romantic   │
+│ (Default Light)  │ (Default Dark)   │ (Red Bioskop)    │    Rose       │
+├──────────────────┼──────────────────┼──────────────────┼───────────────┤
+│ Bg: #FAF7F2      │ Bg: #161311      │ Bg: #120406      │ Bg: #FDF7F8   │
+│ Card: #FFFDF9    │ Card: #1C1815    │ Card: #1D080B    │ Card: #FFF9FA │
+│ Text: #2D2823    │ Text: #EAE3DA    │ Text: #FDF2F4    │ Text: #381A22 │
+│ Accent: #C85A32  │ Accent: #D9822B  │ Accent: #E11D48  │ Accent:#DB2777│
+│ Border: #E5DDD2  │ Border: #2D2722  │ Border: #3D1219  │ Border:#F0D0D7│
+└──────────────────┴──────────────────┴──────────────────┴───────────────┘
 ```
 
-### Visual Identity & Theme Tokens
-
-- **Aesthetic Direction**: *Warm Editorial Japanese Minimalism* dipadukan dengan kenyamanan *Native Mobile App*.
-- **Warna & Kontras**:
-  - Latar Belakang: `#FAF7F2` (Hangat Krem) / `#161311` (Roast Espresso Gelap).
-  - Aksen Primer: Terracotta Notome `#C85A32`, Forest Olive `#5B7A58`, Honey Amber `#D9822B`, Indigo `#6366F1`.
-  - Garis Pemisah: Hairline halus (`border-[#E5DDD2]` / `border-[#2D2722]`), membuang efek bayangan berat yang memadati layar kecil.
-- **Tipografi & Skala Teks Mobile**:
-  - Ukuran dasar HTML dinormalisasi ke `16px` (skala standar browser mobile untuk mencegah auto-zoom iOS Safari saat fokus input).
-  - Teks metadata menggunakan tipografi tak berkotak (*unboxed text*) dengan pemisah `·`, menjaga kebersihan visual kartu.
-- **Ergonomi Sentuh (Thumb-Zone & Safe Areas)**:
-  - Header tetap (*sticky top*) dengan tinggi pas 52px–54px.
-  - Bilah navigasi bawah (*bottom bar*) memiliki tinggi 64px dengan `pb-safe` untuk perangkat bertakik (iPhone Home Indicator).
-  - Padding bawah kontainer utama disesuaikan (`pb-24`) agar konten terbawah tidak tertutup bilah navigasi.
+### Penempatan Kontrol Pemilih Tema
+1. **Laci Menu Profil (Mobile & Desktop Header)**:
+   - Kartu pemilih tema interaktif dengan 4 bulatan pratinjau warna (*color swatch dots*).
+   - Menampilkan nama tema dan indikator centang (*checkmark*) pada tema yang sedang aktif.
+2. **Modal Pengaturan & Sinkronisasi (`SettingsModal`)**:
+   - Bagian "Tema Tampilan Aplikasi" dengan 4 kartu pratinjau elegan berisi palet warna latar belakang dan warna aksen utama.
+3. **Penyimpanan Status**:
+   - Tersimpan otomatis di `localStorage` (`notome_preferences_v1`) sehingga preferensi tema pengguna tetap konsisten antar sesi.
 
 ---
 
 ## 3. Key Product Decisions & Trade-Offs
 
-### Keputusan 1: Restrukturisasi Bilah Atas Mobile (Streamlined Header)
-- **Pendekatan Terpilih**: Header mobile hanya mempertahankan elemen identitas dan navigasi akun utama: Brand Logo `[N] Notome`, Tombol Bahasa Cepat `[🌐 ID/EN]`, dan Avatar `[(M)]`.
-- **Lokasi Utilitas Sekunder**:
-  - Tombol **Mode Gelap/Terang**, **Log Pembaruan**, **Pengaturan & Sinkronisasi**, **Panel Admin** (jika Primary Admin), dan **Notifikasi** dikelompokkan ke dalam dropdown menu profil yang terbuka ke bawah dengan padding dan ikon yang besar serta mudah disentuh.
-- **Alasan**: Menghilangkan 100% risiko ikon berhimpitan atau teks terpotong di layar ponsel Android (resolusi 360px–412px) maupun iPhone (375px–393px).
-
-### Keputusan 2: Tab Segmen Pengganti Stack Kalender Vertikal (Adaptive View Switcher)
-- **Pendekatan Terpilih**:
-  - **Media View**: Pengguna memilih antara tab `[🎬 Daftar Tayangan]` atau `[📅 Kalender Nonton]`.
-  - **Nutrition View**: Pengguna memilih antara tab `[🍽️ Log Makanan]` atau `[📅 Kalender & Tren Nutrisi]`.
-  - **Pet View**: Pengguna memilih antara tab `[📋 Linimasa Medis]` atau `[📅 Jadwal Dokter & Vaksin]`.
-- **Alasan**: Menghilangkan masalah di mana kalender terdorong ke dasar halaman setelah puluhan item daftar makanan atau serial TV, sekaligus membuat pengalaman navigasi terasa instan layaknya aplikasi mobile native.
-
-### Keputusan 3: Bingkai Kontainer & Penataan Footer
-- **Pendekatan Terpilih**:
-  - Seluruh layout utama dibungkus dalam kontainer berukuran `max-w-md sm:max-w-lg mx-auto w-full px-4 pt-4 pb-24`.
-  - Menghapus footer teks bergaya desktop yang berulang di layar mobile, cukup menyisakan catatan hak cipta minimal di dalam menu pengaturan agar ruang gulir ponsel tetap maksimal.
+- **Penggunaan Atribut `data-theme`**:
+  - *Pendekatan*: Menambahkan atribut `data-theme="light" | "dark" | "cinema" | "romantic"` pada elemen `<html>` serta mempertahankan kelas `.dark` untuk tema berbasis gelap (`dark` dan `cinema`).
+  - *Alasan*: Kompatibilitas penuh dengan utilitas Tailwind CSS yang ada, sambil mengizinkan penyesuaian CSS variables dan kelas khusus untuk nuansa merah tua bioskop dan pink mawar tanpa merusak fungsionalitas modul lainnya.
+- **Pewarnaan Elemen Dinamis**:
+  - Elemen navigasi, kartu modul, bilah pencarian, dan dialog modal akan mengadopsi nuansa latar dan garis tepi sesuai dengan tema yang aktif secara halus melalui transisi `transition-colors duration-200`.
 
 ---
 
 ## 4. Technical Architecture & Component Mapping
 
 ```
-┌────────────────────────────────────────────────────────┐
-│                        App.tsx                         │
-│   (State & Auth, Preferences, Theme, Storage Hook)     │
-└───────────┬────────────────────────────────┬───────────┘
-            │                                │
-            ▼                                ▼
-┌───────────────────────┐        ┌───────────────────────┐
-│     Navigation.tsx    │        │  Mobile App Shell     │
-│  - Clean Mobile Bar   │        │  (max-w-md / lg)      │
-│  - Profile Action Menu│        └───────────┬───────────┘
-│  - Bottom Tab Anchor  │                    │
-└───────────────────────┘                    ▼
-                     ┌───────────────────────────────────────┐
-                     │ Active Mobile View Controller         │
-                     │  ├─ MediaView (Segment Switcher)      │
-                     │  ├─ NutritionView (Segment Switcher)  │
-                     │  ├─ PetView (Segment Switcher)        │
-                     │  ├─ MasterCalendarView (Mobile Grid)  │
-                     │  ├─ NotesView (Touch List)            │
-                     │  └─ DreamCatcherView (KPI + Cards)    │
-                     └───────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                    useStorage Preferences                    │
+│            theme: 'light' | 'dark' | 'cinema' | 'romantic'   │
+└──────────────────────────────┬───────────────────────────────┘
+                               │
+               ┌───────────────┴───────────────┐
+               ▼                               ▼
+  ┌─────────────────────────┐     ┌─────────────────────────┐
+  │ HTML Root Element       │     │ LocalStorage            │
+  │ data-theme="..."        │     │ notome_preferences_v1   │
+  │ class="dark" (if dark/  │     └─────────────────────────┘
+  │               cinema)   │
+  └────────────┬────────────┘
+               │
+   ┌───────────┴───────────────────────────────┐
+   ▼                                           ▼
+┌──────────────────────────────┐ ┌──────────────────────────────┐
+│ Navigation / Profile Drawer  │ │ SettingsModal                │
+│ 4-Theme Swatch Selector Grid │ │ 4-Theme Interactive Selector │
+└──────────────────────────────┘ └──────────────────────────────┘
 ```
 
-### Rencana File & Modifikasi:
-1. `src/components/Navigation.tsx`:
-   - Memodifikasi baris header pada breakpoint mobile: hanya menampilkan Brand, Switcher Bahasa, dan Profil Avatar.
-   - Mengintegrasikan toggle tema, log pembaruan, panel admin, dan pengaturan ke dalam popover menu profil yang lega.
-2. `src/App.tsx`:
-   - Menyesuaikan kontainer `<main>` menjadi format mobile shell (`max-w-md sm:max-w-lg mx-auto px-4 py-4 pb-28`).
-   - Menyederhanakan footer agar tidak memakan ruang gulir mobile di atas bilah bawah.
-3. `src/components/MediaTracker/MediaView.tsx`:
-   - Menambahkan switch segmen tab `['list', 'calendar']` untuk mobile view.
-4. `src/components/NutritionTracker/NutritionView.tsx`:
-   - Menambahkan switch segmen tab `['meals', 'calendar']` untuk mobile view.
-5. `src/components/PetTracker/PetView.tsx`:
-   - Menambahkan switch segmen tab `['records', 'calendar']` untuk mobile view.
-6. `src/index.css`:
-   - Memastikan font root HTML stabil pada `16px` di mobile viewport agar proporsional dan tidak memicu pergeseran layout.
+### Rincian Perubahan Kode
+1. **`src/types.ts`**:
+   - Definisikan tipe `ThemeMode = 'light' | 'dark' | 'cinema' | 'romantic'`.
+   - Perbarui `UserPreferences.theme` menjadi `ThemeMode`.
+2. **`src/hooks/useStorage.ts`**:
+   - Perbarui sinkronisasi `useEffect` agar mengelola `data-theme` dan kelas `.dark`.
+   - Sediakan fungsi `setTheme(theme: ThemeMode)`.
+3. **`src/index.css`**:
+   - Tambahkan token variabel CSS dan aturan pewarnaan untuk `[data-theme="cinema"]` dan `[data-theme="romantic"]`.
+4. **`src/components/Navigation.tsx`**:
+   - Tambahkan pemilih tema berpratinjau warna 4 tombol di laci profil sentuh.
+5. **`src/components/SettingsModal.tsx`**:
+   - Perbarui opsi tema di pengaturan dengan 4 kartu tema interaktif.
+6. **Verifikasi**:
+   - Jalankan `lint_applet` dan `compile_applet`.

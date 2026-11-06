@@ -23,13 +23,14 @@ import {
   MoonStar,
 } from 'lucide-react';
 import { translations, Language } from '../../lib/translations';
+import { ThemeMode } from '../../types';
 
 // Notome Private Life Hub · Pure Google Invite-Only Authentication System
 
 interface AuthViewProps {
   onSignInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
   isSupabaseConfigured: boolean;
-  theme: 'light' | 'dark';
+  theme: ThemeMode;
   onToggleTheme: () => void;
   language: Language;
   onSelectLanguage: (lang: Language) => void;

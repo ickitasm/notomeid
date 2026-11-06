@@ -9,14 +9,16 @@ import { AppUser } from '../hooks/useAuth';
 import { UpcomingAlert } from '../lib/notifications';
 import { NotificationPanel } from './Notifications/NotificationPanel';
 import { translations, Language } from '../lib/translations';
+import { ThemeMode } from '../types';
 
 export type ActiveTab = 'media' | 'nutrition' | 'pets' | 'calendar' | 'notes' | 'dreams';
 
 interface NavigationProps {
   activeTab: ActiveTab;
   onTabChange: (tab: ActiveTab) => void;
-  theme: 'light' | 'dark';
+  theme: ThemeMode;
   onToggleTheme: () => void;
+  onSetTheme?: (theme: ThemeMode) => void;
   onOpenSettings: () => void;
   onOpenAdminPanel?: () => void;
   onOpenUpdateLogs?: () => void;
@@ -33,6 +35,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   onTabChange,
   theme,
   onToggleTheme,
+  onSetTheme,
   onOpenSettings,
   onOpenAdminPanel,
   onOpenUpdateLogs,
@@ -47,6 +50,13 @@ export const Navigation: React.FC<NavigationProps> = ({
   const profileRef = useRef<HTMLDivElement>(null);
 
   const t = translations[language].nav;
+
+  const themesList: { id: ThemeMode; labelId: string; labelEn: string; bgDot: string; accentDot: string }[] = [
+    { id: 'light', labelId: 'Warm Paper', labelEn: 'Warm Paper', bgDot: '#FAF7F2', accentDot: '#C85A32' },
+    { id: 'dark', labelId: 'Roast Dark', labelEn: 'Roast Dark', bgDot: '#161311', accentDot: '#D9822B' },
+    { id: 'cinema', labelId: 'Cinema Velvet', labelEn: 'Cinema Velvet', bgDot: '#120406', accentDot: '#E11D48' },
+    { id: 'romantic', labelId: 'Romantic Rose', labelEn: 'Romantic Rose', bgDot: '#FDF7F8', accentDot: '#DB2777' },
+  ];
 
   const navItems: { id: ActiveTab; label: string; shortLabel: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'media', label: t.media, shortLabel: t.mediaShort, icon: Film },
@@ -140,15 +150,23 @@ export const Navigation: React.FC<NavigationProps> = ({
               {/* Notification Center Bell */}
               <NotificationPanel alerts={alerts} userEmail={user?.email} />
 
-              {/* Theme Toggle */}
+              {/* Theme Cycle Button */}
               <button
                 type="button"
                 onClick={onToggleTheme}
                 aria-label="Toggle theme"
                 className="min-w-[38px] min-h-[38px] flex items-center justify-center rounded-xl text-[#6F645A] dark:text-[#A89C90] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] hover:bg-[#EFE8DD] dark:hover:bg-[#28221D] active:scale-95 transition-all touch-manipulation cursor-pointer"
-                title={theme === 'dark' ? 'Switch to warm light theme' : 'Switch to roast dark theme'}
+                title={`Tema saat ini: ${theme}. Klik untuk beralih.`}
               >
-                {theme === 'dark' ? <Sun className="w-4 h-4 text-[#D9822B]" /> : <Moon className="w-4 h-4 text-[#6F645A]" />}
+                {theme === 'cinema' ? (
+                  <Film className="w-4 h-4 text-[#FB7185]" />
+                ) : theme === 'romantic' ? (
+                  <Sparkles className="w-4 h-4 text-[#DB2777]" />
+                ) : theme === 'dark' ? (
+                  <Moon className="w-4 h-4 text-[#D9822B]" />
+                ) : (
+                  <Sun className="w-4 h-4 text-[#C85A32]" />
+                )}
               </button>
 
               {/* Primary Admin Special Panel Button */}
@@ -235,22 +253,48 @@ export const Navigation: React.FC<NavigationProps> = ({
                     )}
                   </div>
 
-                  {/* Mobile-Only Quick Shortcuts (Notifications & Theme Switcher) */}
-                  <div className="md:hidden space-y-1 pb-2 border-b border-[#EAE2D8] dark:border-[#2E2823]">
-                    {/* Theme Toggle Trigger */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onToggleTheme();
-                      }}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#F4ECE3] dark:hover:bg-[#25201C] text-[#594E44] dark:text-[#C5B8AA] transition-colors cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        {theme === 'dark' ? <Sun className="w-4 h-4 text-[#D9822B]" /> : <Moon className="w-4 h-4 text-[#6F645A]" />}
-                        <span className="font-medium">{theme === 'dark' ? (language === 'id' ? 'Mode Terang' : 'Light Mode') : (language === 'id' ? 'Mode Gelap' : 'Dark Mode')}</span>
-                      </div>
-                      <span className="text-[10px] font-mono uppercase text-[#8F8275]">{theme}</span>
-                    </button>
+                  {/* Interactive 4-Theme Swatch Selector */}
+                  <div className="py-2.5 px-3 border-b border-[#EAE2D8] dark:border-[#2E2823] space-y-2">
+                    <div className="flex items-center justify-between text-xs font-semibold text-[#6F645A] dark:text-[#A89C90]">
+                      <span>{language === 'id' ? 'Tema Tampilan' : 'Visual Theme'}</span>
+                      <span className="font-mono text-[10px] capitalize text-[#8F8275]">
+                        {theme === 'cinema' ? 'Cinema Velvet' : theme === 'romantic' ? 'Romantic Rose' : theme}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {themesList.map((tItem) => {
+                        const isSelected = theme === tItem.id;
+                        return (
+                          <button
+                            key={tItem.id}
+                            type="button"
+                            onClick={() => {
+                              if (onSetTheme) {
+                                onSetTheme(tItem.id);
+                              } else {
+                                onToggleTheme();
+                              }
+                            }}
+                            className={`flex items-center gap-2 p-2 rounded-xl text-xs transition-all cursor-pointer touch-manipulation ${
+                              isSelected
+                                ? 'bg-[#EAE2D7] dark:bg-[#28221D] text-[#2B241E] dark:text-[#EFE9E2] font-semibold ring-1 ring-[#C85A32]/40 shadow-xs'
+                                : 'text-[#6F645A] dark:text-[#A89C90] hover:bg-[#F4ECE3] dark:hover:bg-[#201B17]'
+                            }`}
+                          >
+                            <span
+                              className="w-4 h-4 rounded-full border border-black/20 shrink-0 shadow-2xs flex items-center justify-center"
+                              style={{ backgroundColor: tItem.bgDot }}
+                            >
+                              <span
+                                className="w-1.5 h-1.5 rounded-full"
+                                style={{ backgroundColor: tItem.accentDot }}
+                              />
+                            </span>
+                            <span className="truncate">{language === 'id' ? tItem.labelId : tItem.labelEn}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
 
                   {isPrimaryAdmin && onOpenAdminPanel && (

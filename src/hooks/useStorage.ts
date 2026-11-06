@@ -12,6 +12,7 @@ import {
   PetMedication,
   CalendarEvent,
   UserPreferences,
+  ThemeMode,
   MealItem,
   NoteItem,
   DreamLog,
@@ -96,9 +97,10 @@ export function useStorage() {
     loadStored(STORAGE_KEYS.DREAMS, initialDreamLogs)
   );
 
-  // Sync theme with HTML class
+  // Sync theme with HTML data-theme attribute and dark class
   useEffect(() => {
-    if (preferences.theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', preferences.theme);
+    if (preferences.theme === 'dark' || preferences.theme === 'cinema') {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
@@ -115,9 +117,19 @@ export function useStorage() {
     });
   }, []);
 
+  const setTheme = useCallback((newTheme: ThemeMode) => {
+    setPreferencesState((prev) => {
+      const next: UserPreferences = { ...prev, theme: newTheme };
+      saveStored(STORAGE_KEYS.PREFS, next);
+      return next;
+    });
+  }, []);
+
   const toggleTheme = useCallback(() => {
     setPreferencesState((prev) => {
-      const nextTheme: 'light' | 'dark' = prev.theme === 'dark' ? 'light' : 'dark';
+      const themes: ThemeMode[] = ['light', 'dark', 'cinema', 'romantic'];
+      const currentIndex = themes.indexOf(prev.theme);
+      const nextTheme = themes[(currentIndex + 1) % themes.length];
       const next: UserPreferences = { ...prev, theme: nextTheme };
       saveStored(STORAGE_KEYS.PREFS, next);
       return next;
@@ -596,6 +608,7 @@ export function useStorage() {
     preferences,
     updatePreferences,
     toggleTheme,
+    setTheme,
     // Media
     mediaItems,
     addMediaItem,

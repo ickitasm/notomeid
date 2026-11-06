@@ -68,3 +68,129 @@ html, body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* ==========================================================================
+   THEME: CINEMA VELVET (Noir Crimson Red / Bioskop)
+   ========================================================================== */
+html[data-theme="cinema"],
+html[data-theme="cinema"] body {
+  background-color: #120406 !important;
+  color: #FDF2F4 !important;
+}
+
+html[data-theme="cinema"] [class*="bg-[#FAF7F2]"],
+html[data-theme="cinema"] [class*="bg-[#161311]"],
+html[data-theme="cinema"] [class*="bg-[#1C1815]"],
+html[data-theme="cinema"] [class*="bg-[#FFFDF9]"] {
+  background-color: #1B0609 !important;
+}
+
+html[data-theme="cinema"] [class*="bg-[#25201C]"],
+html[data-theme="cinema"] [class*="bg-[#2A231D]"],
+html[data-theme="cinema"] [class*="bg-[#28221D]"],
+html[data-theme="cinema"] [class*="bg-[#F4ECE3]"],
+html[data-theme="cinema"] [class*="bg-[#EAE2D7]"] {
+  background-color: #26090D !important;
+}
+
+html[data-theme="cinema"] [class*="border-[#E4DCDB]"],
+html[data-theme="cinema"] [class*="border-[#E5DDD2]"],
+html[data-theme="cinema"] [class*="border-[#352F2B]"],
+html[data-theme="cinema"] [class*="border-[#2D2722]"],
+html[data-theme="cinema"] [class*="border-[#38312B]"] {
+  border-color: #3F1017 !important;
+}
+
+html[data-theme="cinema"] [class*="text-[#2D2823]"],
+html[data-theme="cinema"] [class*="text-[#2B241E]"],
+html[data-theme="cinema"] [class*="text-[#EAE3DA]"],
+html[data-theme="cinema"] [class*="text-[#EFE9E2]"] {
+  color: #FDF2F4 !important;
+}
+
+html[data-theme="cinema"] [class*="text-[#7B6F63]"],
+html[data-theme="cinema"] [class*="text-[#8F8275]"],
+html[data-theme="cinema"] [class*="text-[#9F9184]"],
+html[data-theme="cinema"] [class*="text-[#A89C90]"] {
+  color: #D4A5AC !important;
+}
+
+html[data-theme="cinema"] [class*="text-[#C85A32]"],
+html[data-theme="cinema"] [class*="text-[#A86438]"] {
+  color: #FB7185 !important;
+}
+
+html[data-theme="cinema"] [class*="bg-[#C85A32]"],
+html[data-theme="cinema"] [class*="bg-[#A86438]"] {
+  background-color: #BE123C !important;
+}
+
+html[data-theme="cinema"] [class*="bg-[#C85A32]/10"],
+html[data-theme="cinema"] [class*="bg-[#A86438]/10"] {
+  background-color: rgba(225, 29, 72, 0.18) !important;
+}
+
+/* ==========================================================================
+   THEME: ROMANTIC ROSE (Pink Romantis Lembut)
+   ========================================================================== */
+html[data-theme="romantic"],
+html[data-theme="romantic"] body {
+  background-color: #FDF7F8 !important;
+  color: #381A22 !important;
+}
+
+html[data-theme="romantic"] [class*="bg-[#FAF7F2]"],
+html[data-theme="romantic"] [class*="bg-[#161311]"] {
+  background-color: #FDF7F8 !important;
+}
+
+html[data-theme="romantic"] [class*="bg-[#FFFDF9]"],
+html[data-theme="romantic"] [class*="bg-[#1C1815]"],
+html[data-theme="romantic"] [class*="bg-white"] {
+  background-color: #FFF9FA !important;
+}
+
+html[data-theme="romantic"] [class*="bg-[#F4ECE3]"],
+html[data-theme="romantic"] [class*="bg-[#25201C]"],
+html[data-theme="romantic"] [class*="bg-[#EAE2D7]"],
+html[data-theme="romantic"] [class*="bg-[#2A231D]"] {
+  background-color: #F8E8EB !important;
+}
+
+html[data-theme="romantic"] [class*="border-[#E4DCDB]"],
+html[data-theme="romantic"] [class*="border-[#E5DDD2]"],
+html[data-theme="romantic"] [class*="border-[#352F2B]"],
+html[data-theme="romantic"] [class*="border-[#2D2722]"],
+html[data-theme="romantic"] [class*="border-[#38312B]"] {
+  border-color: #F0D0D7 !important;
+}
+
+html[data-theme="romantic"] [class*="text-[#2D2823]"],
+html[data-theme="romantic"] [class*="text-[#2B241E]"],
+html[data-theme="romantic"] [class*="text-[#EAE3DA]"],
+html[data-theme="romantic"] [class*="text-[#EFE9E2]"] {
+  color: #381A22 !important;
+}
+
+html[data-theme="romantic"] [class*="text-[#7B6F63]"],
+html[data-theme="romantic"] [class*="text-[#8F8275]"],
+html[data-theme="romantic"] [class*="text-[#9F9184]"],
+html[data-theme="romantic"] [class*="text-[#A89C90]"] {
+  color: #9E707D !important;
+}
+
+html[data-theme="romantic"] [class*="text-[#C85A32]"],
+html[data-theme="romantic"] [class*="text-[#A86438]"] {
+  color: #DB2777 !important;
+}
+
+html[data-theme="romantic"] [class*="bg-[#C85A32]"],
+html[data-theme="romantic"] [class*="bg-[#A86438]"] {
+  background-color: #DB2777 !important;
+}
+
+html[data-theme="romantic"] [class*="bg-[#C85A32]/10"],
+html[data-theme="romantic"] [class*="bg-[#A86438]/10"] {
+  background-color: rgba(219, 39, 119, 0.12) !important;
+}
+

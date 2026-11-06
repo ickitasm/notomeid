@@ -14,6 +14,7 @@ import {
   Cloud,
   RefreshCw,
   Globe,
+  Sparkles,
 } from 'lucide-react';
 import { UserPreferences } from '../types';
 import { isSupabaseConfigured, testSupabaseConnection } from '../lib/supabase';
@@ -233,6 +234,88 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <span className="text-sm">🇬🇧</span>
                   <span>English</span>
                 </button>
+              </div>
+            </div>
+
+            {/* Visual Theme Selector */}
+            <div className="p-3.5 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-white/50 dark:bg-[#25201C]/50 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 font-serif font-bold text-xs text-[#2B241E] dark:text-[#EFE9E2]">
+                  <Sparkles className="w-3.5 h-3.5 text-[#C85A32]" />
+                  <span>{t.themeLabel || 'Tema Tampilan Aplikasi'}</span>
+                </div>
+                <span className="text-[10px] text-[#7B6F63] uppercase tracking-wider font-mono">
+                  {preferences.theme}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                {[
+                  {
+                    id: 'light' as const,
+                    name: activeLang === 'id' ? 'Warm Paper' : 'Warm Paper',
+                    sub: activeLang === 'id' ? 'Krem Arsip' : 'Archival Light',
+                    bg: '#FAF7F2',
+                    accent: '#C85A32',
+                  },
+                  {
+                    id: 'dark' as const,
+                    name: activeLang === 'id' ? 'Roast Dark' : 'Roast Dark',
+                    sub: activeLang === 'id' ? 'Kopi Sangrai' : 'Espresso Dark',
+                    bg: '#161311',
+                    accent: '#D9822B',
+                  },
+                  {
+                    id: 'cinema' as const,
+                    name: activeLang === 'id' ? 'Cinema Velvet' : 'Cinema Velvet',
+                    sub: activeLang === 'id' ? 'Merah Bioskop' : 'Noir Crimson',
+                    bg: '#120406',
+                    accent: '#E11D48',
+                  },
+                  {
+                    id: 'romantic' as const,
+                    name: activeLang === 'id' ? 'Romantic Rose' : 'Romantic Rose',
+                    sub: activeLang === 'id' ? 'Pink Romantis' : 'Blush Pink',
+                    bg: '#FDF7F8',
+                    accent: '#DB2777',
+                  },
+                ].map((th) => {
+                  const isSelected = preferences.theme === th.id;
+                  return (
+                    <button
+                      key={th.id}
+                      type="button"
+                      onClick={() => onUpdatePreferences({ theme: th.id })}
+                      className={`min-h-[48px] p-2.5 rounded-xl border text-left transition-all active:scale-[0.98] touch-manipulation cursor-pointer flex items-center justify-between ${
+                        isSelected
+                          ? 'border-[#C85A32] bg-[#C85A32]/10 ring-1 ring-[#C85A32]/30 shadow-xs font-semibold'
+                          : 'border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] hover:bg-[#F3ECE4] dark:hover:bg-[#201B17]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="w-5 h-5 rounded-full border border-black/20 shrink-0 shadow-2xs flex items-center justify-center"
+                          style={{ backgroundColor: th.bg }}
+                        >
+                          <span
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: th.accent }}
+                          />
+                        </span>
+                        <div>
+                          <div className="text-xs text-[#2B241E] dark:text-[#EFE9E2]">
+                            {th.name}
+                          </div>
+                          <div className="text-[10px] text-[#7B6F63] dark:text-[#9F9184]">
+                            {th.sub}
+                          </div>
+                        </div>
+                      </div>
+                      {isSelected && (
+                        <Check className="w-3.5 h-3.5 text-[#C85A32] shrink-0" />
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 

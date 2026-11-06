@@ -114,8 +114,10 @@ export interface CalendarEvent {
   isCompleted?: boolean;
 }
 
+export type ThemeMode = 'light' | 'dark' | 'cinema' | 'romantic';
+
 export interface UserPreferences {
-  theme: 'light' | 'dark';
+  theme: ThemeMode;
   language: 'id' | 'en';
   defaultCalorieGoal: number;
   defaultSugarLimit: number; // in grams
