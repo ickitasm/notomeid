@@ -46,6 +46,7 @@ export const MediaView: React.FC<MediaViewProps> = ({
   const [selectedStatus, setSelectedStatus] = useState<MediaStatus | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [mobileTab, setMobileTab] = useState<'catalog' | 'calendar'>('catalog');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<MediaItem | null>(null);
   const [itemToDelete, setItemToDelete] = useState<MediaItem | null>(null);
@@ -185,10 +186,38 @@ export const MediaView: React.FC<MediaViewProps> = ({
         </div>
       </div>
 
+      {/* Mobile Segmented Switcher (Visible on mobile/tablet, hidden on desktop lg:) */}
+      <div className="lg:hidden flex items-center p-1 bg-[#EAE2D7] dark:bg-[#25201C] rounded-xl text-xs font-semibold">
+        <button
+          type="button"
+          onClick={() => setMobileTab('catalog')}
+          className={`flex-1 py-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer touch-manipulation ${
+            mobileTab === 'catalog'
+              ? 'bg-white dark:bg-[#161311] text-[#2B241E] dark:text-[#EFE9E2] shadow-xs'
+              : 'text-[#7B6F63] dark:text-[#9F9184]'
+          }`}
+        >
+          <Film className="w-3.5 h-3.5 text-[#C85A32]" />
+          <span>{language === 'id' ? 'Katalog Film & Serial' : 'Catalog & Library'}</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileTab('calendar')}
+          className={`flex-1 py-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer touch-manipulation ${
+            mobileTab === 'calendar'
+              ? 'bg-white dark:bg-[#161311] text-[#2B241E] dark:text-[#EFE9E2] shadow-xs'
+              : 'text-[#7B6F63] dark:text-[#9F9184]'
+          }`}
+        >
+          <CalendarIcon className="w-3.5 h-3.5 text-[#C85A32]" />
+          <span>{language === 'id' ? 'Kalender Jadwal' : 'Schedule Calendar'}</span>
+        </button>
+      </div>
+
       {/* Two Column Layout: Main Content (Filters + Grid) & Side Mini-Calendar */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* Main 2-column wide content */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className={`lg:col-span-2 space-y-6 ${mobileTab === 'catalog' ? 'block' : 'hidden lg:block'}`}>
           {/* Filter Bar & Search */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3.5 p-3 rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815]">
             {/* Type tabs */}
@@ -422,7 +451,7 @@ export const MediaView: React.FC<MediaViewProps> = ({
         </div>
 
         {/* Right column: Embedded Entertainment Mini-Calendar & Upcoming Schedule */}
-        <div className="space-y-6">
+        <div className={`space-y-6 ${mobileTab === 'calendar' ? 'block' : 'hidden lg:block'}`}>
           <div className="rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-5 sm:p-6">
             <div className="flex items-center justify-between mb-4">
               <div>

@@ -1,84 +1,131 @@
-# Rencana Implementasi: Perbaikan Akses Admin Android & Desain Header Desktop Proporsional
+# Rencana Desain & Optimasi Khusus Mobile (Android & iPhone)
 
-Rencana perbaikan untuk menyelesaikan kendala tombol Panel Admin yang tidak muncul pada perangkat Android untuk akun `mike777rafael` / `michael777rafael@gmail.com`, serta merapikan header desktop yang terlalu melebar menggunakan pendekatan kontainer ramping dan navigasi tengah adaptif.
+Mendefinisikan arsitektur antarmuka dan pengalaman pengguna (UX) terfokus mobile (*touch-first mobile web application*) untuk Notome di perangkat Android dan iPhone, merapikan kepadatan bilah atas, menata kalender mini dengan sistem tab adaptif, serta mengonsolidasi bingkai kontainer mobile yang proporsional.
 
 ---
 
 ## User Review & Critical Decisions
 
 > [!IMPORTANT]
-> Keputusan yang telah dikonfirmasi dan diselesaikan:
-> 1. **Header Desktop**: Telah diterapkan kontainer ramping terpusat (`max-w-6xl`) dengan navigasi tengah adaptif berbasis segmented control pill bergaya modern tanpa melebar ekstrem.
-> 2. **Penempatan Panel Admin di Android / Ponsel**: Tombol akses **Admin** kini selalu tampil jelas di bilah atas (header ponsel) dan juga tersedia sebagai menu aksi di dalam dropdown avatar profil.
-> 3. **Deteksi Email Akun Admin**: Mengaktifkan otorisasi admin untuk variasi email dan username `mike777rafael` & `michael777rafael@gmail.com` secara komprehensif.
-> 4. **Verifikasi**: `tsc --noEmit` dan `npm run build` berhasil 100% tanpa error.
+> **Keputusan Pengguna yang Telah Dikonfirmasi (Fase 1):**
+> 1. **Penyederhanaan Bilah Atas (Header Mobile)**: Tampilkan hanya logo Notome, pemilih bahasa (`ID`/`EN`), dan avatar profil di bilah atas. Ikon utilitas sekunder (Notifikasi, Mode Gelap/Terang, Log Update, Pengaturan, dan Panel Admin) dipindahkan ke dalam laci menu profil (*profile drawer*) yang lapang dan sentuh-ramah (*touch-friendly*).
+> 2. **Penataan Kalender Mini & Jadwal**: Mengganti penumpukan vertikal kalender di bawah daftar konten dengan **sistem beralih tab segmen mobile** (misal: `[🎬 Daftar Tayangan]` vs `[📅 Kalender Nonton]`). Pengguna dapat beralih dengan 1 sentuhan tanpa harus menggulir jauh ke bagian bawah layar.
+> 3. **Format Lebar Tampilan Utama**: Mengadopsi **bingkai aplikasi mobile terpusat** (`max-w-md sm:max-w-lg`) yang ramping dan ergonomis di semua layar, memberikan kenyamanan genggam optimal dengan safe area atas dan bawah.
 
 ---
 
-## 1. Analisis Akar Masalah
+## 1. Overview & Core Concept
 
-### A. Tombol Panel Admin Tidak Muncul di Android
-1. **Ketidakcocokan Email Admin**:
-   - Di `src/hooks/useAuth.ts`, `PRIMARY_ADMIN_EMAIL` hanya disetel ke satu string `'mike777rafael@gmail.com'`.
-   - Pengguna pada perangkat Android login menggunakan akun Google dengan email sebenarnya `michael777rafael@gmail.com`.
-   - Logika `user.email?.toLowerCase().trim() === PRIMARY_ADMIN_EMAIL.toLowerCase().trim()` menghasilkan `false`.
-2. **Keterbatasan Visibilitas Header Mobile di `Navigation.tsx`**:
-   - Tombol admin sebelumnya menyembunyikan label teks pada layar `< md` (`<span className="hidden xl:inline">Panel Admin</span><span className="hidden md:inline xl:hidden">Admin</span>`), sehingga hanya menampilkan icon mini tanpa label.
-   - Pada menu dropdown profil avatar, belum tersedia pintasan eksplisit untuk membuka Panel Admin.
-
-### B. Header Desktop Terlalu Melebar
-1. Penggunaan `max-w-7xl` (1280px) dengan `justify-between` pada layar lebar mendorong logo Notome ke ujung kiri ekstrem dan tombol utilitas ke ujung kanan ekstrem, sementara 6 tab modul terapung di antaranya dengan jarak terlalu renggang.
-2. Pada resolusi layar desktop sedang (1024px–1280px), deretan 6 tab modul dan 6 tombol utilitas berdesakan.
-3. Solusi yang disetujui:
-   - Kontainer header menggunakan ukuran yang lebih padat dan terpusat (`max-w-6xl` atau `max-w-5xl`).
-   - Tab navigasi ditempatkan dalam wadah kapsul (*segmented control pill*) yang rapi dan terpusat (*centered navigation pill*).
-   - Ditambahkan penanganan scroll horizontal halus dengan kontrol tersembunyi (*scrollbar-none*) jika viewport desktop menyempit, sehingga tidak pernah terjadi layout-breaking.
+- **Tujuan Utama**: Mengubah pengalaman Notome dari situs bergaya desktop yang dipaksa responsif menjadi **aplikasi web mobile murni (Mobile Web App Experience)** yang mulus, ringan, dan pas di genggaman satu tangan pada ponsel Android dan iPhone.
+- **Masalah yang Diatasi**:
+  - Bilah atas (*header*) di layar ponsel sebelumnya memuat 7 ikon horizontal berjejer (`Logo`, `ID`, `Lonceng`, `Matahari/Bulan`, `Admin`, `Log Update`, `Pengaturan`, `Avatar`) yang menyebabkan tabrakan visual dan desakan horizontal di layar sempit.
+  - Di modul Film, Nutrisi, dan Hewan, kalender mini dan jadwal bertumpuk di paling bawah layar setelah daftar item yang panjang, membuat navigasi tanggal tersembunyi dan tidak seimbang.
+  - Footer bertingkat bergaya desktop yang memenuhi layar bawah di atas bilah navigasi jempol (*thumb navigation bar*).
+- **Nilai Bagi Pengguna**: Pengalaman visual tenang, bersih, dengan target sentuh minimal 44px–48px dan pemanfaatan vertikal layar ponsel yang efisien.
 
 ---
 
-## 2. Rencana Perubahan Komponen
+## 2. User Experience & Visual Design
 
-### File 1: `src/hooks/useAuth.ts`
-- Tambahkan daftar email primer dan fungsi verifikasi admin fleksibel:
-  ```ts
-  export const PRIMARY_ADMIN_EMAILS = [
-    'mike777rafael@gmail.com',
-    'michael777rafael@gmail.com',
-  ];
-  
-  export function checkIsAdmin(email?: string | null): boolean {
-    if (!email) return false;
-    const clean = email.toLowerCase().trim();
-    const username = clean.split('@')[0];
-    return (
-      PRIMARY_ADMIN_EMAILS.some((adminEmail) => adminEmail.toLowerCase().trim() === clean) ||
-      username === 'mike777rafael' ||
-      username === 'michael777rafael' ||
-      clean.includes('mike777rafael')
-    );
-  }
-  ```
-- Perbarui inisialisasi `INITIAL_INVITED_USERS`, `isPrimaryAdmin`, dan pengecekan whitelist agar otomatis mencakup `michael777rafael@gmail.com`.
+### Key User Flows & Penataan Tata Letak Mobile
 
-### File 2: `src/components/Navigation.tsx`
-- **Tampilan Header Mobile**:
-  - Tampilkan tombol ikon Admin dengan badge oranye jelas di bilah atas ponsel jika pengguna adalah admin.
-  - Tambahkan menu aksi **"Panel Admin"** (dengan ikon perisai `ShieldCheck` dan badge khusus) di dalam dropdown profil avatar (`isProfileOpen`), sehingga pengguna mobile selalu memiliki akses 1-klik yang mudah dijangkau.
-- **Tampilan Header Desktop**:
-  - Ganti layout melebar dengan **kontainer elegan terpusat** (`max-w-6xl`).
-  - Satukan 6 tab modul ke dalam kapsul tengah bergaya modern (*segmented pill navigation*), dengan transisi hover yang halus.
-  - Buat tab navigasi dapat di-scroll secara horizontal tanpa scrollbar kaku jika lebar layar berkurang.
-  - Kelompokkan tombol utilitas kanan (Bahasa, Lonceng, Tema, Pengaturan, Admin, Profil) secara proporsional dan rapi.
+```
+[ ANATOMI LAYAR MOBILE NOTOME ]
 
-### File 3: `src/components/Admin/AdminPanelModal.tsx`
-- Sinkronkan `PRIMARY_ADMIN_EMAILS` agar kedua email dikenali sebagai admin sistem utama yang tidak dapat dicabut/dihapus secara tidak sengaja oleh interface.
++---------------------------------------------------+
+|  [N] Notome                  [🌐 ID]  [(M) Profil] |  <- Header Ramping (52px)
++---------------------------------------------------+
+|  [ SUB-VIEW TABS:  🎬 Koleksi  |  📅 Kalender   ]  |  <- Switcher Segmen Praktis
++---------------------------------------------------+
+|                                                   |
+|   • Konten Aktif Terpilih                         |
+|   • Kartu Ringkasan KPI (Grid 2 Kolom Kompak)     |
+|   • Formulir & Kartu Konten Proporsional          |  <- Zona Gulir Nyaman
+|   • Ruang Kosong Bernapas (Padding seimbang)      |
+|                                                   |
++---------------------------------------------------+
+|  [ 🎬 ]  [ 🍽️ ]  [ 🐾 ]  [ 📅 ]  [ 📝 ]  [ 🌙 ]   |  <- Bilah Navigasi Bawah
+|  Film    Nutrisi  Hewan   Kalender Catatan Mimpi  |     (Zona Sentuh Jempol)
++---------------------------------------------------+
+```
+
+### Visual Identity & Theme Tokens
+
+- **Aesthetic Direction**: *Warm Editorial Japanese Minimalism* dipadukan dengan kenyamanan *Native Mobile App*.
+- **Warna & Kontras**:
+  - Latar Belakang: `#FAF7F2` (Hangat Krem) / `#161311` (Roast Espresso Gelap).
+  - Aksen Primer: Terracotta Notome `#C85A32`, Forest Olive `#5B7A58`, Honey Amber `#D9822B`, Indigo `#6366F1`.
+  - Garis Pemisah: Hairline halus (`border-[#E5DDD2]` / `border-[#2D2722]`), membuang efek bayangan berat yang memadati layar kecil.
+- **Tipografi & Skala Teks Mobile**:
+  - Ukuran dasar HTML dinormalisasi ke `16px` (skala standar browser mobile untuk mencegah auto-zoom iOS Safari saat fokus input).
+  - Teks metadata menggunakan tipografi tak berkotak (*unboxed text*) dengan pemisah `·`, menjaga kebersihan visual kartu.
+- **Ergonomi Sentuh (Thumb-Zone & Safe Areas)**:
+  - Header tetap (*sticky top*) dengan tinggi pas 52px–54px.
+  - Bilah navigasi bawah (*bottom bar*) memiliki tinggi 64px dengan `pb-safe` untuk perangkat bertakik (iPhone Home Indicator).
+  - Padding bawah kontainer utama disesuaikan (`pb-24`) agar konten terbawah tidak tertutup bilah navigasi.
 
 ---
 
-## 3. Rencana Verifikasi
-1. **Linter & Type Check**: Jalankan `npm run lint` / `tsc --noEmit` untuk memastikan tidak ada error tipe data.
-2. **Compile Applet**: Jalankan `compile_applet` untuk memastikan build produksi Vite sukses tanpa warning.
-3. **Uji Coba Fungsional**:
-   - Verifikasi bahwa `michael777rafael@gmail.com` dan `mike777rafael@gmail.com` dikenali sebagai `isPrimaryAdmin: true`.
-   - Verifikasi tampilan tombol Admin di header mobile (Android) dan di menu profil dropdown.
-   - Verifikasi tampilan header desktop pada resolusi lebar dan sedang agar proporsional, rapi, dan tidak melar ke tepi.
+## 3. Key Product Decisions & Trade-Offs
+
+### Keputusan 1: Restrukturisasi Bilah Atas Mobile (Streamlined Header)
+- **Pendekatan Terpilih**: Header mobile hanya mempertahankan elemen identitas dan navigasi akun utama: Brand Logo `[N] Notome`, Tombol Bahasa Cepat `[🌐 ID/EN]`, dan Avatar `[(M)]`.
+- **Lokasi Utilitas Sekunder**:
+  - Tombol **Mode Gelap/Terang**, **Log Pembaruan**, **Pengaturan & Sinkronisasi**, **Panel Admin** (jika Primary Admin), dan **Notifikasi** dikelompokkan ke dalam dropdown menu profil yang terbuka ke bawah dengan padding dan ikon yang besar serta mudah disentuh.
+- **Alasan**: Menghilangkan 100% risiko ikon berhimpitan atau teks terpotong di layar ponsel Android (resolusi 360px–412px) maupun iPhone (375px–393px).
+
+### Keputusan 2: Tab Segmen Pengganti Stack Kalender Vertikal (Adaptive View Switcher)
+- **Pendekatan Terpilih**:
+  - **Media View**: Pengguna memilih antara tab `[🎬 Daftar Tayangan]` atau `[📅 Kalender Nonton]`.
+  - **Nutrition View**: Pengguna memilih antara tab `[🍽️ Log Makanan]` atau `[📅 Kalender & Tren Nutrisi]`.
+  - **Pet View**: Pengguna memilih antara tab `[📋 Linimasa Medis]` atau `[📅 Jadwal Dokter & Vaksin]`.
+- **Alasan**: Menghilangkan masalah di mana kalender terdorong ke dasar halaman setelah puluhan item daftar makanan atau serial TV, sekaligus membuat pengalaman navigasi terasa instan layaknya aplikasi mobile native.
+
+### Keputusan 3: Bingkai Kontainer & Penataan Footer
+- **Pendekatan Terpilih**:
+  - Seluruh layout utama dibungkus dalam kontainer berukuran `max-w-md sm:max-w-lg mx-auto w-full px-4 pt-4 pb-24`.
+  - Menghapus footer teks bergaya desktop yang berulang di layar mobile, cukup menyisakan catatan hak cipta minimal di dalam menu pengaturan agar ruang gulir ponsel tetap maksimal.
+
+---
+
+## 4. Technical Architecture & Component Mapping
+
+```
+┌────────────────────────────────────────────────────────┐
+│                        App.tsx                         │
+│   (State & Auth, Preferences, Theme, Storage Hook)     │
+└───────────┬────────────────────────────────┬───────────┘
+            │                                │
+            ▼                                ▼
+┌───────────────────────┐        ┌───────────────────────┐
+│     Navigation.tsx    │        │  Mobile App Shell     │
+│  - Clean Mobile Bar   │        │  (max-w-md / lg)      │
+│  - Profile Action Menu│        └───────────┬───────────┘
+│  - Bottom Tab Anchor  │                    │
+└───────────────────────┘                    ▼
+                     ┌───────────────────────────────────────┐
+                     │ Active Mobile View Controller         │
+                     │  ├─ MediaView (Segment Switcher)      │
+                     │  ├─ NutritionView (Segment Switcher)  │
+                     │  ├─ PetView (Segment Switcher)        │
+                     │  ├─ MasterCalendarView (Mobile Grid)  │
+                     │  ├─ NotesView (Touch List)            │
+                     │  └─ DreamCatcherView (KPI + Cards)    │
+                     └───────────────────────────────────────┘
+```
+
+### Rencana File & Modifikasi:
+1. `src/components/Navigation.tsx`:
+   - Memodifikasi baris header pada breakpoint mobile: hanya menampilkan Brand, Switcher Bahasa, dan Profil Avatar.
+   - Mengintegrasikan toggle tema, log pembaruan, panel admin, dan pengaturan ke dalam popover menu profil yang lega.
+2. `src/App.tsx`:
+   - Menyesuaikan kontainer `<main>` menjadi format mobile shell (`max-w-md sm:max-w-lg mx-auto px-4 py-4 pb-28`).
+   - Menyederhanakan footer agar tidak memakan ruang gulir mobile di atas bilah bawah.
+3. `src/components/MediaTracker/MediaView.tsx`:
+   - Menambahkan switch segmen tab `['list', 'calendar']` untuk mobile view.
+4. `src/components/NutritionTracker/NutritionView.tsx`:
+   - Menambahkan switch segmen tab `['meals', 'calendar']` untuk mobile view.
+5. `src/components/PetTracker/PetView.tsx`:
+   - Menambahkan switch segmen tab `['records', 'calendar']` untuk mobile view.
+6. `src/index.css`:
+   - Memastikan font root HTML stabil pada `16px` di mobile viewport agar proporsional dan tidak memicu pergeseran layout.

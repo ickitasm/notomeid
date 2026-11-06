@@ -62,6 +62,7 @@ export const PetView: React.FC<PetViewProps> = ({
   const [activePetId, setActivePetId] = useState<string>(() => pets[0]?.id || '');
   const [selectedRecordType, setSelectedRecordType] = useState<MedicalRecordType | 'all'>('all');
   const [selectedCalendarDate, setSelectedCalendarDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [mobileTab, setMobileTab] = useState<'records' | 'schedule'>('records');
 
   // Modals
   const [isPetModalOpen, setIsPetModalOpen] = useState(false);
@@ -393,10 +394,38 @@ export const PetView: React.FC<PetViewProps> = ({
         </div>
       )}
 
+      {/* Mobile Segmented Switcher (Visible on mobile/tablet, hidden on desktop lg:) */}
+      <div className="lg:hidden flex items-center p-1 bg-[#EAE2D7] dark:bg-[#25201C] rounded-xl text-xs font-semibold">
+        <button
+          type="button"
+          onClick={() => setMobileTab('records')}
+          className={`flex-1 py-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer touch-manipulation ${
+            mobileTab === 'records'
+              ? 'bg-white dark:bg-[#161311] text-[#2B241E] dark:text-[#EFE9E2] shadow-xs'
+              : 'text-[#7B6F63] dark:text-[#9F9184]'
+          }`}
+        >
+          <HeartPulse className="w-3.5 h-3.5 text-[#A86438]" />
+          <span>{language === 'id' ? 'Rekam Medis & Obat' : 'Medical Records'}</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileTab('schedule')}
+          className={`flex-1 py-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer touch-manipulation ${
+            mobileTab === 'schedule'
+              ? 'bg-white dark:bg-[#161311] text-[#2B241E] dark:text-[#EFE9E2] shadow-xs'
+              : 'text-[#7B6F63] dark:text-[#9F9184]'
+          }`}
+        >
+          <CalendarIcon className="w-3.5 h-3.5 text-[#A86438]" />
+          <span>{language === 'id' ? 'Jadwal & Vaksin' : 'Care & Vet Schedule'}</span>
+        </button>
+      </div>
+
       {/* Two Column Layout: Records & Side Embedded Calendar */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* Main Column: Medical Records & Medications */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className={`lg:col-span-2 space-y-6 ${mobileTab === 'records' ? 'block' : 'hidden lg:block'}`}>
           {/* Medical History Section */}
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-[#E4DCDB] dark:border-[#352F2B]">
@@ -595,7 +624,7 @@ export const PetView: React.FC<PetViewProps> = ({
         </div>
 
         {/* Right Column: Embedded Pet Care Mini-Calendar */}
-        <div className="space-y-6">
+        <div className={`space-y-6 ${mobileTab === 'schedule' ? 'block' : 'hidden lg:block'}`}>
           <div className="rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-5 sm:p-6 shadow-xs">
             <div className="mb-4">
               <h3 className="font-serif text-base font-bold text-[#2B241E] dark:text-[#EFE9E2]">

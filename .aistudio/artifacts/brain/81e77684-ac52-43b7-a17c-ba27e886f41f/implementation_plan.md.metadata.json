@@ -1,6 +1,6 @@
 {
-  "summary": "Rencana implementasi komprehensif untuk:\n1. Deteksi dan aktivasi akses Panel Admin untuk akun mike777rafael / michael777rafael@gmail.com di Android dan semua perangkat.\n2. Menampilkan tombol akses Panel Admin di bilah atas ponsel (header mobile) dan di dalam menu profil avatar.\n3. Desain ulang header desktop agar proporsional dan tidak terlalu melebar menggunakan kontainer ramping terpusat dan navigasi tengah adaptif.",
-  "updatedAt": "2026-11-04T08:58:42.116099187Z",
+  "summary": "Rencana arsitektur dan desain komprehensif untuk pengoptimalan mobile-first Notome (Android & iPhone): penyederhanaan bilah atas (header), navigasi tab/akordeon kalender mini terpadu, dan bingkai aplikasi mobile proporsional tanpa gangguan elemen desktop.",
+  "updatedAt": "2026-11-06T14:26:15.876644744Z",
   "requestFeedback": true,
   "userFacing": true
 }

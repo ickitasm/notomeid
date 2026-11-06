@@ -126,8 +126,8 @@ export default function App() {
         alerts={upcomingAlerts}
       />
 
-      {/* Main Content Area - with generous breathing room and mobile bottom padding */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-5 sm:px-8 lg:px-10 py-7 sm:py-10 pb-32 sm:pb-36 md:pb-12">
+      {/* Main Content Area - Mobile-first shell frame with safe-area spacing */}
+      <main className="flex-1 max-w-md sm:max-w-xl md:max-w-3xl lg:max-w-5xl w-full mx-auto px-3.5 sm:px-6 py-4 sm:py-6 pb-28 sm:pb-32 md:pb-12">
         {/* Verification / Auth Alert Banner */}
         {auth.notice && (
           <div
@@ -240,8 +240,8 @@ export default function App() {
         )}
       </main>
 
-      {/* Quiet Editorial Footer */}
-      <footer className="border-t border-[#E5DDD2] dark:border-[#2D2722] py-6 mt-12 text-xs text-[#8F8275] dark:text-[#7A7067] mb-16 md:mb-0">
+      {/* Quiet Editorial Footer - Hidden on mobile screens to preserve native mobile app feel */}
+      <footer className="hidden md:block border-t border-[#E5DDD2] dark:border-[#2D2722] py-6 mt-12 text-xs text-[#8F8275] dark:text-[#7A7067]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="font-serif font-semibold text-[#2D2823] dark:text-[#EAE3DA]">

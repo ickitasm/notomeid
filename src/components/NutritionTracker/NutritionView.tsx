@@ -53,6 +53,7 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
 }) => {
   const t = translations[language].nutrition;
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [mobileTab, setMobileTab] = useState<'meals' | 'calendar'>('meals');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalDefaultMealType, setModalDefaultMealType] = useState<MealType>('breakfast');
   const [editingMeal, setEditingMeal] = useState<{ date: string; meal: MealItem } | null>(null);
@@ -355,10 +356,38 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
         sugarLimit={sugarLimit}
       />
 
+      {/* Mobile Segmented Switcher (Visible on mobile/tablet, hidden on desktop lg:) */}
+      <div className="lg:hidden flex items-center p-1 bg-[#EAE2D7] dark:bg-[#25201C] rounded-xl text-xs font-semibold">
+        <button
+          type="button"
+          onClick={() => setMobileTab('meals')}
+          className={`flex-1 py-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer touch-manipulation ${
+            mobileTab === 'meals'
+              ? 'bg-white dark:bg-[#161311] text-[#2B241E] dark:text-[#EFE9E2] shadow-xs'
+              : 'text-[#7B6F63] dark:text-[#9F9184]'
+          }`}
+        >
+          <Utensils className="w-3.5 h-3.5 text-[#5B7A58]" />
+          <span>{language === 'id' ? 'Log Makanan Harian' : 'Daily Meal Logs'}</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileTab('calendar')}
+          className={`flex-1 py-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer touch-manipulation ${
+            mobileTab === 'calendar'
+              ? 'bg-white dark:bg-[#161311] text-[#2B241E] dark:text-[#EFE9E2] shadow-xs'
+              : 'text-[#7B6F63] dark:text-[#9F9184]'
+          }`}
+        >
+          <CalendarIcon className="w-3.5 h-3.5 text-[#5B7A58]" />
+          <span>{language === 'id' ? 'Kalender & Info' : 'Calendar & Advice'}</span>
+        </button>
+      </div>
+
       {/* Main Two-Column View: Meals Log & Embedded Nutrition Calendar */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* Left Column: Meal Logs by Category */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className={`lg:col-span-2 space-y-6 ${mobileTab === 'meals' ? 'block' : 'hidden lg:block'}`}>
           <div className="flex items-center justify-between pb-3 border-b border-[#E4DCDB] dark:border-[#352F2B]">
             <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#2B241E] dark:text-[#EFE9E2]">
               {t.foodLogTitle} ({selectedDate})
@@ -504,7 +533,7 @@ export const NutritionView: React.FC<NutritionViewProps> = ({
         </div>
 
         {/* Right Column: Embedded Nutrition Mini-Calendar */}
-        <div className="space-y-6">
+        <div className={`space-y-6 ${mobileTab === 'calendar' ? 'block' : 'hidden lg:block'}`}>
           <div className="rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-5 sm:p-6 shadow-xs">
             <div className="mb-4">
               <h3 className="font-serif text-base font-bold text-[#2B241E] dark:text-[#EFE9E2]">

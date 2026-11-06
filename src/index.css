@@ -3,8 +3,9 @@
 
 @layer base {
   html {
-    font-size: 17.2px; /* ~7.5% - 8% global scale increase for optimal legibility */
+    font-size: 16px;
     scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
   }
 
   :root {
