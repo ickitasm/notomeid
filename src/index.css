@@ -59,3 +59,12 @@ html, body {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
+
+/* Horizontal scroll utility for clean swipeable pill bars */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

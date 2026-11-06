@@ -164,9 +164,9 @@ export const PetView: React.FC<PetViewProps> = ({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 w-full min-w-0">
       {/* Editorial Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 pb-6 border-b border-[#E4DCDB] dark:border-[#352F2B]">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 pb-6 border-b border-[#E4DCDB] dark:border-[#352F2B] w-full min-w-0">
         <div>
           <div className="text-xs uppercase tracking-widest font-mono text-[#A86438] font-semibold mb-1.5">
             {t.tag}
@@ -180,7 +180,7 @@ export const PetView: React.FC<PetViewProps> = ({
         </div>
 
         {/* Action buttons */}
-        <div className="flex items-center gap-2.5 self-start md:self-auto">
+        <div className="flex flex-wrap items-center gap-2.5 self-start md:self-auto">
           <button
             type="button"
             onClick={() => {
@@ -234,7 +234,7 @@ export const PetView: React.FC<PetViewProps> = ({
       ) : (
         <>
           {/* Pet Switcher Bar */}
-          <div className="flex items-center gap-2.5 overflow-x-auto pb-1.5">
+          <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none w-full min-w-0 max-w-full touch-pan-x">
         {pets.map((pet) => {
           const isActive = pet.id === currentPet.id;
           const speciesIcon = pet.species === 'dog' ? '🐕' : pet.species === 'cat' ? '🐈' : pet.species === 'bird' ? '🦜' : '🐇';
@@ -243,7 +243,7 @@ export const PetView: React.FC<PetViewProps> = ({
               key={pet.id}
               type="button"
               onClick={() => setActivePetId(pet.id)}
-              className={`flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
+              className={`flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer shrink-0 touch-manipulation ${
                 isActive
                   ? 'border-[#A86438] bg-[#A86438]/10 text-[#A86438] font-semibold shadow-xs'
                   : 'border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] text-[#6F645A] dark:text-[#A89C90] hover:bg-[#F4ECE3] dark:hover:bg-[#25201C]'
@@ -258,7 +258,7 @@ export const PetView: React.FC<PetViewProps> = ({
       </div>
 
       {/* Pet Biography Showcase Card */}
-      <div className="rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-6 sm:p-7 shadow-xs">
+      <div className="rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-4 sm:p-6 md:p-7 shadow-xs">
         <div className="flex flex-col md:flex-row items-start justify-between gap-6">
           <div className="flex items-start gap-4">
             {/* Pet Avatar with styled fallback */}
@@ -423,32 +423,40 @@ export const PetView: React.FC<PetViewProps> = ({
       </div>
 
       {/* Two Column Layout: Records & Side Embedded Calendar */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start w-full min-w-0">
         {/* Main Column: Medical Records & Medications */}
-        <div className={`lg:col-span-2 space-y-6 ${mobileTab === 'records' ? 'block' : 'hidden lg:block'}`}>
+        <div className={`lg:col-span-2 space-y-6 w-full min-w-0 ${mobileTab === 'records' ? 'block' : 'hidden lg:block'}`}>
           {/* Medical History Section */}
           <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-[#E4DCDB] dark:border-[#352F2B]">
-              <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#2B241E] dark:text-[#EFE9E2]">
-                Medical Timeline ({currentRecords.length})
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-[#E4DCDB] dark:border-[#352F2B] w-full min-w-0">
+              <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#2B241E] dark:text-[#EFE9E2] shrink-0">
+                {language === 'id' ? 'Timeline Medis' : 'Medical Timeline'} ({currentRecords.length})
               </h3>
 
-              {/* Record type filter tabs */}
-              <div className="flex items-center gap-1.5 overflow-x-auto text-xs sm:text-sm">
-                {(['all', 'vaccine', 'checkup', 'deworming', 'medication'] as const).map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => setSelectedRecordType(t)}
-                    className={`px-3 py-1.5 rounded-lg capitalize transition-colors whitespace-nowrap cursor-pointer ${
-                      selectedRecordType === t
-                        ? 'bg-[#A86438] text-white font-semibold shadow-xs'
-                        : 'border border-[#E0D7CB] dark:border-[#38312B] text-[#6F645A] dark:text-[#A89C90] hover:bg-[#F3ECE4] dark:hover:bg-[#25201C]'
-                    }`}
-                  >
-                    {t === 'all' ? 'All Records' : t}
-                  </button>
-                ))}
+              {/* Record type filter tabs with smooth horizontal scrollbar mechanism */}
+              <div className="w-full sm:w-auto min-w-0 max-w-full">
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 sm:pb-0 scrollbar-none w-full min-w-0 touch-pan-x">
+                  {([
+                    { id: 'all', label: language === 'id' ? 'Semua' : 'All Records' },
+                    { id: 'vaccine', label: language === 'id' ? 'Vaksinasi' : 'Vaccine' },
+                    { id: 'checkup', label: language === 'id' ? 'Pemeriksaan' : 'Checkup' },
+                    { id: 'deworming', label: language === 'id' ? 'Obat Cacing' : 'Deworming' },
+                    { id: 'medication', label: language === 'id' ? 'Resep Obat' : 'Medication' },
+                  ] as const).map((tab) => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setSelectedRecordType(tab.id as MedicalRecordType | 'all')}
+                      className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm capitalize transition-colors whitespace-nowrap cursor-pointer shrink-0 touch-manipulation active:scale-95 ${
+                        selectedRecordType === tab.id
+                          ? 'bg-[#A86438] text-white font-semibold shadow-xs'
+                          : 'border border-[#E0D7CB] dark:border-[#38312B] bg-[#FFFDF9] dark:bg-[#1C1815] text-[#6F645A] dark:text-[#A89C90] hover:bg-[#F3ECE4] dark:hover:bg-[#25201C]'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -543,7 +551,7 @@ export const PetView: React.FC<PetViewProps> = ({
           </div>
 
           {/* Active Medications & Preventive Chews */}
-          <div className="rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-6 sm:p-7 shadow-xs">
+          <div className="rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-4 sm:p-6 md:p-7 shadow-xs min-w-0">
             <div className="flex items-center justify-between pb-3.5 border-b border-[#EAE2D8] dark:border-[#2E2823]">
               <div className="flex items-center gap-2.5">
                 <Pill className="w-4.5 h-4.5 text-[#A86438]" />

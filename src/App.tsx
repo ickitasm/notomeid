@@ -126,8 +126,8 @@ export default function App() {
         alerts={upcomingAlerts}
       />
 
-      {/* Main Content Area - Mobile-first shell frame with safe-area spacing */}
-      <main className="flex-1 max-w-md sm:max-w-xl md:max-w-3xl lg:max-w-5xl w-full mx-auto px-3.5 sm:px-6 py-4 sm:py-6 pb-28 sm:pb-32 md:pb-12">
+      {/* Main Content Area - Responsive editorial shell with generous width and breathing room */}
+      <main className="flex-1 max-w-2xl sm:max-w-3xl md:max-w-5xl lg:max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8 pb-28 sm:pb-32 md:pb-12 min-w-0">
         {/* Verification / Auth Alert Banner */}
         {auth.notice && (
           <div
