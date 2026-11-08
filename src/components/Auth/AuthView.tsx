@@ -26,6 +26,7 @@ import {
 import { translations, Language } from '../../lib/translations';
 import { ThemeMode } from '../../types';
 import { ChristmasSnowEffect } from '../ChristmasSnowEffect';
+import { BrandLogo } from '../Brand/BrandLogo';
 
 // Notome Private Life Hub · Pure Google Invite-Only Authentication System
 
@@ -82,13 +83,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
       {/* Top Brand Bar */}
       <header className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center">
-          <div className="p-1 px-2 sm:px-2.5 rounded-xl bg-white/90 dark:bg-white/95 border border-[#E0D7CB] dark:border-white/20 shadow-2xs flex items-center justify-center">
-            <img
-              src="/notomee_logos.png"
-              alt="Notomee - Personal Sanctuary"
-              className="h-7 sm:h-8 w-auto object-contain"
-            />
-          </div>
+          <BrandLogo size="sm" />
         </div>
 
         <div className="flex items-center gap-2">

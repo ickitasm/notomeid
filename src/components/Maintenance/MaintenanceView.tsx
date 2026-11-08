@@ -8,6 +8,7 @@ import { RefreshCw, LogOut, Mail, Globe, Sun, Moon, Sparkles, Trees, Film, Shiel
 import { AppUser } from '../../hooks/useAuth';
 import { Language } from '../../lib/translations';
 import { ThemeMode } from '../../types';
+import { BrandLogo } from '../Brand/BrandLogo';
 
 interface MaintenanceViewProps {
   user?: AppUser | null;
@@ -48,13 +49,7 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
       {/* Header Bar */}
       <header className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center">
-          <div className="p-1 px-2 sm:px-2.5 rounded-xl bg-white/90 dark:bg-white/95 border border-[#E0D7CB] dark:border-white/20 shadow-2xs flex items-center justify-center">
-            <img
-              src="/notomee_logos.png"
-              alt="Notomee - Personal Sanctuary"
-              className="h-7 sm:h-8 w-auto object-contain"
-            />
-          </div>
+          <BrandLogo size="sm" />
         </div>
 
         <div className="flex items-center gap-2">
@@ -97,12 +92,8 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
         <div className="w-full rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-6 sm:p-8 shadow-xl text-center space-y-6">
           {/* Logo Showcase */}
           <div className="flex justify-center">
-            <div className="p-2 sm:p-2.5 rounded-2xl bg-white/90 dark:bg-white/95 border border-[#E0D7CB] dark:border-white/20 inline-flex items-center justify-center shadow-xs">
-              <img
-                src="/notomee_logos.png"
-                alt="Notomee Sanctuary"
-                className="h-12 sm:h-14 w-auto object-contain"
-              />
+            <div className="p-3 sm:p-4 rounded-2xl bg-[#F4ECE3] dark:bg-[#25201C] border border-[#E0D7CB] dark:border-[#38312B] inline-flex items-center justify-center shadow-xs">
+              <BrandLogo size="lg" showSubtitle />
             </div>
           </div>
 

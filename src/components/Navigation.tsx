@@ -10,6 +10,7 @@ import { UpcomingAlert } from '../lib/notifications';
 import { NotificationPanel } from './Notifications/NotificationPanel';
 import { translations, Language } from '../lib/translations';
 import { ThemeMode } from '../types';
+import { BrandLogo } from './Brand/BrandLogo';
 
 export type ActiveTab = 'media' | 'nutrition' | 'pets' | 'calendar' | 'notes' | 'dreams';
 
@@ -96,13 +97,7 @@ export const Navigation: React.FC<NavigationProps> = ({
               aria-label="Notomee Home"
               className="flex items-center text-left group focus-visible:outline-hidden touch-manipulation cursor-pointer active:scale-95 transition-transform"
             >
-              <div className="p-1 px-2 sm:px-2.5 rounded-xl bg-white/90 dark:bg-white/95 border border-[#E0D7CB] dark:border-white/20 shadow-2xs flex items-center justify-center">
-                <img
-                  src="/notomee_logos.png"
-                  alt="Notomee - Personal Sanctuary"
-                  className="h-7 sm:h-8 w-auto object-contain"
-                />
-              </div>
+              <BrandLogo size="sm" />
             </button>
           </div>
 
