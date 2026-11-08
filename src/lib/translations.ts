@@ -28,7 +28,7 @@ export const translations = {
     },
     // Auth View
     auth: {
-      headline: 'Satu platform privat untuk hiburan, nutrisi, anabul, catatan & jurnal mimpi.',
+      headline: 'Catat, Simpan, Ulangi.',
       subheadline: 'Pantau progres serial, target nutrisi & biometrik, kesehatan hewan, agenda hidup, catatan dengan footnotes, serta wawasan mimpi dalam satu santuari personal yang tenang.',
       cinemaCard: 'Film & Serial TV',
       cinemaDesc: 'Catat progres episode, rating, dan jadwal nonton.',
@@ -357,7 +357,7 @@ export const translations = {
       verifiedGoogle: 'Google Identity Verified',
     },
     auth: {
-      headline: 'One private hub for cinema, nutrition, pets, notes & dreams.',
+      headline: 'Record, Store, Repeat.',
       subheadline: 'Organize episodic watch progression, daily calorie and sugar targets, veterinary records, unified calendar, notes with footnotes, and morning dream insights.',
       cinemaCard: 'Cinema & Series',
       cinemaDesc: 'Track seasons, episodes, and premiere watch dates.',

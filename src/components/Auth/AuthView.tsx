@@ -17,6 +17,7 @@ import {
   CheckCircle2,
   AlertTriangle,
   Trees,
+  ChevronDown,
 } from 'lucide-react';
 import { translations, Language } from '../../lib/translations';
 import { ThemeMode } from '../../types';
@@ -51,6 +52,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
   const [loading, setLoading] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
   const [copiedAdmin, setCopiedAdmin] = useState(false);
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
 
   const t = translations[language].auth;
   const isId = language === 'id';
@@ -123,26 +125,23 @@ export const AuthView: React.FC<AuthViewProps> = ({
           {/* Left Column: Brand Story & 4 Pillars */}
           <div className="lg:col-span-6 space-y-6">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C85A32]/10 text-[#C85A32] text-xs font-mono font-semibold tracking-wide mb-3">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Notomee Sanctuary · Invite-Only</span>
-              </div>
               <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#2B241E] dark:text-[#EFE9E2] leading-tight">
-                {t.headline}
+                {t.headline.split(',').map((part, idx, arr) => (
+                  <span
+                    key={idx}
+                    className={`block ${idx === 1 ? 'text-[#C85A32] dark:text-[#E07A52]' : ''}`}
+                  >
+                    {part.trim()}{idx < arr.length - 1 ? ',' : ''}
+                  </span>
+                ))}
               </h1>
               <p className="text-sm sm:text-base text-[#7B6F63] dark:text-[#9F9184] mt-3 leading-relaxed">
                 {t.subheadline}
               </p>
             </div>
 
-            {/* Notomee 6 Life Pillars Animated Bumper Video Looping */}
+            {/* Notome 6 Life Pillars Animated Bumper Video Looping */}
             <BumperVideoCard className="pt-1 shadow-md" />
-
-            {/* Privacy Guarantee Banner */}
-            <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[#F4ECE3]/60 dark:bg-[#201B17]/60 border border-[#E4DCDB] dark:border-[#352F2B] text-xs text-[#7B6F63] dark:text-[#9F9184]">
-              <ShieldCheck className="w-4 h-4 text-[#5B7A58] shrink-0 mt-0.5" />
-              <span>{t.freeGuarantee}</span>
-            </div>
           </div>
 
           {/* Right Column: Pure Google OAuth Invite-Only Card */}
@@ -150,10 +149,6 @@ export const AuthView: React.FC<AuthViewProps> = ({
             <div className="rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] p-6 sm:p-8 shadow-xl space-y-5">
               {/* Card Header */}
               <div className="space-y-2">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#C85A32]/10 text-[#C85A32] text-[11px] font-semibold tracking-wide">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>{t.inviteOnlyBadge}</span>
-                </div>
                 <h2 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#2B241E] dark:text-[#EFE9E2]">
                   {t.signInTitle}
                 </h2>
@@ -259,6 +254,35 @@ export const AuthView: React.FC<AuthViewProps> = ({
           </div>
         </div>
       </main>
+
+      {/* Collapsible Privacy Guarantee Accordion above Footer */}
+      <section className="w-full max-w-xl mx-auto px-4 pb-6">
+        <div className="rounded-xl border border-[#E0D7CB] dark:border-[#332C26] bg-[#FFFDF9]/90 dark:bg-[#1C1815]/90 backdrop-blur-xs transition-all overflow-hidden shadow-2xs">
+          <button
+            type="button"
+            onClick={() => setIsPrivacyOpen(!isPrivacyOpen)}
+            className="w-full px-4 py-3 flex items-center justify-between gap-3 text-xs font-medium text-[#6F645A] dark:text-[#A89C90] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] cursor-pointer transition-colors"
+            aria-expanded={isPrivacyOpen}
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <ShieldCheck className="w-4 h-4 text-[#5B7A58] shrink-0" />
+              <span className="font-semibold text-[#3D342C] dark:text-[#E2D8CC] truncate">
+                {isId ? 'Akses Privat Terjamin' : 'Guaranteed Private Access'}
+              </span>
+            </div>
+            <ChevronDown
+              className={`w-4 h-4 text-[#8F8275] transition-transform duration-200 shrink-0 ${
+                isPrivacyOpen ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
+          {isPrivacyOpen && (
+            <div className="px-4 pb-3.5 pt-0 text-xs leading-relaxed text-[#7B6F63] dark:text-[#9F9184] border-t border-[#EAE2D7] dark:border-[#2A231D]">
+              <p className="mt-2.5">{t.freeGuarantee}</p>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* Quiet Footer */}
       <footer className="border-t border-[#E5DDD2] dark:border-[#2D2722] py-4 text-xs text-[#8F8275] text-center">

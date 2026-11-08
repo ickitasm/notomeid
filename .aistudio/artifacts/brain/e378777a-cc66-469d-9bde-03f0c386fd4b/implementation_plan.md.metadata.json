@@ -1,0 +1,6 @@
+{
+  "summary":  "Rencana pembaruan antarmuka halaman depan/login Notome:\n1. Menghapus badge atas 'Notomee Sanctuary - Invite-Only'.\n2. Memperbarui title utama menjadi multiline editorial 'Catat,\\nSimpan,\\nUlangi.'.\n3. Menghapus badge 'Notomee - 6 Life Pillars' pada video bumper, menyisakan kontrol audio on/off.\n4. Mengganti sumber video looping dengan video bumper terbaru (c91fac80).\n5. Memindahkan 'Akses Privat Terjamin' ke atas footer dalam format accordion ringkas berikon perisai.\n6. Menghapus badge 'Sistem Privat Berbasis Undangan' pada kartu login Google OAuth.",
+  "updatedAt":  "2026-11-08T16:56:31.319011135Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}

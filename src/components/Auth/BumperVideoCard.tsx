@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Volume2, VolumeX, Sparkles } from 'lucide-react';
+import { Volume2, VolumeX } from 'lucide-react';
 
 interface BumperVideoCardProps {
   className?: string;
@@ -13,7 +13,7 @@ interface BumperVideoCardProps {
 export const BumperVideoCard: React.FC<BumperVideoCardProps> = ({ className = '' }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isMuted, setIsMuted] = useState(true);
-  const [hasInteracted, setHasInteracted] = useState(false);
+  const [, setHasInteracted] = useState(false);
 
   // Attempt to play on mount
   useEffect(() => {
@@ -72,14 +72,14 @@ export const BumperVideoCard: React.FC<BumperVideoCardProps> = ({ className = ''
       <div className="relative aspect-video w-full overflow-hidden bg-[#F8F5F0] dark:bg-[#181412]">
         <video
           ref={videoRef}
-          src="/assets/aistudio/notomee_bumper__1__0f92ea37.mp4"
+          src="/assets/aistudio/notomee_bumper__1__c91fac80.mp4"
           autoPlay
           loop
           muted={isMuted}
           playsInline
           preload="auto"
           className="w-full h-full object-cover select-none pointer-events-auto"
-          title="Notomee 6 Life Pillars Animation Bumper"
+          title="Notome Animation Bumper"
         />
 
         {/* Audio Mute/Unmute Floating Button */}
@@ -99,12 +99,6 @@ export const BumperVideoCard: React.FC<BumperVideoCardProps> = ({ className = ''
             {isMuted ? 'Muted' : 'Audio On'}
           </span>
         </button>
-
-        {/* Brand Tag Pill Bottom-Left */}
-        <div className="absolute bottom-3 left-3 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/40 backdrop-blur-md text-white/90 text-[10px] font-mono tracking-wide shadow-xs select-none">
-          <Sparkles className="w-3 h-3 text-[#E08A68]" />
-          <span>Notomee · 6 Life Pillars</span>
-        </div>
       </div>
     </div>
   );
