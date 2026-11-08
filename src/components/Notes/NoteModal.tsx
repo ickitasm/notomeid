@@ -3,10 +3,33 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
-import { X, Pin, Plus, Trash2, Tag, BookOpen, Layers } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  X,
+  Pin,
+  Plus,
+  Trash2,
+  Tag,
+  BookOpen,
+  Layers,
+  Bold,
+  Italic,
+  Underline,
+  Strikethrough,
+  List,
+  ListOrdered,
+  Heading2,
+  Quote,
+  CaseUpper,
+  CaseLower,
+  CaseSensitive,
+  RemoveFormatting,
+  PenLine,
+  Eye,
+} from 'lucide-react';
 import { NoteItem, NoteCategory, FootnoteItem } from '../../types';
 import { translations, Language } from '../../lib/translations';
+import { NoteContentRenderer } from './NoteContentRenderer';
 
 interface NoteModalProps {
   isOpen: boolean;
@@ -24,6 +47,20 @@ const CATEGORY_COLORS: Record<NoteCategory, string> = {
   archive: '#78716C',
 };
 
+type FormatAction =
+  | 'bold'
+  | 'italic'
+  | 'underline'
+  | 'strike'
+  | 'bullet'
+  | 'number'
+  | 'heading'
+  | 'quote'
+  | 'upper'
+  | 'lower'
+  | 'title'
+  | 'clear';
+
 export const NoteModal: React.FC<NoteModalProps> = ({
   isOpen,
   onClose,
@@ -40,6 +77,9 @@ export const NoteModal: React.FC<NoteModalProps> = ({
   const [isPinned, setIsPinned] = useState(false);
   const [color, setColor] = useState('#D97706');
   const [footnotes, setFootnotes] = useState<FootnoteItem[]>([]);
+  const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write');
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (initialNote) {
@@ -59,9 +99,289 @@ export const NoteModal: React.FC<NoteModalProps> = ({
       setColor('#D97706');
       setFootnotes([]);
     }
+    setActiveTab('write');
   }, [initialNote, isOpen]);
 
   if (!isOpen) return null;
+
+  // Formatting actions engine
+  const applyFormat = (action: FormatAction) => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const currentVal = textarea.value;
+    const selectedText = currentVal.substring(start, end);
+
+    let newVal = currentVal;
+    let newStart = start;
+    let newEnd = end;
+
+    switch (action) {
+      case 'bold': {
+        const placeholder = language === 'id' ? 'teks tebal' : 'bold text';
+        if (selectedText) {
+          // Check if already wrapped
+          if (selectedText.startsWith('**') && selectedText.endsWith('**')) {
+            const unwrapped = selectedText.slice(2, -2);
+            newVal = currentVal.slice(0, start) + unwrapped + currentVal.slice(end);
+            newEnd = start + unwrapped.length;
+          } else {
+            const wrapped = `**${selectedText}**`;
+            newVal = currentVal.slice(0, start) + wrapped + currentVal.slice(end);
+            newEnd = start + wrapped.length;
+          }
+        } else {
+          const insert = `**${placeholder}**`;
+          newVal = currentVal.slice(0, start) + insert + currentVal.slice(end);
+          newStart = start + 2;
+          newEnd = newStart + placeholder.length;
+        }
+        break;
+      }
+
+      case 'italic': {
+        const placeholder = language === 'id' ? 'teks miring' : 'italic text';
+        if (selectedText) {
+          if (selectedText.startsWith('*') && selectedText.endsWith('*')) {
+            const unwrapped = selectedText.slice(1, -1);
+            newVal = currentVal.slice(0, start) + unwrapped + currentVal.slice(end);
+            newEnd = start + unwrapped.length;
+          } else {
+            const wrapped = `*${selectedText}*`;
+            newVal = currentVal.slice(0, start) + wrapped + currentVal.slice(end);
+            newEnd = start + wrapped.length;
+          }
+        } else {
+          const insert = `*${placeholder}*`;
+          newVal = currentVal.slice(0, start) + insert + currentVal.slice(end);
+          newStart = start + 1;
+          newEnd = newStart + placeholder.length;
+        }
+        break;
+      }
+
+      case 'underline': {
+        const placeholder = language === 'id' ? 'teks garis bawah' : 'underlined text';
+        if (selectedText) {
+          if (selectedText.startsWith('<u>') && selectedText.endsWith('</u>')) {
+            const unwrapped = selectedText.slice(3, -4);
+            newVal = currentVal.slice(0, start) + unwrapped + currentVal.slice(end);
+            newEnd = start + unwrapped.length;
+          } else {
+            const wrapped = `<u>${selectedText}</u>`;
+            newVal = currentVal.slice(0, start) + wrapped + currentVal.slice(end);
+            newEnd = start + wrapped.length;
+          }
+        } else {
+          const insert = `<u>${placeholder}</u>`;
+          newVal = currentVal.slice(0, start) + insert + currentVal.slice(end);
+          newStart = start + 3;
+          newEnd = newStart + placeholder.length;
+        }
+        break;
+      }
+
+      case 'strike': {
+        const placeholder = language === 'id' ? 'teks coret' : 'strikethrough text';
+        if (selectedText) {
+          if (selectedText.startsWith('~~') && selectedText.endsWith('~~')) {
+            const unwrapped = selectedText.slice(2, -2);
+            newVal = currentVal.slice(0, start) + unwrapped + currentVal.slice(end);
+            newEnd = start + unwrapped.length;
+          } else {
+            const wrapped = `~~${selectedText}~~`;
+            newVal = currentVal.slice(0, start) + wrapped + currentVal.slice(end);
+            newEnd = start + wrapped.length;
+          }
+        } else {
+          const insert = `~~${placeholder}~~`;
+          newVal = currentVal.slice(0, start) + insert + currentVal.slice(end);
+          newStart = start + 2;
+          newEnd = newStart + placeholder.length;
+        }
+        break;
+      }
+
+      case 'heading': {
+        const lineStart = currentVal.lastIndexOf('\n', start - 1) + 1;
+        const lineEnd = currentVal.indexOf('\n', end);
+        const actualLineEnd = lineEnd === -1 ? currentVal.length : lineEnd;
+        const lineText = currentVal.slice(lineStart, actualLineEnd);
+
+        let newLineText = '';
+        if (lineText.startsWith('## ')) {
+          newLineText = lineText.slice(3);
+        } else {
+          newLineText = `## ${lineText}`;
+        }
+        newVal = currentVal.slice(0, lineStart) + newLineText + currentVal.slice(actualLineEnd);
+        newStart = lineStart + newLineText.length;
+        newEnd = newStart;
+        break;
+      }
+
+      case 'quote': {
+        const lineStart = currentVal.lastIndexOf('\n', start - 1) + 1;
+        const lineEnd = currentVal.indexOf('\n', end);
+        const actualLineEnd = lineEnd === -1 ? currentVal.length : lineEnd;
+        const lineText = currentVal.slice(lineStart, actualLineEnd);
+
+        let newLineText = '';
+        if (lineText.startsWith('> ')) {
+          newLineText = lineText.slice(2);
+        } else {
+          newLineText = `> ${lineText}`;
+        }
+        newVal = currentVal.slice(0, lineStart) + newLineText + currentVal.slice(actualLineEnd);
+        newStart = lineStart + newLineText.length;
+        newEnd = newStart;
+        break;
+      }
+
+      case 'bullet': {
+        const lineStart = currentVal.lastIndexOf('\n', start - 1) + 1;
+        const lineEnd = currentVal.indexOf('\n', end);
+        const actualLineEnd = lineEnd === -1 ? currentVal.length : lineEnd;
+        const block = currentVal.slice(lineStart, actualLineEnd);
+        const lines = block.split('\n');
+
+        const allBulleted = lines.every((l) => l.startsWith('- '));
+        const transformedLines = lines.map((l) =>
+          allBulleted ? l.replace(/^- \s*/, '') : `- ${l.replace(/^[-*]\s*/, '').replace(/^\d+\.\s*/, '')}`
+        );
+        const newBlock = transformedLines.join('\n');
+        newVal = currentVal.slice(0, lineStart) + newBlock + currentVal.slice(actualLineEnd);
+        newStart = lineStart;
+        newEnd = lineStart + newBlock.length;
+        break;
+      }
+
+      case 'number': {
+        const lineStart = currentVal.lastIndexOf('\n', start - 1) + 1;
+        const lineEnd = currentVal.indexOf('\n', end);
+        const actualLineEnd = lineEnd === -1 ? currentVal.length : lineEnd;
+        const block = currentVal.slice(lineStart, actualLineEnd);
+        const lines = block.split('\n');
+
+        const allNumbered = lines.every((l) => /^\d+\.\s/.test(l));
+        const transformedLines = lines.map((l, idx) =>
+          allNumbered ? l.replace(/^\d+\.\s*/, '') : `${idx + 1}. ${l.replace(/^[-*]\s*/, '').replace(/^\d+\.\s*/, '')}`
+        );
+        const newBlock = transformedLines.join('\n');
+        newVal = currentVal.slice(0, lineStart) + newBlock + currentVal.slice(actualLineEnd);
+        newStart = lineStart;
+        newEnd = lineStart + newBlock.length;
+        break;
+      }
+
+      case 'upper': {
+        if (selectedText) {
+          const transformed = selectedText.toUpperCase();
+          newVal = currentVal.slice(0, start) + transformed + currentVal.slice(end);
+          newStart = start;
+          newEnd = start + transformed.length;
+        } else {
+          // Transform whole line
+          const lineStart = currentVal.lastIndexOf('\n', start - 1) + 1;
+          const lineEnd = currentVal.indexOf('\n', end);
+          const actualLineEnd = lineEnd === -1 ? currentVal.length : lineEnd;
+          const lineText = currentVal.slice(lineStart, actualLineEnd);
+          const transformed = lineText.toUpperCase();
+          newVal = currentVal.slice(0, lineStart) + transformed + currentVal.slice(actualLineEnd);
+          newStart = lineStart;
+          newEnd = lineStart + transformed.length;
+        }
+        break;
+      }
+
+      case 'lower': {
+        if (selectedText) {
+          const transformed = selectedText.toLowerCase();
+          newVal = currentVal.slice(0, start) + transformed + currentVal.slice(end);
+          newStart = start;
+          newEnd = start + transformed.length;
+        } else {
+          const lineStart = currentVal.lastIndexOf('\n', start - 1) + 1;
+          const lineEnd = currentVal.indexOf('\n', end);
+          const actualLineEnd = lineEnd === -1 ? currentVal.length : lineEnd;
+          const lineText = currentVal.slice(lineStart, actualLineEnd);
+          const transformed = lineText.toLowerCase();
+          newVal = currentVal.slice(0, lineStart) + transformed + currentVal.slice(actualLineEnd);
+          newStart = lineStart;
+          newEnd = lineStart + transformed.length;
+        }
+        break;
+      }
+
+      case 'title': {
+        const toTitleCase = (str: string) =>
+          str.replace(/\b\w+/g, (txt) => txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase());
+
+        if (selectedText) {
+          const transformed = toTitleCase(selectedText);
+          newVal = currentVal.slice(0, start) + transformed + currentVal.slice(end);
+          newStart = start;
+          newEnd = start + transformed.length;
+        } else {
+          const lineStart = currentVal.lastIndexOf('\n', start - 1) + 1;
+          const lineEnd = currentVal.indexOf('\n', end);
+          const actualLineEnd = lineEnd === -1 ? currentVal.length : lineEnd;
+          const lineText = currentVal.slice(lineStart, actualLineEnd);
+          const transformed = toTitleCase(lineText);
+          newVal = currentVal.slice(0, lineStart) + transformed + currentVal.slice(actualLineEnd);
+          newStart = lineStart;
+          newEnd = lineStart + transformed.length;
+        }
+        break;
+      }
+
+      case 'clear': {
+        if (selectedText) {
+          // Strip markdown & HTML wrappers from selection
+          const cleaned = selectedText
+            .replace(/<\/?u>/g, '')
+            .replace(/\*\*/g, '')
+            .replace(/~~/g, '')
+            .replace(/(^|[^\*])\*([^\*]+)\*([^\*]|$)/g, '$1$2$3')
+            .replace(/^#+\s+/gm, '')
+            .replace(/^>\s+/gm, '')
+            .replace(/^[-*]\s+/gm, '')
+            .replace(/^\d+\.\s+/gm, '');
+          newVal = currentVal.slice(0, start) + cleaned + currentVal.slice(end);
+          newStart = start;
+          newEnd = start + cleaned.length;
+        }
+        break;
+      }
+    }
+
+    setContent(newVal);
+
+    // Maintain focus and restore cursor/selection
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(newStart, newEnd);
+    }, 0);
+  };
+
+  // Keyboard shortcut listener for bold, italic, underline
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.ctrlKey || e.metaKey) {
+      const key = e.key.toLowerCase();
+      if (key === 'b') {
+        e.preventDefault();
+        applyFormat('bold');
+      } else if (key === 'i') {
+        e.preventDefault();
+        applyFormat('italic');
+      } else if (key === 'u') {
+        e.preventDefault();
+        applyFormat('underline');
+      }
+    }
+  };
 
   const handleAddFootnote = () => {
     const nextIndex = footnotes.length + 1;
@@ -83,7 +403,6 @@ export const NoteModal: React.FC<NoteModalProps> = ({
   const handleRemoveFootnote = (id: string) => {
     setFootnotes((prev) => {
       const filtered = prev.filter((fn) => fn.id !== id);
-      // Re-index remaining footnotes
       return filtered.map((fn, idx) => ({ ...fn, index: idx + 1 }));
     });
   };
@@ -94,7 +413,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({
 
     const parsedTags = tagInput
       .split(',')
-      .map((t) => t.trim())
+      .map((item) => item.trim())
       .filter(Boolean);
 
     onSave({
@@ -109,9 +428,17 @@ export const NoteModal: React.FC<NoteModalProps> = ({
     onClose();
   };
 
+  // Live words and character count
+  const trimmed = content.trim();
+  const wordCount = trimmed ? trimmed.split(/\s+/).length : 0;
+  const charCount = content.length;
+  const wordCountDisplay = t.wordCounter
+    ? t.wordCounter.replace('{words}', String(wordCount)).replace('{chars}', String(charCount))
+    : `${wordCount} words · ${charCount} chars`;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
-      <div className="relative w-full max-w-2xl bg-[#FFFDF9] dark:bg-[#1C1815] rounded-2xl border border-[#E5DDD2] dark:border-[#38312B] shadow-2xl p-5 sm:p-7 max-h-[90vh] overflow-y-auto my-auto transition-colors">
+      <div className="relative w-full max-w-2xl bg-[#FFFDF9] dark:bg-[#1C1815] rounded-2xl border border-[#E5DDD2] dark:border-[#38312B] shadow-2xl p-5 sm:p-7 max-h-[92vh] overflow-y-auto my-auto transition-colors">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-[#EAE2D8] dark:border-[#2E2823]">
           <div className="flex items-center gap-2.5">
@@ -192,19 +519,200 @@ export const NoteModal: React.FC<NoteModalProps> = ({
             </div>
           </div>
 
-          {/* Content Body */}
+          {/* Content Body with Quick Formatting Toolbar and Live Preview Tab */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#7B6F63] dark:text-[#9F9184] mb-1.5">
-              {t.modalContentPlaceholder}
-            </label>
-            <textarea
-              rows={5}
-              required
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder={t.modalContentPlaceholder}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-[#DED4C7] dark:border-[#3A332C] bg-[#FAF7F2] dark:bg-[#14110F] text-[#2B241E] dark:text-[#EFE9E2] placeholder-[#A09384] focus:outline-hidden focus:ring-2 focus:ring-[#D97706]/30 leading-relaxed font-sans"
-            />
+            {/* Editor Top Bar: Tabs & Counter */}
+            <div className="flex items-center justify-between gap-2 mb-1.5">
+              <div className="flex items-center gap-1 p-0.5 rounded-xl bg-[#F0EAE1] dark:bg-[#25201C] border border-[#E2D8CC] dark:border-[#352D27]">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('write')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    activeTab === 'write'
+                      ? 'bg-[#FFFDF9] dark:bg-[#1C1815] text-[#D97706] shadow-xs'
+                      : 'text-[#7B6F63] hover:text-[#2B241E] dark:hover:text-[#EFE9E2]'
+                  }`}
+                >
+                  <PenLine className="w-3.5 h-3.5" />
+                  <span>{t.writeTab || 'Tulis'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('preview')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    activeTab === 'preview'
+                      ? 'bg-[#FFFDF9] dark:bg-[#1C1815] text-[#D97706] shadow-xs'
+                      : 'text-[#7B6F63] hover:text-[#2B241E] dark:hover:text-[#EFE9E2]'
+                  }`}
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>{t.previewTab || 'Pratinjau'}</span>
+                </button>
+              </div>
+
+              {/* Word & Char Count */}
+              <span className="text-[11px] font-mono text-[#8F8275] tabular-nums hidden xs:inline-block">
+                {wordCountDisplay}
+              </span>
+            </div>
+
+            {/* When in Write Tab: Show Quick Formatting Toolbar + Textarea */}
+            {activeTab === 'write' ? (
+              <div className="rounded-xl border border-[#DED4C7] dark:border-[#3A332C] bg-[#FAF7F2] dark:bg-[#14110F] overflow-hidden focus-within:ring-2 focus-within:ring-[#D97706]/30 transition-all">
+                {/* Horizontal Quick Formatting Toolbar */}
+                <div className="flex items-center gap-1 p-1.5 bg-[#F4ECE3]/70 dark:bg-[#1E1916]/80 border-b border-[#E8DFD3] dark:border-[#2F2722] overflow-x-auto scrollbar-none touch-pan-x">
+                  {/* Inline text formatting group */}
+                  <div className="flex items-center gap-0.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => applyFormat('bold')}
+                      className="p-1.5 rounded-md text-[#594E44] dark:text-[#C5B8AA] hover:text-[#2B241E] dark:hover:text-[#FFFDF9] hover:bg-[#EAE0D4] dark:hover:bg-[#2D2621] transition-colors cursor-pointer"
+                      title={t.toolbarBold || 'Tebal (Ctrl+B)'}
+                      aria-label="Bold"
+                    >
+                      <Bold className="w-3.5 h-3.5 font-bold" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => applyFormat('italic')}
+                      className="p-1.5 rounded-md text-[#594E44] dark:text-[#C5B8AA] hover:text-[#2B241E] dark:hover:text-[#FFFDF9] hover:bg-[#EAE0D4] dark:hover:bg-[#2D2621] transition-colors cursor-pointer"
+                      title={t.toolbarItalic || 'Miring (Ctrl+I)'}
+                      aria-label="Italic"
+                    >
+                      <Italic className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => applyFormat('underline')}
+                      className="p-1.5 rounded-md text-[#594E44] dark:text-[#C5B8AA] hover:text-[#2B241E] dark:hover:text-[#FFFDF9] hover:bg-[#EAE0D4] dark:hover:bg-[#2D2621] transition-colors cursor-pointer"
+                      title={t.toolbarUnderline || 'Garis Bawah (Ctrl+U)'}
+                      aria-label="Underline"
+                    >
+                      <Underline className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => applyFormat('strike')}
+                      className="p-1.5 rounded-md text-[#594E44] dark:text-[#C5B8AA] hover:text-[#2B241E] dark:hover:text-[#FFFDF9] hover:bg-[#EAE0D4] dark:hover:bg-[#2D2621] transition-colors cursor-pointer"
+                      title={t.toolbarStrike || 'Coret'}
+                      aria-label="Strikethrough"
+                    >
+                      <Strikethrough className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  <div className="w-px h-4 bg-[#E0D7CB] dark:bg-[#352D26] mx-0.5 shrink-0" />
+
+                  {/* Structure & Lists */}
+                  <div className="flex items-center gap-0.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => applyFormat('bullet')}
+                      className="p-1.5 rounded-md text-[#594E44] dark:text-[#C5B8AA] hover:text-[#2B241E] dark:hover:text-[#FFFDF9] hover:bg-[#EAE0D4] dark:hover:bg-[#2D2621] transition-colors cursor-pointer"
+                      title={t.toolbarBullet || 'Daftar Poin'}
+                      aria-label="Bulleted List"
+                    >
+                      <List className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => applyFormat('number')}
+                      className="p-1.5 rounded-md text-[#594E44] dark:text-[#C5B8AA] hover:text-[#2B241E] dark:hover:text-[#FFFDF9] hover:bg-[#EAE0D4] dark:hover:bg-[#2D2621] transition-colors cursor-pointer"
+                      title={t.toolbarNumbered || 'Daftar Angka'}
+                      aria-label="Numbered List"
+                    >
+                      <ListOrdered className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => applyFormat('heading')}
+                      className="p-1.5 rounded-md text-[#594E44] dark:text-[#C5B8AA] hover:text-[#2B241E] dark:hover:text-[#FFFDF9] hover:bg-[#EAE0D4] dark:hover:bg-[#2D2621] transition-colors cursor-pointer"
+                      title={t.toolbarHeading || 'Judul Bagian'}
+                      aria-label="Section Heading"
+                    >
+                      <Heading2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => applyFormat('quote')}
+                      className="p-1.5 rounded-md text-[#594E44] dark:text-[#C5B8AA] hover:text-[#2B241E] dark:hover:text-[#FFFDF9] hover:bg-[#EAE0D4] dark:hover:bg-[#2D2621] transition-colors cursor-pointer"
+                      title={t.toolbarQuote || 'Kutipan (Quote)'}
+                      aria-label="Blockquote"
+                    >
+                      <Quote className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  <div className="w-px h-4 bg-[#E0D7CB] dark:bg-[#352D26] mx-0.5 shrink-0" />
+
+                  {/* Case transformations */}
+                  <div className="flex items-center gap-0.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => applyFormat('upper')}
+                      className="p-1.5 rounded-md text-[#594E44] dark:text-[#C5B8AA] hover:text-[#2B241E] dark:hover:text-[#FFFDF9] hover:bg-[#EAE0D4] dark:hover:bg-[#2D2621] transition-colors cursor-pointer"
+                      title={t.toolbarCaseUpper || 'HURUF BESAR'}
+                      aria-label="UPPERCASE"
+                    >
+                      <CaseUpper className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => applyFormat('lower')}
+                      className="p-1.5 rounded-md text-[#594E44] dark:text-[#C5B8AA] hover:text-[#2B241E] dark:hover:text-[#FFFDF9] hover:bg-[#EAE0D4] dark:hover:bg-[#2D2621] transition-colors cursor-pointer"
+                      title={t.toolbarCaseLower || 'huruf kecil'}
+                      aria-label="lowercase"
+                    >
+                      <CaseLower className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => applyFormat('title')}
+                      className="p-1.5 rounded-md text-[#594E44] dark:text-[#C5B8AA] hover:text-[#2B241E] dark:hover:text-[#FFFDF9] hover:bg-[#EAE0D4] dark:hover:bg-[#2D2621] transition-colors cursor-pointer"
+                      title={t.toolbarCaseTitle || 'Kapital Tiap Kata'}
+                      aria-label="Title Case"
+                    >
+                      <CaseSensitive className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  <div className="w-px h-4 bg-[#E0D7CB] dark:bg-[#352D26] mx-0.5 shrink-0" />
+
+                  {/* Clear formatting */}
+                  <div className="flex items-center shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => applyFormat('clear')}
+                      className="p-1.5 rounded-md text-[#8F8275] hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
+                      title={t.toolbarClear || 'Hapus Pemformatan'}
+                      aria-label="Clear formatting"
+                    >
+                      <RemoveFormatting className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Textarea */}
+                <textarea
+                  ref={textareaRef}
+                  rows={6}
+                  required
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder={t.modalContentPlaceholder}
+                  className="w-full px-3.5 py-2.5 bg-transparent text-[#2B241E] dark:text-[#EFE9E2] placeholder-[#A09384] focus:outline-hidden leading-relaxed font-sans resize-y min-h-[140px]"
+                />
+              </div>
+            ) : (
+              /* Live Preview Tab */
+              <div className="rounded-xl border border-[#DED4C7] dark:border-[#3A332C] bg-[#FAF7F2] dark:bg-[#14110F] p-4 min-h-[185px] max-h-[320px] overflow-y-auto">
+                <NoteContentRenderer
+                  content={content}
+                  emptyPlaceholder={t.previewEmpty}
+                />
+              </div>
+            )}
           </div>
 
           {/* Tags */}

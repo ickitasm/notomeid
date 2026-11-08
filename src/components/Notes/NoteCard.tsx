@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { Pin, ChevronDown, ChevronUp, Copy, Check, Edit3, Trash2 } from 'lucide-react';
 import { NoteItem, NoteCategory } from '../../types';
 import { translations, Language } from '../../lib/translations';
+import { NoteContentRenderer } from './NoteContentRenderer';
 
 interface NoteCardProps {
   note: NoteItem;
@@ -144,9 +145,11 @@ export const NoteCard: React.FC<NoteCardProps> = ({
         </h4>
 
         {/* Note Content */}
-        <p className="text-xs sm:text-sm text-[#594E44] dark:text-[#C5B8AA] leading-relaxed whitespace-pre-line font-sans line-clamp-6">
-          {note.content}
-        </p>
+        <NoteContentRenderer
+          content={note.content}
+          clamp={true}
+          className="text-xs sm:text-sm text-[#594E44] dark:text-[#C5B8AA]"
+        />
 
         {/* Tags Metadata Strip (Clean Unboxed) */}
         {note.tags && note.tags.length > 0 && (
