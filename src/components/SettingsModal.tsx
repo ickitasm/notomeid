@@ -278,14 +278,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     bg: '#FDF7F8',
                     accent: '#DB2777',
                   },
+                  {
+                    id: 'christmas' as const,
+                    name: 'Christmas Eve',
+                    sub: activeLang === 'id' ? 'Malam Natal & Pinus' : 'Festive Pine & Berry',
+                    bg: '#071911',
+                    accent: '#DC2626',
+                  },
                 ].map((th) => {
                   const isSelected = preferences.theme === th.id;
+                  const isChristmas = th.id === 'christmas';
                   return (
                     <button
                       key={th.id}
                       type="button"
                       onClick={() => onUpdatePreferences({ theme: th.id })}
                       className={`min-h-[48px] p-2.5 rounded-xl border text-left transition-all active:scale-[0.98] touch-manipulation cursor-pointer flex items-center justify-between ${
+                        isChristmas ? 'col-span-2' : ''
+                      } ${
                         isSelected
                           ? 'border-[#C85A32] bg-[#C85A32]/10 ring-1 ring-[#C85A32]/30 shadow-xs font-semibold'
                           : 'border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] hover:bg-[#F3ECE4] dark:hover:bg-[#201B17]'

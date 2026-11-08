@@ -22,6 +22,7 @@ import { UpdateLogsModal } from './components/UpdateLogs/UpdateLogsModal';
 import { useUpdateLogs } from './hooks/useUpdateLogs';
 import { getUpcomingAlerts } from './lib/notifications';
 import { translations, Language } from './lib/translations';
+import { ChristmasSnowEffect } from './components/ChristmasSnowEffect';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('media');
@@ -109,6 +110,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#2D2823] dark:bg-[#161311] dark:text-[#EAE3DA] transition-colors duration-200">
+      {storage.preferences.theme === 'christmas' && <ChristmasSnowEffect />}
       {/* 3-Zone Top Bar Navigation */}
       <Navigation
         activeTab={activeTab}

@@ -194,3 +194,110 @@ html[data-theme="romantic"] [class*="bg-[#A86438]/10"] {
   background-color: rgba(219, 39, 119, 0.12) !important;
 }
 
+/* ==========================================================================
+   THEME: CHRISTMAS EVE (Deep Forest Pine, Holly Berry & Warm Gold)
+   ========================================================================== */
+html[data-theme="christmas"],
+html[data-theme="christmas"] body {
+  background-color: #071911 !important;
+  color: #F2F7F4 !important;
+}
+
+html[data-theme="christmas"] [class*="bg-[#FAF7F2]"],
+html[data-theme="christmas"] [class*="bg-[#161311]"],
+html[data-theme="christmas"] [class*="bg-[#1C1815]"],
+html[data-theme="christmas"] [class*="bg-[#FFFDF9]"] {
+  background-color: #0E231B !important;
+}
+
+html[data-theme="christmas"] [class*="bg-[#25201C]"],
+html[data-theme="christmas"] [class*="bg-[#2A231D]"],
+html[data-theme="christmas"] [class*="bg-[#28221D]"],
+html[data-theme="christmas"] [class*="bg-[#F4ECE3]"],
+html[data-theme="christmas"] [class*="bg-[#EAE2D7]"] {
+  background-color: #143026 !important;
+}
+
+html[data-theme="christmas"] [class*="border-[#E4DCDB]"],
+html[data-theme="christmas"] [class*="border-[#E5DDD2]"],
+html[data-theme="christmas"] [class*="border-[#352F2B]"],
+html[data-theme="christmas"] [class*="border-[#2D2722]"],
+html[data-theme="christmas"] [class*="border-[#38312B]"] {
+  border-color: #1F4737 !important;
+}
+
+html[data-theme="christmas"] [class*="text-[#2D2823]"],
+html[data-theme="christmas"] [class*="text-[#2B241E]"],
+html[data-theme="christmas"] [class*="text-[#EAE3DA]"],
+html[data-theme="christmas"] [class*="text-[#EFE9E2]"] {
+  color: #F2F7F4 !important;
+}
+
+html[data-theme="christmas"] [class*="text-[#7B6F63]"],
+html[data-theme="christmas"] [class*="text-[#8F8275]"],
+html[data-theme="christmas"] [class*="text-[#9F9184]"],
+html[data-theme="christmas"] [class*="text-[#A89C90]"] {
+  color: #8FAFA0 !important;
+}
+
+html[data-theme="christmas"] [class*="text-[#C85A32]"],
+html[data-theme="christmas"] [class*="text-[#A86438]"] {
+  color: #EF4444 !important;
+}
+
+html[data-theme="christmas"] [class*="bg-[#C85A32]"],
+html[data-theme="christmas"] [class*="bg-[#A86438]"] {
+  background-color: #DC2626 !important;
+}
+
+html[data-theme="christmas"] [class*="bg-[#C85A32]/10"],
+html[data-theme="christmas"] [class*="bg-[#A86438]/10"] {
+  background-color: rgba(220, 38, 38, 0.18) !important;
+}
+
+/* Subtly tinted scrollbar thumb for Christmas Eve */
+html[data-theme="christmas"] ::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.28);
+}
+html[data-theme="christmas"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 175, 55, 0.48);
+}
+
+/* ==========================================================================
+   LOW-OVERHEAD GPU-ACCELERATED SNOWFALL PARTICLES (NO-LAG)
+   ========================================================================== */
+@keyframes snowfall {
+  0% {
+    transform: translate3d(0, -12px, 0);
+    opacity: 0;
+  }
+  15% {
+    opacity: var(--snow-opacity, 0.5);
+  }
+  85% {
+    opacity: var(--snow-opacity, 0.5);
+  }
+  100% {
+    transform: translate3d(var(--snow-drift, 25px), 105vh, 0);
+    opacity: 0;
+  }
+}
+
+.snow-particle {
+  position: absolute;
+  top: 0;
+  background-color: #FFFFFF;
+  border-radius: 9999px;
+  pointer-events: none;
+  will-change: transform;
+  animation-name: snowfall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .snow-particle {
+    display: none !important;
+  }
+}
+

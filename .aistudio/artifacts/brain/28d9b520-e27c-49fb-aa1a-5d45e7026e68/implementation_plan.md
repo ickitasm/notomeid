@@ -1,41 +1,75 @@
-# Rencana Implementasi: Peningkatan Skala Tipografi Global (~8%) & Ruang Bernapas (Breath Gap)
+# Rencana Implementasi: Tema Aplikasi "Christmas Eve"
 
-Berdasarkan preferensi Anda, kami akan meningkatkan skala tipografi dan elemen interaktif sebesar **8% secara seimbang di seluruh aplikasi secara global**, disertai dengan perluasan padding, margin, dan grid gap untuk memberikan "breath gap" (ruang bernapas) yang lega dan nyaman di mata tanpa merusak keanggunan editorial Notome.
+Status: [x] Selesai & Terverifikasi
 
----
-
-## 1. Skala Tipografi Global & Font Root Scaling
-- **Root Font Size Scaling**:
-  - Konfigurasi root HTML font size dinaikkan secara harmonis sebesar ~8% (dari default `16px` menjadi `17.2px` atau `107.5%`) pada `src/index.css`. Hal ini secara proporsional dan elegan meningkatkan seluruh skala `rem` Tailwind (`text-xs`, `text-sm`, `text-base`, `text-lg`, `text-xl`, dst.) secara konsisten di seluruh modul.
-  - Memperbarui micro-typography (`text-[10px]` dan `text-[11px]`) pada badge tanggal, status imunisasi, label makronutrien, dan rating media menjadi minimal `text-xs` (12px-13px) agar mudah terbaca tanpa harus memicingkan mata.
-  - Menyesuaikan `line-height` (leading) menjadi lebih santai (`leading-relaxed` / `leading-loose`) agar baris teks memiliki sirkulasi udara yang nyaman.
+Tema visual baru yang damai dan elegan **Christmas Eve** telah berhasil ditambahkan ke dalam aplikasi Notome dengan palet warna *Deep Forest Pine*, *Holly Berry Red*, dan *Warm Gold*, dilengkapi efek partikel salju lembut berkinerja tinggi yang ramah perangkat low-end (no lag).
 
 ---
 
-## 2. Peningkatan "Breath Gap" pada Layout & Wadah Kontainer
-- **Container Luar & Header**:
-  - Memperluas padding kontainer utama pada `src/App.tsx` dari `px-4 sm:px-6 py-6` menjadi `px-5 sm:px-8 py-8 sm:py-10`.
-  - Memberi ruang lega vertikal pada bar navigasi (`src/components/Navigation.tsx`), memperbesar tab button padding dari `py-2 px-3` menjadi `py-2.5 px-4`, serta memperbesar touch target ikon.
-- **Card Padding & Grid Gaps**:
-  - Memperluas jarak antar kartu/grid (`gap-4` -> `gap-5` atau `gap-6`) pada seluruh modul:
-    - **Media View**: Jarak kartu tontonan lebih renggang, padding detail tontonan bertambah dari `p-4` ke `p-5.5`.
-    - **Nutrition View**: Ruang kartu ringkasan kalori, makro, dan log makanan diperluas agar ringkasan statistik harian tidak padat.
-    - **Pet View**: Jarak kartu hewan peliharaan, jadwal vaksin, dan log medis diperluas dengan padding kartu `p-5` s/d `p-6`.
-    - **Master Calendar**: Sel tanggal kalender diberi tinggi minimum lebih lapang (`min-h-[110px]` -> `min-h-[125px]`) dan jarak event tag lebih renggang.
-    - **Notes & Dream Catcher**: Ruang editor dan kartu catatan diperluas untuk kenyamanan menulis.
+## 1. Analisis & Konsep Visual
+
+### 1.1 Palet Warna Christmas Eve
+- [x] **Background Utama**: Deep Forest Pine (`#071911`) — suasana malam musim dingin yang tenang dan hangat.
+- [x] **Permukaan Kartu / Kontainer**: Elevated Forest Pine (`#0E231B` & `#143026`) dengan border subtle fir green (`#1F4737`).
+- [x] **Warna Teks**:
+  - Primary: Snow Cream (`#F2F7F4`) — kontras tajam namun lembut di mata.
+  - Secondary/Muted: Frosted Mist / Sage (`#8FAFA0`).
+- [x] **Aksen Khas Natal**:
+  - Holly Berry Red (`#DC2626` & `#EF4444`) untuk tombol aksi primer, indikator penting, dan badge.
+  - Warm Gold / Starlight Amber (`#D4AF37` / `#EAB308`) untuk highlight scrollbar dan aksen estetis.
+
+### 1.2 Efek Salju Halus Ramah Performa (No-Lag)
+- [x] Dibuat menggunakan komponen `<ChristmasSnowEffect />` berbasis **CSS Keyframes 100% GPU-accelerated** (`transform: translate3d`).
+- [x] Zero-overhead: tidak menggunakan loop JavaScript / tick timer berat yang menguras baterai dan memicu frame drops di perangkat mobile low-end.
+- [x] 15 partikel salju lembut deterministik dengan `pointer-events-none` sehingga interaksi sentuhan/klik pengguna tetap 100% responsif.
+- [x] Mendukung `@media (prefers-reduced-motion: reduce)` untuk aksesibilitas.
 
 ---
 
-## 3. Komponen Form, Tombol, dan Dialog Modal
-- **Ukuran Input & Button**:
-  - Menaikkan tinggi sentuh (touch target) input formulir dan tombol aksi utama dari `h-10` ke `h-11` atau `h-12` (`min-h-[46px]`), dengan padding internal `px-4 py-2.5`.
-  - Memperbesar ukuran ikon aksi (edit, hapus, checkmark, filter) dari `w-4 h-4` ke `w-4.5 h-4.5` atau `w-5 h-5`.
-- **Modal Dialog**:
-  - Memperluas padding modal dialog dari `p-6` menjadi `p-7` atau `p-8` dengan `space-y-5` antar field formulir.
+## 2. Rincian Perubahan Kode yang Telah Diterapkan
+
+### 2.1 Tipe Data (`src/types.ts`)
+- [x] Memperbarui definisi `ThemeMode`:
+  ```ts
+  export type ThemeMode = 'light' | 'dark' | 'cinema' | 'romantic' | 'christmas';
+  ```
+
+### 2.2 Hook Penyimpanan & Siklus Tema (`src/hooks/useStorage.ts`)
+- [x] Menambahkan `'christmas'` ke dalam array rotasi tema `toggleTheme`.
+- [x] Menyertakan `'christmas'` dalam penambahan class `dark` pada elemen root `<html>` agar elemen modul tetap kontras dan harmonis.
+
+### 2.3 Desain CSS Global (`src/index.css`)
+- [x] Menambahkan blok CSS selektor `html[data-theme="christmas"]`:
+  - Latar belakang body dan container (`#071911`, `#0E231B`, `#143026`).
+  - Pewarnaan border khas pinus gelap (`#1F4737`).
+  - Override teks menjadi Snow Cream dan Sage.
+  - Aksen primer holly berry red (`#DC2626`) dan gold scrollbar (`rgba(212, 175, 55, 0.28)`).
+  - Animasi `@keyframes snowfall` dan class `.snow-particle`.
+
+### 2.4 Komponen Efek Salju (`src/components/ChristmasSnowEffect.tsx`)
+- [x] Komponen mandiri yang me-render partikel salju secara terisolasi saat tema `christmas` aktif.
+- [x] Terpasang di root aplikasi `App.tsx` dan `AuthView.tsx`.
+
+### 2.5 Navigasi & Pemilih Tema Cepat (`src/components/Navigation.tsx`)
+- [x] Menambahkan tema `christmas` ke dalam `themesList`:
+  - `labelId: 'Christmas Eve'`, `labelEn: 'Christmas Eve'`
+  - `bgDot: '#071911'`, `accentDot: '#DC2626'`
+- [x] Menambahkan ikon pohon cemara (`Trees`) warna emerald lembut pada tombol rotasi tema.
+- [x] Memperbarui dropdown profil dengan kartu tema Christmas Eve lengkap dengan badge Festive.
+
+### 2.6 Modal Pengaturan (`src/components/SettingsModal.tsx`)
+- [x] Menambahkan opsi kartu tema `Christmas Eve` ke dalam grid pilihan tema di Pengaturan (General Tab):
+  - Nama: `Christmas Eve`
+  - Subteks: `Malam Natal & Pinus` (ID) / `Festive Pine & Berry` (EN)
+  - Pratinjau warna: lingkaran latar pinus gelap dengan titik berry red.
+
+### 2.7 Halaman Login / Auth (`src/components/Auth/AuthView.tsx`)
+- [x] Mendukung tema Christmas Eve dan efek partikel salju lembut di halaman autentikasi.
 
 ---
 
-## 4. Validasi & Pengujian
-- Memastikan tidak ada teks yang terpotong (*text clipping*), tidak terjadi tumpang tindih (*overlap*), dan tidak ada horizontal scrolling tak diinginkan di mobile.
-- Menjalankan `compile_applet` dan `lint_applet` untuk memastikan kode bebas error.
-- Me-restart dev server untuk verifikasi hasil akhir.
+## 3. Hasil Verifikasi
+
+- **TypeScript Compilation (`compile_applet`)**: Succeeded tanpa error.
+- **Linter (`lint_applet`)**: Succeeded tanpa error.
+- **Dev Server**: Telah direstart dan melayani versi terbaru secara optimal.

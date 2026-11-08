@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Film, Utensils, HeartPulse, Calendar, Sun, Moon, Sliders, LogOut, CheckCircle2, Globe, ShieldCheck, BookOpen, MoonStar, Sparkles, Bell, Menu, User as UserIcon } from 'lucide-react';
+import { Film, Utensils, HeartPulse, Calendar, Sun, Moon, Sliders, LogOut, CheckCircle2, Globe, ShieldCheck, BookOpen, MoonStar, Sparkles, Bell, Menu, User as UserIcon, Trees } from 'lucide-react';
 import { AppUser } from '../hooks/useAuth';
 import { UpcomingAlert } from '../lib/notifications';
 import { NotificationPanel } from './Notifications/NotificationPanel';
@@ -56,6 +56,7 @@ export const Navigation: React.FC<NavigationProps> = ({
     { id: 'dark', labelId: 'Roast Dark', labelEn: 'Roast Dark', bgDot: '#161311', accentDot: '#D9822B' },
     { id: 'cinema', labelId: 'Cinema Velvet', labelEn: 'Cinema Velvet', bgDot: '#120406', accentDot: '#E11D48' },
     { id: 'romantic', labelId: 'Romantic Rose', labelEn: 'Romantic Rose', bgDot: '#FDF7F8', accentDot: '#DB2777' },
+    { id: 'christmas', labelId: 'Christmas Eve', labelEn: 'Christmas Eve', bgDot: '#071911', accentDot: '#DC2626' },
   ];
 
   const navItems: { id: ActiveTab; label: string; shortLabel: string; icon: React.ComponentType<{ className?: string }> }[] = [
@@ -158,7 +159,9 @@ export const Navigation: React.FC<NavigationProps> = ({
                 className="min-w-[38px] min-h-[38px] flex items-center justify-center rounded-xl text-[#6F645A] dark:text-[#A89C90] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] hover:bg-[#EFE8DD] dark:hover:bg-[#28221D] active:scale-95 transition-all touch-manipulation cursor-pointer"
                 title={`Tema saat ini: ${theme}. Klik untuk beralih.`}
               >
-                {theme === 'cinema' ? (
+                {theme === 'christmas' ? (
+                  <Trees className="w-4 h-4 text-[#10B981]" />
+                ) : theme === 'cinema' ? (
                   <Film className="w-4 h-4 text-[#FB7185]" />
                 ) : theme === 'romantic' ? (
                   <Sparkles className="w-4 h-4 text-[#DB2777]" />
@@ -253,17 +256,18 @@ export const Navigation: React.FC<NavigationProps> = ({
                     )}
                   </div>
 
-                  {/* Interactive 4-Theme Swatch Selector */}
+                  {/* Interactive 5-Theme Swatch Selector */}
                   <div className="py-2.5 px-3 border-b border-[#EAE2D8] dark:border-[#2E2823] space-y-2">
                     <div className="flex items-center justify-between text-xs font-semibold text-[#6F645A] dark:text-[#A89C90]">
                       <span>{language === 'id' ? 'Tema Tampilan' : 'Visual Theme'}</span>
                       <span className="font-mono text-[10px] capitalize text-[#8F8275]">
-                        {theme === 'cinema' ? 'Cinema Velvet' : theme === 'romantic' ? 'Romantic Rose' : theme}
+                        {theme === 'christmas' ? 'Christmas Eve' : theme === 'cinema' ? 'Cinema Velvet' : theme === 'romantic' ? 'Romantic Rose' : theme}
                       </span>
                     </div>
                     <div className="grid grid-cols-2 gap-1.5">
                       {themesList.map((tItem) => {
                         const isSelected = theme === tItem.id;
+                        const isChristmas = tItem.id === 'christmas';
                         return (
                           <button
                             key={tItem.id}
@@ -276,6 +280,8 @@ export const Navigation: React.FC<NavigationProps> = ({
                               }
                             }}
                             className={`flex items-center gap-2 p-2 rounded-xl text-xs transition-all cursor-pointer touch-manipulation ${
+                              isChristmas ? 'col-span-2' : ''
+                            } ${
                               isSelected
                                 ? 'bg-[#EAE2D7] dark:bg-[#28221D] text-[#2B241E] dark:text-[#EFE9E2] font-semibold ring-1 ring-[#C85A32]/40 shadow-xs'
                                 : 'text-[#6F645A] dark:text-[#A89C90] hover:bg-[#F4ECE3] dark:hover:bg-[#201B17]'
@@ -291,6 +297,11 @@ export const Navigation: React.FC<NavigationProps> = ({
                               />
                             </span>
                             <span className="truncate">{language === 'id' ? tItem.labelId : tItem.labelEn}</span>
+                            {isChristmas && (
+                              <span className="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#DC2626]/15 text-[#EF4444] font-semibold">
+                                Festive
+                              </span>
+                            )}
                           </button>
                         );
                       })}

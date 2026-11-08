@@ -21,9 +21,11 @@ import {
   AlertTriangle,
   BookOpen,
   MoonStar,
+  Trees,
 } from 'lucide-react';
 import { translations, Language } from '../../lib/translations';
 import { ThemeMode } from '../../types';
+import { ChristmasSnowEffect } from '../ChristmasSnowEffect';
 
 // Notome Private Life Hub · Pure Google Invite-Only Authentication System
 
@@ -76,6 +78,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-[#FAF7F2] text-[#2D2823] dark:bg-[#161311] dark:text-[#EAE3DA] transition-colors duration-200">
+      {theme === 'christmas' && <ChristmasSnowEffect />}
       {/* Top Brand Bar */}
       <header className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
@@ -105,9 +108,19 @@ export const AuthView: React.FC<AuthViewProps> = ({
             onClick={onToggleTheme}
             aria-label="Toggle theme"
             className="p-2 rounded-lg text-[#6F645A] dark:text-[#A89C90] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] hover:bg-[#EFE8DD] dark:hover:bg-[#28221D] transition-colors touch-manipulation cursor-pointer"
-            title={theme === 'dark' ? 'Switch to warm light theme' : 'Switch to roast dark theme'}
+            title={`Tema saat ini: ${theme}. Klik untuk beralih.`}
           >
-            {theme === 'dark' ? <Sun className="w-4 h-4 text-[#D9822B]" /> : <Moon className="w-4 h-4 text-[#6F645A]" />}
+            {theme === 'christmas' ? (
+              <Trees className="w-4 h-4 text-[#10B981]" />
+            ) : theme === 'cinema' ? (
+              <Film className="w-4 h-4 text-[#FB7185]" />
+            ) : theme === 'romantic' ? (
+              <Sparkles className="w-4 h-4 text-[#DB2777]" />
+            ) : theme === 'dark' ? (
+              <Moon className="w-4 h-4 text-[#D9822B]" />
+            ) : (
+              <Sun className="w-4 h-4 text-[#C85A32]" />
+            )}
           </button>
         </div>
       </header>
