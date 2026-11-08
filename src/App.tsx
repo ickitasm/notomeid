@@ -23,6 +23,8 @@ import { useUpdateLogs } from './hooks/useUpdateLogs';
 import { getUpcomingAlerts } from './lib/notifications';
 import { translations, Language } from './lib/translations';
 import { ChristmasSnowEffect } from './components/ChristmasSnowEffect';
+import { useMaintenance } from './hooks/useMaintenance';
+import { MaintenanceView } from './components/Maintenance/MaintenanceView';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('media');
@@ -33,6 +35,7 @@ export default function App() {
   const storage = useStorage();
   const auth = useAuth();
   const updateLogs = useUpdateLogs();
+  const maintenance = useMaintenance();
 
   const currentLanguage: Language = storage.preferences.language || 'id';
 
@@ -82,13 +85,31 @@ export default function App() {
   if (auth.checkingWhitelist) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#FAF7F2] text-[#2D2823] dark:bg-[#161311] dark:text-[#EAE3DA]">
-        <div className="w-10 h-10 rounded-xl bg-[#C85A32] flex items-center justify-center text-white font-serif font-bold text-lg mb-3 shadow-md animate-pulse">
-          N
-        </div>
+        <img
+          src="/notomee_logos.jpg"
+          alt="Notomee Logo"
+          className="h-14 w-auto object-contain rounded-2xl mb-3 shadow-md animate-pulse border border-[#E0D7CB] dark:border-[#38312B]"
+        />
         <p className="text-xs font-mono text-[#8F8275]">
           {currentLanguage === 'id' ? 'Memeriksa otorisasi akses whitelist...' : 'Checking whitelist authorization...'}
         </p>
       </div>
+    );
+  }
+
+  // If system maintenance mode is active AND user is NOT primary admin, hold on Maintenance screen
+  if (maintenance.isMaintenance && !auth.isPrimaryAdmin) {
+    return (
+      <MaintenanceView
+        user={auth.user}
+        reason={maintenance.reason}
+        activatedAt={maintenance.activatedAt}
+        onSignOut={auth.signOut}
+        language={currentLanguage}
+        onSelectLanguage={handleSelectLanguage}
+        theme={storage.preferences.theme}
+        onToggleTheme={storage.toggleTheme}
+      />
     );
   }
 
@@ -111,6 +132,26 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#2D2823] dark:bg-[#161311] dark:text-[#EAE3DA] transition-colors duration-200">
       {storage.preferences.theme === 'christmas' && <ChristmasSnowEffect />}
+      {/* Primary Admin Active Maintenance Indicator Banner */}
+      {maintenance.isMaintenance && auth.isPrimaryAdmin && (
+        <div className="bg-rose-600 text-white px-4 py-2 text-xs font-semibold flex items-center justify-between gap-3 shadow-sm sticky top-0 z-40">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse shrink-0" />
+            <span className="truncate">
+              {currentLanguage === 'id'
+                ? 'Mode Pemeliharaan Aktif — Pengguna umum tertahan di layar maintenance. Anda memiliki akses penuh sebagai Primary Admin.'
+                : 'Maintenance Mode Active — Members held on maintenance screen. You have full admin access.'}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => maintenance.setMaintenanceMode(false, '', auth.user?.email)}
+            className="px-3 py-1 rounded-lg bg-white text-rose-700 text-xs font-bold hover:bg-rose-50 transition-colors shadow-2xs shrink-0 cursor-pointer"
+          >
+            {currentLanguage === 'id' ? 'Buka Akses Normal' : 'Resume Access'}
+          </button>
+        </div>
+      )}
       {/* 3-Zone Top Bar Navigation */}
       <Navigation
         activeTab={activeTab}
@@ -330,6 +371,11 @@ export default function App() {
           onDeleteUser={auth.deleteInvitedUser}
           onRefresh={auth.fetchInvitedUsers}
           language={currentLanguage}
+          isMaintenance={maintenance.isMaintenance}
+          maintenanceReason={maintenance.reason}
+          onToggleMaintenance={(enabled, reason) =>
+            maintenance.setMaintenanceMode(enabled, reason, auth.user?.email)
+          }
         />
       )}
 

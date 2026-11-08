@@ -82,11 +82,13 @@ export const AuthView: React.FC<AuthViewProps> = ({
       {/* Top Brand Bar */}
       <header className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-[#C85A32] flex items-center justify-center text-white font-serif font-bold text-base shadow-xs">
-            N
-          </div>
+          <img
+            src="/notomee_logos.jpg"
+            alt="Notomee Logo"
+            className="h-8 sm:h-9 w-auto object-contain rounded-lg shadow-2xs border border-[#E0D7CB] dark:border-[#38312B]"
+          />
           <span className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-[#2B241E] dark:text-[#EFE9E2]">
-            Notome
+            Notomee
           </span>
         </div>
 
@@ -133,7 +135,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
             <div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C85A32]/10 text-[#C85A32] text-xs font-mono font-semibold tracking-wide mb-3">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Notome Sanctuary · Invite-Only</span>
+                <span>Notomee Sanctuary · Invite-Only</span>
               </div>
               <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#2B241E] dark:text-[#EFE9E2] leading-tight">
                 {t.headline}

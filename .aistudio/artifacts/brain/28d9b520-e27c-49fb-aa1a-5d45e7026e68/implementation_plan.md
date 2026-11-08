@@ -1,75 +1,47 @@
-# Rencana Implementasi: Tema Aplikasi "Christmas Eve"
+# Rencana Implementasi: Penggantian Logo Resmi Notomee & Fitur Mode Maintenance Admin
 
 Status: [x] Selesai & Terverifikasi
 
-Tema visual baru yang damai dan elegan **Christmas Eve** telah berhasil ditambahkan ke dalam aplikasi Notome dengan palet warna *Deep Forest Pine*, *Holly Berry Red*, dan *Warm Gold*, dilengkapi efek partikel salju lembut berkinerja tinggi yang ramah perangkat low-end (no lag).
+Seluruh logo dan identitas visual Notome telah diganti menggunakan gambar resmi `notomee_logos.jpg`, serta fitur kontrol jeda sistem (Mode Pemeliharaan / System Maintenance) khusus Primary Admin (`mike777rafael@gmail.com`) telah aktif dan terpasang sempurna.
 
 ---
 
-## 1. Analisis & Konsep Visual
+## 1. Analisis & Ruang Lingkup
 
-### 1.1 Palet Warna Christmas Eve
-- [x] **Background Utama**: Deep Forest Pine (`#071911`) — suasana malam musim dingin yang tenang dan hangat.
-- [x] **Permukaan Kartu / Kontainer**: Elevated Forest Pine (`#0E231B` & `#143026`) dengan border subtle fir green (`#1F4737`).
-- [x] **Warna Teks**:
-  - Primary: Snow Cream (`#F2F7F4`) — kontras tajam namun lembut di mata.
-  - Secondary/Muted: Frosted Mist / Sage (`#8FAFA0`).
-- [x] **Aksen Khas Natal**:
-  - Holly Berry Red (`#DC2626` & `#EF4444`) untuk tombol aksi primer, indikator penting, dan badge.
-  - Warm Gold / Starlight Amber (`#D4AF37` / `#EAB308`) untuk highlight scrollbar dan aksen estetis.
-
-### 1.2 Efek Salju Halus Ramah Performa (No-Lag)
-- [x] Dibuat menggunakan komponen `<ChristmasSnowEffect />` berbasis **CSS Keyframes 100% GPU-accelerated** (`transform: translate3d`).
-- [x] Zero-overhead: tidak menggunakan loop JavaScript / tick timer berat yang menguras baterai dan memicu frame drops di perangkat mobile low-end.
-- [x] 15 partikel salju lembut deterministik dengan `pointer-events-none` sehingga interaksi sentuhan/klik pengguna tetap 100% responsif.
-- [x] Mendukung `@media (prefers-reduced-motion: reduce)` untuk aksesibilitas.
+### 1.1 Penggantian Logo Resmi (`notomee_logos.jpg`)
+- [x] Menyediakan file logo di `/public/notomee_logos.jpg`.
+- [x] **`Navigation.tsx`**: Mengganti kotak 'N' dengan gambar resmi `notomee_logos.jpg` dan wordmark "Notomee".
+- [x] **`AuthView.tsx`**: Mengganti logo header dan badge santuari dengan `notomee_logos.jpg` serta memperbarui teks ke "Notomee Sanctuary".
+- [x] **`AccessDeniedView.tsx`**: Memasang `notomee_logos.jpg` pada header dan teks penjelasan.
+- [x] **`App.tsx`**: Memasang `notomee_logos.jpg` pada layar splash loading otorisasi whitelist.
+- [x] **`index.html`**: Menambahkan favicon browser `<link rel="icon" type="image/jpeg" href="/notomee_logos.jpg" />` dan memperbarui title menjadi "Notomee - Personal Sanctuary".
 
 ---
 
-## 2. Rincian Perubahan Kode yang Telah Diterapkan
-
-### 2.1 Tipe Data (`src/types.ts`)
-- [x] Memperbarui definisi `ThemeMode`:
-  ```ts
-  export type ThemeMode = 'light' | 'dark' | 'cinema' | 'romantic' | 'christmas';
-  ```
-
-### 2.2 Hook Penyimpanan & Siklus Tema (`src/hooks/useStorage.ts`)
-- [x] Menambahkan `'christmas'` ke dalam array rotasi tema `toggleTheme`.
-- [x] Menyertakan `'christmas'` dalam penambahan class `dark` pada elemen root `<html>` agar elemen modul tetap kontras dan harmonis.
-
-### 2.3 Desain CSS Global (`src/index.css`)
-- [x] Menambahkan blok CSS selektor `html[data-theme="christmas"]`:
-  - Latar belakang body dan container (`#071911`, `#0E231B`, `#143026`).
-  - Pewarnaan border khas pinus gelap (`#1F4737`).
-  - Override teks menjadi Snow Cream dan Sage.
-  - Aksen primer holly berry red (`#DC2626`) dan gold scrollbar (`rgba(212, 175, 55, 0.28)`).
-  - Animasi `@keyframes snowfall` dan class `.snow-particle`.
-
-### 2.4 Komponen Efek Salju (`src/components/ChristmasSnowEffect.tsx`)
-- [x] Komponen mandiri yang me-render partikel salju secara terisolasi saat tema `christmas` aktif.
-- [x] Terpasang di root aplikasi `App.tsx` dan `AuthView.tsx`.
-
-### 2.5 Navigasi & Pemilih Tema Cepat (`src/components/Navigation.tsx`)
-- [x] Menambahkan tema `christmas` ke dalam `themesList`:
-  - `labelId: 'Christmas Eve'`, `labelEn: 'Christmas Eve'`
-  - `bgDot: '#071911'`, `accentDot: '#DC2626'`
-- [x] Menambahkan ikon pohon cemara (`Trees`) warna emerald lembut pada tombol rotasi tema.
-- [x] Memperbarui dropdown profil dengan kartu tema Christmas Eve lengkap dengan badge Festive.
-
-### 2.6 Modal Pengaturan (`src/components/SettingsModal.tsx`)
-- [x] Menambahkan opsi kartu tema `Christmas Eve` ke dalam grid pilihan tema di Pengaturan (General Tab):
-  - Nama: `Christmas Eve`
-  - Subteks: `Malam Natal & Pinus` (ID) / `Festive Pine & Berry` (EN)
-  - Pratinjau warna: lingkaran latar pinus gelap dengan titik berry red.
-
-### 2.7 Halaman Login / Auth (`src/components/Auth/AuthView.tsx`)
-- [x] Mendukung tema Christmas Eve dan efek partikel salju lembut di halaman autentikasi.
+### 1.2 Fitur Mode Maintenance / Pause Web App Khusus Admin
+- [x] **Hak Akses Admin Penuh**: Primary Admin (`mike777rafael@gmail.com`) tidak terkunci saat mode pemeliharaan aktif dan tetap dapat mengoperasikan semua modul.
+- [x] **Penahanan Pengguna Umum**: Anggota biasa dialihkan ke layar khusus **`MaintenanceView`** yang estetis dengan logo resmi, alasan pemeliharaan, tombol muat ulang, dan tombol keluar.
+- [x] **Penempatan Kontrol**: Tombol kontrol dan sakelar status diletakkan di dalam tab baru **Mode Maintenance (Pause)** pada **`AdminPanelModal`**.
+- [x] **Pesan Pemeliharaan Kustom**: Admin dapat menuliskan catatan kustom yang langsung tampil pada layar maintenance pengguna.
+- [x] **Banner Pengingat Admin**: Bilah peringatan merah/oranye muncul di atas header Admin Mike saat sistem dijeda, dilengkapi tombol 1-klik "Buka Akses Normal".
 
 ---
 
-## 3. Hasil Verifikasi
+## 2. File yang Dibuat & Diperbarui
 
-- **TypeScript Compilation (`compile_applet`)**: Succeeded tanpa error.
-- **Linter (`lint_applet`)**: Succeeded tanpa error.
-- **Dev Server**: Telah direstart dan melayani versi terbaru secara optimal.
+1. `src/hooks/useMaintenance.ts`: Hook state sinkronisasi real-time antar-tab dengan penyimpanan lokal `notomee_maintenance_config_v1`.
+2. `src/components/Maintenance/MaintenanceView.tsx`: Komponen layar pemeliharaan mandiri dengan logo resmi, tombol refresh, dan logout.
+3. `src/components/Admin/AdminPanelModal.tsx`: Tab ke-4 untuk kontrol on/off jeda sistem dan pesan pemeliharaan.
+4. `src/components/Navigation.tsx`: Brand logo `notomee_logos.jpg` dan judul Notomee.
+5. `src/components/Auth/AuthView.tsx`: Brand logo `notomee_logos.jpg` dan judul Notomee.
+6. `src/components/Auth/AccessDeniedView.tsx`: Brand logo `notomee_logos.jpg` dan judul Notomee.
+7. `src/App.tsx`: Gating mode maintenance, splash loading logo, dan banner kontrol admin.
+8. `index.html`: Favicon dan metadata Notomee.
+
+---
+
+## 3. Hasil Pengujian & Verifikasi
+
+- **TypeScript Compilation (`compile_applet`)**: Succeeded.
+- **Linter (`lint_applet`)**: Succeeded dengan zero error.
+- **Dev Server**: Berjalan normal di port 3000.

@@ -93,14 +93,16 @@ export const Navigation: React.FC<NavigationProps> = ({
             <button
               type="button"
               onClick={() => onTabChange('media')}
-              className="flex items-center gap-3 text-left group focus-visible:outline-hidden touch-manipulation cursor-pointer"
+              className="flex items-center gap-2.5 text-left group focus-visible:outline-hidden touch-manipulation cursor-pointer"
             >
-              <div className="w-9 h-9 rounded-xl bg-[#C85A32] flex items-center justify-center text-white font-serif font-bold text-lg shadow-xs transition-transform active:scale-95">
-                N
-              </div>
+              <img
+                src="/notomee_logos.jpg"
+                alt="Notomee"
+                className="h-9 sm:h-10 w-auto object-contain rounded-xl shadow-xs transition-transform active:scale-95 border border-[#E0D7CB] dark:border-[#38312B]"
+              />
               <div>
                 <span className="font-serif text-2xl sm:text-2xl font-bold tracking-tight text-[#2B241E] dark:text-[#EFE9E2] group-hover:text-[#C85A32] transition-colors whitespace-nowrap">
-                  Notome
+                  Notomee
                 </span>
               </div>
             </button>

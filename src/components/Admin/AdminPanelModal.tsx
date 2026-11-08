@@ -22,6 +22,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   RefreshCw,
+  ShieldAlert,
 } from 'lucide-react';
 import { InvitedUser } from '../../types';
 import { Language } from '../../lib/translations';
@@ -44,6 +45,9 @@ interface AdminPanelModalProps {
   onDeleteUser: (id: string) => Promise<{ success: boolean; error?: string }>;
   onRefresh?: () => Promise<void>;
   language: Language;
+  isMaintenance?: boolean;
+  maintenanceReason?: string;
+  onToggleMaintenance?: (enabled: boolean, reason?: string) => void;
 }
 
 export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
@@ -55,8 +59,13 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
   onDeleteUser,
   onRefresh,
   language,
+  isMaintenance = false,
+  maintenanceReason = '',
+  onToggleMaintenance,
 }) => {
-  const [tab, setTab] = useState<'list' | 'add' | 'sql'>('list');
+  const [tab, setTab] = useState<'list' | 'add' | 'sql' | 'maintenance'>('list');
+  const [customReason, setCustomReason] = useState(maintenanceReason);
+  const [maintenanceSuccessNotice, setMaintenanceSuccessNotice] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [search, setSearch] = useState('');
   const [newEmail, setNewEmail] = useState('');
@@ -320,6 +329,26 @@ CREATE POLICY "Members can toggle like on update logs" ON public.update_logs
           >
             <Database className="w-3.5 h-3.5" />
             <span>{isId ? 'Skrip SQL Supabase' : 'Supabase SQL Setup'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setTab('maintenance')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+              tab === 'maintenance'
+                ? isMaintenance
+                  ? 'bg-rose-600 text-white font-semibold shadow-xs'
+                  : 'bg-[#C85A32] text-white font-semibold shadow-xs'
+                : isMaintenance
+                ? 'text-rose-600 dark:text-rose-400 bg-rose-500/10 hover:bg-rose-500/20'
+                : 'text-[#6F645A] dark:text-[#A89C90] hover:bg-[#EFE8DD] dark:hover:bg-[#28221D]'
+            }`}
+          >
+            <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
+            <span>{isId ? 'Mode Maintenance (Pause)' : 'System Pause'}</span>
+            {isMaintenance && (
+              <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse ml-0.5" />
+            )}
           </button>
         </div>
 
@@ -732,6 +761,163 @@ CREATE POLICY "Members can toggle like on update logs" ON public.update_logs
                 <pre className="p-4 rounded-xl bg-[#1E1B18] text-[#F3EFEA] font-mono text-[11px] overflow-x-auto leading-relaxed border border-[#38312B]">
                   {sqlMigrationCode}
                 </pre>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: SYSTEM MAINTENANCE / PAUSE MODE */}
+          {tab === 'maintenance' && (
+            <div className="space-y-4 max-w-lg mx-auto py-2 text-xs">
+              <div className="space-y-1">
+                <h3 className="font-serif text-base font-bold text-[#2B241E] dark:text-[#EFE9E2] flex items-center gap-2">
+                  <ShieldAlert className="w-4 h-4 text-[#C85A32]" />
+                  <span>{isId ? 'Kontrol Jeda Sistem & Mode Pemeliharaan' : 'System Pause & Maintenance Control'}</span>
+                </h3>
+                <p className="text-xs text-[#8F8275]">
+                  {isId
+                    ? 'Fitur khusus Primary Admin untuk menjeda akses web app bagi seluruh pengguna umum (kecuali halaman login).'
+                    : 'Primary Admin control to temporarily hold all general user access (except the login screen).'}
+                </p>
+              </div>
+
+              {maintenanceSuccessNotice && (
+                <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/40 text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+                  <span>{maintenanceSuccessNotice}</span>
+                </div>
+              )}
+
+              {/* Status Indicator Card */}
+              <div
+                className={`p-4 rounded-xl border transition-all ${
+                  isMaintenance
+                    ? 'bg-rose-50/60 dark:bg-rose-950/20 border-rose-300 dark:border-rose-900/50'
+                    : 'bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/50'
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="space-y-1">
+                    <span className="text-[10px] uppercase font-mono font-bold tracking-wider text-[#7B6F63] block">
+                      {isId ? 'Status Saat Ini' : 'Current Status'}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`w-2.5 h-2.5 rounded-full ${
+                          isMaintenance ? 'bg-rose-600 animate-pulse' : 'bg-emerald-500'
+                        }`}
+                      />
+                      <span className="font-serif text-sm font-bold text-[#2B241E] dark:text-[#EFE9E2]">
+                        {isMaintenance
+                          ? isId
+                            ? 'Mode Pemeliharaan AKTIF (Aplikasi Dijeda)'
+                            : 'Maintenance Mode ACTIVE (App Paused)'
+                          : isId
+                          ? 'Sistem Berjalan Normal (Akses Terbuka)'
+                          : 'System Normal (Open Access)'}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-[#7B6F63] dark:text-[#9F9184] leading-relaxed pt-1">
+                      {isMaintenance
+                        ? isId
+                          ? 'Pengguna non-admin yang masuk akan tertahan di layar Maintenance. Anda (Mike) tetap dapat mengakses seluruh data secara penuh.'
+                          : 'Non-admin users are held on the Maintenance screen. You (Mike) have complete unrestricted access.'
+                        : isId
+                        ? 'Seluruh anggota yang terdaftar di whitelist dapat mengakses modul secara bebas.'
+                        : 'All authorized members can freely access all modules.'}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (onToggleMaintenance) {
+                        onToggleMaintenance(!isMaintenance, customReason);
+                        setMaintenanceSuccessNotice(
+                          !isMaintenance
+                            ? isId
+                              ? 'Mode Pemeliharaan berhasil diaktifkan. Pengguna umum kini tertahan di layar maintenance.'
+                              : 'Maintenance Mode activated. Non-admin users are now held on maintenance screen.'
+                            : isId
+                            ? 'Mode Pemeliharaan dinonaktifkan. Akses santuari kembali dibuka normal untuk semua anggota.'
+                            : 'Maintenance Mode disabled. All members can now access the app normally.'
+                        );
+                        setTimeout(() => setMaintenanceSuccessNotice(null), 4000);
+                      }
+                    }}
+                    className={`min-h-[40px] px-4 py-2 rounded-xl text-xs font-semibold shadow-xs transition-all active:scale-95 shrink-0 cursor-pointer flex items-center gap-1.5 ${
+                      isMaintenance
+                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                        : 'bg-rose-600 hover:bg-rose-700 text-white'
+                    }`}
+                  >
+                    <Power className="w-3.5 h-3.5" />
+                    <span>
+                      {isMaintenance
+                        ? isId
+                          ? 'Buka Akses Normal'
+                          : 'Resume App Access'
+                        : isId
+                        ? 'Jeda Aplikasi Sekarang'
+                        : 'Pause Web App'}
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Maintenance Reason / Note */}
+              <div className="p-4 rounded-xl border border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#201B17] space-y-3">
+                <div>
+                  <label className="block text-xs font-medium text-[#594E44] dark:text-[#C5B8AA] mb-1">
+                    {isId ? 'Pesan Pemeliharaan untuk Pengguna (Opsional)' : 'Maintenance Notice for Users (Optional)'}
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={customReason}
+                    onChange={(e) => setCustomReason(e.target.value)}
+                    placeholder={
+                      isId
+                        ? 'Contoh: Notomee sedang menjalani pemeliharaan sistem berkala dan pembaruan database. Kami akan segera kembali.'
+                        : 'e.g., Notomee is undergoing scheduled database upgrades. We will be back shortly.'
+                    }
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#E0D7CB] dark:border-[#38312B] bg-[#FAF7F2] dark:bg-[#25201C] text-xs leading-relaxed focus:outline-hidden focus:border-[#C85A32]"
+                  />
+                  <span className="text-[10px] text-[#8F8275] block mt-1">
+                    {isId
+                      ? 'Pesan ini akan langsung ditampilkan kepada anggota yang membuka Notomee saat maintenance aktif.'
+                      : 'This custom note is shown on the maintenance screen when paused.'}
+                  </span>
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (onToggleMaintenance) {
+                        onToggleMaintenance(isMaintenance, customReason);
+                        setMaintenanceSuccessNotice(
+                          isId ? 'Pesan pemeliharaan berhasil diperbarui.' : 'Maintenance note updated.'
+                        );
+                        setTimeout(() => setMaintenanceSuccessNotice(null), 3000);
+                      }
+                    }}
+                    className="px-4 py-2 rounded-xl bg-[#2B241E] dark:bg-[#3D352E] hover:bg-[#403832] text-white text-xs font-medium cursor-pointer transition-colors"
+                  >
+                    {isId ? 'Simpan Pesan' : 'Save Message'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Security & Access Guarantee Box */}
+              <div className="p-3.5 rounded-xl bg-[#FAF7F2] dark:bg-[#25201C] border border-[#E0D7CB] dark:border-[#38312B] text-xs space-y-1.5">
+                <span className="font-semibold text-[#C85A32] flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>{isId ? 'Jaminan Akses Khusus Mike' : 'Mike Exclusive Bypass Guarantee'}</span>
+                </span>
+                <p className="text-[11px] text-[#7B6F63] dark:text-[#9F9184] leading-relaxed">
+                  {isId
+                    ? 'Sebagai Primary Admin (mike777rafael@gmail.com), Anda memegang otoritas penuh. Mode jeda ini tidak akan mengunci akun Anda sendiri, sehingga Anda tetap leluasa melakukan pembaruan, pengujian, atau konfigurasi data secara langsung.'
+                    : 'As the Primary Admin (mike777rafael@gmail.com), you hold full authority. This pause mode will not lock your own account, allowing you to freely perform updates and inspections.'}
+                </p>
               </div>
             </div>
           )}
