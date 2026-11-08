@@ -438,7 +438,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
-      <div className="relative w-full max-w-2xl bg-[#FFFDF9] dark:bg-[#1C1815] rounded-2xl border border-[#E5DDD2] dark:border-[#38312B] shadow-2xl p-5 sm:p-7 max-h-[92vh] overflow-y-auto my-auto transition-colors">
+      <div className="relative w-full max-w-2xl lg:max-w-3xl bg-[#FFFDF9] dark:bg-[#1C1815] rounded-2xl border border-[#E5DDD2] dark:border-[#38312B] shadow-2xl p-5 sm:p-7 max-h-[92vh] overflow-y-auto my-auto transition-colors">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-[#EAE2D8] dark:border-[#2E2823]">
           <div className="flex items-center gap-2.5">

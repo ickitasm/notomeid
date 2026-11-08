@@ -238,7 +238,40 @@ CREATE POLICY "Primary Admin can manage update logs" ON public.update_logs
 
 CREATE POLICY "Members can toggle like on update logs" ON public.update_logs
     FOR UPDATE USING (true)
-    WITH CHECK (true);`;
+    WITH CHECK (true);
+
+-- 3. Tabel Konfigurasi Aplikasi & Mode Pemeliharaan Global (app_settings)
+CREATE TABLE IF NOT EXISTS public.app_settings (
+    key TEXT PRIMARY KEY,
+    value JSONB NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_by TEXT
+);
+
+ALTER TABLE public.app_settings ENABLE ROW LEVEL SECURITY;
+
+-- Pengguna mana pun (termasuk sebelum login) dapat membaca status maintenance
+DROP POLICY IF EXISTS "Anyone can read app_settings" ON public.app_settings;
+CREATE POLICY "Anyone can read app_settings" ON public.app_settings
+    FOR SELECT USING (true);
+
+-- Hanya Primary Admin (mike777rafael@gmail.com) yang dapat mengubah app_settings
+DROP POLICY IF EXISTS "Primary Admin can manage app_settings" ON public.app_settings;
+CREATE POLICY "Primary Admin can manage app_settings" ON public.app_settings
+    FOR ALL USING (
+        LOWER(auth.jwt() ->> 'email') = 'mike777rafael@gmail.com'
+    )
+    WITH CHECK (
+        LOWER(auth.jwt() ->> 'email') = 'mike777rafael@gmail.com'
+    );
+
+-- Inisialisasi status maintenance normal
+INSERT INTO public.app_settings (key, value, updated_by)
+VALUES ('maintenance', '{"isEnabled": false, "reason": ""}'::jsonb, 'mike777rafael@gmail.com')
+ON CONFLICT (key) DO NOTHING;
+
+-- Aktifkan Realtime Replication untuk sinkronisasi instan
+ALTER PUBLICATION supabase_realtime ADD TABLE public.app_settings;`;
 
   const handleCopySql = () => {
     navigator.clipboard.writeText(sqlMigrationCode);
@@ -258,7 +291,7 @@ CREATE POLICY "Members can toggle like on update logs" ON public.update_logs
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-[#FAF7F2] dark:bg-[#1A1613] text-[#2D2823] dark:text-[#EAE3DA] rounded-2xl border border-[#E5DDD2] dark:border-[#38312B] shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+      <div className="bg-[#FAF7F2] dark:bg-[#1A1613] text-[#2D2823] dark:text-[#EAE3DA] rounded-2xl border border-[#E5DDD2] dark:border-[#38312B] shadow-2xl max-w-2xl lg:max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden">
         {/* Modal Header */}
         <div className="p-5 border-b border-[#E5DDD2] dark:border-[#38312B] flex items-center justify-between bg-[#FFFDF9] dark:bg-[#201B17]">
           <div className="flex items-center gap-3">
@@ -835,13 +868,13 @@ CREATE POLICY "Members can toggle like on update logs" ON public.update_logs
                         setMaintenanceSuccessNotice(
                           !isMaintenance
                             ? isId
-                              ? 'Mode Pemeliharaan berhasil diaktifkan. Pengguna umum kini tertahan di layar maintenance.'
-                              : 'Maintenance Mode activated. Non-admin users are now held on maintenance screen.'
+                              ? 'Mode Pemeliharaan aktif & tersinkronisasi ke Cloud Supabase. Semua perangkat anggota (desktop & mobile) kini langsung tertahan di layar maintenance.'
+                              : 'Maintenance Mode activated & synced to Supabase Cloud. All member devices (desktop & mobile) are held on maintenance.'
                             : isId
-                            ? 'Mode Pemeliharaan dinonaktifkan. Akses santuari kembali dibuka normal untuk semua anggota.'
-                            : 'Maintenance Mode disabled. All members can now access the app normally.'
+                            ? 'Mode Pemeliharaan dinonaktifkan di Cloud Supabase. Akses santuari kembali dibuka normal untuk semua anggota.'
+                            : 'Maintenance Mode disabled in Supabase Cloud. All members can now access the app normally.'
                         );
-                        setTimeout(() => setMaintenanceSuccessNotice(null), 4000);
+                        setTimeout(() => setMaintenanceSuccessNotice(null), 5000);
                       }
                     }}
                     className={`min-h-[40px] px-4 py-2 rounded-xl text-xs font-semibold shadow-xs transition-all active:scale-95 shrink-0 cursor-pointer flex items-center gap-1.5 ${

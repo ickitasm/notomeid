@@ -169,8 +169,8 @@ export default function App() {
         alerts={upcomingAlerts}
       />
 
-      {/* Main Content Area - Responsive editorial shell with generous width and breathing room */}
-      <main className="flex-1 max-w-2xl sm:max-w-3xl md:max-w-5xl lg:max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8 pb-28 sm:pb-32 md:pb-12 min-w-0">
+      {/* Main Content Area - Responsive editorial shell with generous standard desktop width */}
+      <main className="flex-1 max-w-2xl sm:max-w-3xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8 pb-28 sm:pb-32 md:pb-12 min-w-0">
         {/* Verification / Auth Alert Banner */}
         {auth.notice && (
           <div
