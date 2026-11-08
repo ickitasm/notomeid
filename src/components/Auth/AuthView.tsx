@@ -6,9 +6,6 @@
 import React, { useState } from 'react';
 import {
   Film,
-  Utensils,
-  HeartPulse,
-  Calendar,
   Sun,
   Moon,
   ShieldCheck,
@@ -19,14 +16,13 @@ import {
   Globe,
   CheckCircle2,
   AlertTriangle,
-  BookOpen,
-  MoonStar,
   Trees,
 } from 'lucide-react';
 import { translations, Language } from '../../lib/translations';
 import { ThemeMode } from '../../types';
 import { ChristmasSnowEffect } from '../ChristmasSnowEffect';
 import { BrandLogo } from '../Brand/BrandLogo';
+import { BumperVideoCard } from './BumperVideoCard';
 
 // Notome Private Life Hub · Pure Google Invite-Only Authentication System
 
@@ -139,68 +135,8 @@ export const AuthView: React.FC<AuthViewProps> = ({
               </p>
             </div>
 
-            {/* 6 Life Pillars Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-2">
-              <div className="p-3 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9]/80 dark:bg-[#1C1815]/80">
-                <div className="flex items-center gap-1.5 text-xs font-serif font-bold text-[#C85A32]">
-                  <Film className="w-3.5 h-3.5" />
-                  <span>{t.cinemaCard}</span>
-                </div>
-                <p className="text-[11px] text-[#7B6F63] dark:text-[#9F9184] mt-1 line-clamp-2">
-                  {t.cinemaDesc}
-                </p>
-              </div>
-
-              <div className="p-3 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9]/80 dark:bg-[#1C1815]/80">
-                <div className="flex items-center gap-1.5 text-xs font-serif font-bold text-[#5B7A58]">
-                  <Utensils className="w-3.5 h-3.5" />
-                  <span>{t.nutritionCard}</span>
-                </div>
-                <p className="text-[11px] text-[#7B6F63] dark:text-[#9F9184] mt-1 line-clamp-2">
-                  {t.nutritionDesc}
-                </p>
-              </div>
-
-              <div className="p-3 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9]/80 dark:bg-[#1C1815]/80">
-                <div className="flex items-center gap-1.5 text-xs font-serif font-bold text-[#A86438]">
-                  <HeartPulse className="w-3.5 h-3.5" />
-                  <span>{t.petsCard}</span>
-                </div>
-                <p className="text-[11px] text-[#7B6F63] dark:text-[#9F9184] mt-1 line-clamp-2">
-                  {t.petsDesc}
-                </p>
-              </div>
-
-              <div className="p-3 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9]/80 dark:bg-[#1C1815]/80">
-                <div className="flex items-center gap-1.5 text-xs font-serif font-bold text-[#C4933F]">
-                  <Calendar className="w-3.5 h-3.5" />
-                  <span>{t.calendarCard}</span>
-                </div>
-                <p className="text-[11px] text-[#7B6F63] dark:text-[#9F9184] mt-1 line-clamp-2">
-                  {t.calendarDesc}
-                </p>
-              </div>
-
-              <div className="p-3 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9]/80 dark:bg-[#1C1815]/80">
-                <div className="flex items-center gap-1.5 text-xs font-serif font-bold text-[#D97706]">
-                  <BookOpen className="w-3.5 h-3.5" />
-                  <span>{t.notesCard}</span>
-                </div>
-                <p className="text-[11px] text-[#7B6F63] dark:text-[#9F9184] mt-1 line-clamp-2">
-                  {t.notesDesc}
-                </p>
-              </div>
-
-              <div className="p-3 rounded-xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9]/80 dark:bg-[#1C1815]/80">
-                <div className="flex items-center gap-1.5 text-xs font-serif font-bold text-[#6366F1]">
-                  <MoonStar className="w-3.5 h-3.5" />
-                  <span>{t.dreamsCard}</span>
-                </div>
-                <p className="text-[11px] text-[#7B6F63] dark:text-[#9F9184] mt-1 line-clamp-2">
-                  {t.dreamsDesc}
-                </p>
-              </div>
-            </div>
+            {/* Notomee 6 Life Pillars Animated Bumper Video Looping */}
+            <BumperVideoCard className="pt-1 shadow-md" />
 
             {/* Privacy Guarantee Banner */}
             <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[#F4ECE3]/60 dark:bg-[#201B17]/60 border border-[#E4DCDB] dark:border-[#352F2B] text-xs text-[#7B6F63] dark:text-[#9F9184]">
