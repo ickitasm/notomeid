@@ -141,11 +141,11 @@ export const Navigation: React.FC<NavigationProps> = ({
               </span>
             </button>
 
+            {/* Integrated Calendar Notification Bell - Always visible on mobile & desktop */}
+            <NotificationPanel alerts={alerts} userEmail={user?.email} language={language} />
+
             {/* Desktop Only Secondary Controls */}
             <div className="hidden md:flex items-center gap-2">
-              {/* Notification Center Bell */}
-              <NotificationPanel alerts={alerts} userEmail={user?.email} />
-
               {/* Theme Cycle Button */}
               <button
                 type="button"

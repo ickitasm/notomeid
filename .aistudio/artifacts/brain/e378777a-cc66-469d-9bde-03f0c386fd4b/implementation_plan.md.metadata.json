@@ -1,6 +1,6 @@
 {
-  "summary":  "Rencana implementasi modifikasi antarmuka modul Film & Serial TV:\n1. Pembaruan header: menghapus label 'KATALOG HIBURAN PRIBADI' dan mengubah judul menjadi multiline 'Catat\\nFilm,\\nSerial.'.\n2. Floating Action Button (FAB) bulat besar melayang dengan ikon Film di kanan bawah mengikuti scroll.\n3. Perbaikan input angka numerik pada MediaModal (rating, season, episode) agar dapat dihapus dengan leluasa tanpa terpental angka 0 atau 1.\n4. Penambahan tombol minus [-] di sebelah kiri tombol +1 Episode untuk mengurangi progres serial.\n5. Fitur pencatatan durasi sekilas (jam, menit, detik) langsung dari kartu media yang sudah ditambahkan.",
-  "updatedAt":  "2026-11-08T17:20:53.914966961Z",
+  "summary":  "Rencana implementasi tombol notifikasi kalender terintegrasi di header:\n1. Menampilkan tombol lonceng notifikasi di header pada semua perangkat (mobile dan desktop) di sebelah tombol bahasa.\n2. Memperluas rentang peringatan kalender menjadi 7 hari ke depan (minggu ini), mencakup semua fitur: Kalender Utama, Jadwal Nonton Film/Serial, dan Janji/Vaksin Hewan Peliharaan.\n3. Menata popover dropdown ringkas tepat di bawah lonceng header dengan pengelompokan waktu (Hari Ini, Besok, Minggu Ini), badge kategori yang jelas, dan tautan sinkronisasi 1-klik ke Google Calendar.",
+  "updatedAt":  "2026-11-08T17:33:39.857256924Z",
   "requestFeedback":  true,
   "userFacing":  true
 }

@@ -53,14 +53,14 @@ export default function App() {
     }
   }, [auth.notice, auth.clearNotice]);
 
-  // Compute upcoming alerts within 0-3 days window across all pillars
+  // Compute upcoming alerts within 0-7 days window across all pillars (this week)
   const upcomingAlerts = useMemo(() => {
     return getUpcomingAlerts(
       storage.mediaItems,
       storage.medicalRecords,
       storage.pets,
       storage.calendarEvents,
-      3
+      7
     );
   }, [storage.mediaItems, storage.medicalRecords, storage.pets, storage.calendarEvents]);
 
