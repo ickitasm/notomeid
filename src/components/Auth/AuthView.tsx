@@ -81,15 +81,14 @@ export const AuthView: React.FC<AuthViewProps> = ({
       {theme === 'christmas' && <ChristmasSnowEffect />}
       {/* Top Brand Bar */}
       <header className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <img
-            src="/notomee_logos.jpg"
-            alt="Notomee Logo"
-            className="h-8 sm:h-9 w-auto object-contain rounded-lg shadow-2xs border border-[#E0D7CB] dark:border-[#38312B]"
-          />
-          <span className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-[#2B241E] dark:text-[#EFE9E2]">
-            Notomee
-          </span>
+        <div className="flex items-center">
+          <div className="p-1 px-2 sm:px-2.5 rounded-xl bg-white/90 dark:bg-white/95 border border-[#E0D7CB] dark:border-white/20 shadow-2xs flex items-center justify-center">
+            <img
+              src="/notomee_logos.png"
+              alt="Notomee - Personal Sanctuary"
+              className="h-7 sm:h-8 w-auto object-contain"
+            />
+          </div>
         </div>
 
         <div className="flex items-center gap-2">

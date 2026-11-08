@@ -85,11 +85,13 @@ export default function App() {
   if (auth.checkingWhitelist) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#FAF7F2] text-[#2D2823] dark:bg-[#161311] dark:text-[#EAE3DA]">
-        <img
-          src="/notomee_logos.jpg"
-          alt="Notomee Logo"
-          className="h-14 w-auto object-contain rounded-2xl mb-3 shadow-md animate-pulse border border-[#E0D7CB] dark:border-[#38312B]"
-        />
+        <div className="p-2.5 rounded-2xl bg-white/90 dark:bg-white/95 border border-[#E0D7CB] dark:border-white/20 mb-3 shadow-md animate-pulse">
+          <img
+            src="/notomee_logos.png"
+            alt="Notomee Logo"
+            className="h-12 sm:h-14 w-auto object-contain"
+          />
+        </div>
         <p className="text-xs font-mono text-[#8F8275]">
           {currentLanguage === 'id' ? 'Memeriksa otorisasi akses whitelist...' : 'Checking whitelist authorization...'}
         </p>

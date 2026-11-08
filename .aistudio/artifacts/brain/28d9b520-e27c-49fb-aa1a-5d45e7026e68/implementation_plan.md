@@ -1,47 +1,23 @@
-# Rencana Implementasi: Penggantian Logo Resmi Notomee & Fitur Mode Maintenance Admin
+# Rencana Implementasi: Pembaruan Logo Utuh Notomee (notomee_logos.png)
 
 Status: [x] Selesai & Terverifikasi
 
-Seluruh logo dan identitas visual Notome telah diganti menggunakan gambar resmi `notomee_logos.jpg`, serta fitur kontrol jeda sistem (Mode Pemeliharaan / System Maintenance) khusus Primary Admin (`mike777rafael@gmail.com`) telah aktif dan terpasang sempurna.
+Seluruh model logo telah diperbarui menggunakan `notomee_logos.png`. Teks terpisah (*text-based*) di samping logo telah dihapus sepenuhnya dan digantikan secara langsung oleh *lockup* resmi PNG ini dengan tata letak yang proporsional dan adaptif terhadap semua tema (termasuk Dark, Cinema, Romantic, dan Christmas Eve).
 
 ---
 
-## 1. Analisis & Ruang Lingkup
-
-### 1.1 Penggantian Logo Resmi (`notomee_logos.jpg`)
-- [x] Menyediakan file logo di `/public/notomee_logos.jpg`.
-- [x] **`Navigation.tsx`**: Mengganti kotak 'N' dengan gambar resmi `notomee_logos.jpg` dan wordmark "Notomee".
-- [x] **`AuthView.tsx`**: Mengganti logo header dan badge santuari dengan `notomee_logos.jpg` serta memperbarui teks ke "Notomee Sanctuary".
-- [x] **`AccessDeniedView.tsx`**: Memasang `notomee_logos.jpg` pada header dan teks penjelasan.
-- [x] **`App.tsx`**: Memasang `notomee_logos.jpg` pada layar splash loading otorisasi whitelist.
-- [x] **`index.html`**: Menambahkan favicon browser `<link rel="icon" type="image/jpeg" href="/notomee_logos.jpg" />` dan memperbarui title menjadi "Notomee - Personal Sanctuary".
-
----
-
-### 1.2 Fitur Mode Maintenance / Pause Web App Khusus Admin
-- [x] **Hak Akses Admin Penuh**: Primary Admin (`mike777rafael@gmail.com`) tidak terkunci saat mode pemeliharaan aktif dan tetap dapat mengoperasikan semua modul.
-- [x] **Penahanan Pengguna Umum**: Anggota biasa dialihkan ke layar khusus **`MaintenanceView`** yang estetis dengan logo resmi, alasan pemeliharaan, tombol muat ulang, dan tombol keluar.
-- [x] **Penempatan Kontrol**: Tombol kontrol dan sakelar status diletakkan di dalam tab baru **Mode Maintenance (Pause)** pada **`AdminPanelModal`**.
-- [x] **Pesan Pemeliharaan Kustom**: Admin dapat menuliskan catatan kustom yang langsung tampil pada layar maintenance pengguna.
-- [x] **Banner Pengingat Admin**: Bilah peringatan merah/oranye muncul di atas header Admin Mike saat sistem dijeda, dilengkapi tombol 1-klik "Buka Akses Normal".
+## 1. Perubahan yang Dilakukan
+- [x] Menyalin `/public/assets/aistudio/notomee_logos_659b5194.png` ke `/public/notomee_logos.png`.
+- [x] **`Navigation.tsx`**: Menghapus `<span>Notomee</span>` terpisah dan menampilkan logo utuh `notomee_logos.png` di dalam kapsul pelindung bersih yang presisi.
+- [x] **`AuthView.tsx`**: Menghapus teks judul di samping logo dan menampilkan `notomee_logos.png` di header.
+- [x] **`AccessDeniedView.tsx`**: Menghapus teks judul di samping logo dan menggantikannya dengan `notomee_logos.png`.
+- [x] **`MaintenanceView.tsx`**: Menggantikan logo di header dan showcase tengah dengan `notomee_logos.png`.
+- [x] **`App.tsx`**: Menggunakan `notomee_logos.png` pada layar splash loading otorisasi.
+- [x] **`index.html`**: Mengarahkan favicon browser ke `<link rel="icon" type="image/png" href="/notomee_logos.png" />`.
 
 ---
 
-## 2. File yang Dibuat & Diperbarui
-
-1. `src/hooks/useMaintenance.ts`: Hook state sinkronisasi real-time antar-tab dengan penyimpanan lokal `notomee_maintenance_config_v1`.
-2. `src/components/Maintenance/MaintenanceView.tsx`: Komponen layar pemeliharaan mandiri dengan logo resmi, tombol refresh, dan logout.
-3. `src/components/Admin/AdminPanelModal.tsx`: Tab ke-4 untuk kontrol on/off jeda sistem dan pesan pemeliharaan.
-4. `src/components/Navigation.tsx`: Brand logo `notomee_logos.jpg` dan judul Notomee.
-5. `src/components/Auth/AuthView.tsx`: Brand logo `notomee_logos.jpg` dan judul Notomee.
-6. `src/components/Auth/AccessDeniedView.tsx`: Brand logo `notomee_logos.jpg` dan judul Notomee.
-7. `src/App.tsx`: Gating mode maintenance, splash loading logo, dan banner kontrol admin.
-8. `index.html`: Favicon dan metadata Notomee.
-
----
-
-## 3. Hasil Pengujian & Verifikasi
-
-- **TypeScript Compilation (`compile_applet`)**: Succeeded.
-- **Linter (`lint_applet`)**: Succeeded dengan zero error.
-- **Dev Server**: Berjalan normal di port 3000.
+## 2. Hasil Verifikasi
+- **Kompilasi TypeScript (`compile_applet`)**: Berhasil tanpa error.
+- **Linter (`lint_applet`)**: Berhasil tanpa issue.
+- **Dev Server**: Telah direstart dan berjalan normal.
