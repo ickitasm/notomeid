@@ -182,6 +182,24 @@ export function useStorage() {
     saveMediaItems(updated);
   }, [mediaItems, saveMediaItems]);
 
+  const decrementEpisode = useCallback((id: string) => {
+    const updated = mediaItems.map((item) => {
+      if (item.id !== id || item.type !== 'series' || !item.seriesDetails) return item;
+      const details = item.seriesDetails;
+      const prevEp = Math.max(0, details.currentEpisode - 1);
+      return {
+        ...item,
+        status: item.status === 'completed' && prevEp < details.totalEpisodes ? ('watching' as const) : item.status,
+        seriesDetails: {
+          ...details,
+          currentEpisode: prevEp,
+        },
+        updatedAt: new Date().toISOString(),
+      };
+    });
+    saveMediaItems(updated);
+  }, [mediaItems, saveMediaItems]);
+
   // --- NUTRITION OPERATIONS ---
   const saveNutritionLogs = useCallback((logs: DailyNutritionLog[]) => {
     setNutritionLogsState(logs);
@@ -615,6 +633,7 @@ export function useStorage() {
     updateMediaItem,
     deleteMediaItem,
     incrementEpisode,
+    decrementEpisode,
     // Nutrition
     nutritionLogs,
     getLogForDate,

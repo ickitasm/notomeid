@@ -227,6 +227,7 @@ export default function App() {
             onUpdateItem={storage.updateMediaItem}
             onDeleteItem={storage.deleteMediaItem}
             onIncrementEpisode={storage.incrementEpisode}
+            onDecrementEpisode={storage.decrementEpisode}
             language={currentLanguage}
           />
         )}

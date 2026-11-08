@@ -1,58 +1,57 @@
-# Redesain Antarmuka Halaman Depan & Login Notome
+# Modifikasi Antarmuka Modul Film & Serial TV
 
-Penyederhanaan dan perapian visual landing page autentikasi (*AuthView*): menghapus badge repetitif, memperbarui tipografi judul menjadi multiline editorial (*Catat, Simpan, Ulangi.*), memperbarui video bumper looping terbaru tanpa watermark overlay, serta meringkas jaminan privasi ke dalam accordion di atas footer.
+Peningkatan ergonomi dan interaksi pada modul pelacakan Film & Serial: header editorial baru dengan judul multiline, tombol melayang (FAB) di sudut kanan bawah, perbaikan input angka pada form modal, tombol decrement episode `[-]`, dan fitur catatan durasi sekilas (jam, menit, detik) langsung pada kartu media.
 
 ### User Review & Critical Decisions
 
 > [!IMPORTANT]
-> - **Aset Video Baru**: Menggunakan berkas video bumper looping terbaru `notomee_bumper__1__c91fac80.mp4` yang disisipkan oleh pengguna, menggantikan berkas lama.
-> - **Format Judul Baru**: Mengganti headline panjang lama menjadi 3 baris terpisah (*multiline*) berbobot tipografi *Playfair Display* yang kuat:
->   - *Catat,*
->   - *Simpan,*
->   - *Ulangi.*
-> - **Penghapusan Label Repetitif**: Menghapus pill `Notomee Sanctuary · Invite-Only` di atas judul, label `Notomee · 6 Life Pillars` pada video, dan badge `Sistem Privat Berbasis Undangan` pada kartu login Google.
-> - **Accordion Jaminan Privasi**: Bagian jaminan privasi dipindahkan dari kolom kiri ke area bawah tepat di atas footer, disajikan dalam bentuk accordion yang ringkas dengan ikon perisai privasi sehingga tidak membebani ruang visual vertikal.
+> - **Desain Tombol Tambah Melayang (FAB)**: Tombol `+ Tambah Film/Serial` di header atas dihapus dan dialihkan menjadi tombol bulat besar melayang (*floating action button*) di sudut kanan bawah dengan ikon `Film`. Posisi `fixed` menempel nyaman di atas bilah navigasi seluler dan desktop (`bottom-24 right-5 sm:bottom-8 sm:right-8 z-30`).
+> - **Catatan Durasi Sekilas Langsung di Kartu**: Tersedia tombol durasi berikon jam (*Clock*) langsung di tiap kartu media yang sudah dibuat. Menekan tombol membuka panel popup/inline ringkas untuk mengisi atau memperbarui Jam, Menit, dan Detik (misal: *01:45:30*) tanpa perlu masuk ke form modal edit yang berat.
+> - **Perbaikan Controlled Input Numerik**: Input angka (*rating, season, episode*) pada `MediaModal.tsx` dirombak agar mengizinkan nilai string kosong (`""`) saat pengguna menekan tombol *backspace*, sehingga angka dapat dihapus sepenuhnya tanpa langsung memaksakan angka `0` atau `1`.
+> - **Tombol Kurang Episode `[-]`**: Diletakkan tepat di sebelah kiri tombol `+1 Episode` pada kartu serial TV dengan fungsi aman (*minimum 0, mengembalikan status dari completed jika berkurang*).
 
-- **Keputusan 1**: Aset video `notomee_bumper__1__c91fac80.mp4` dipilih langsung sesuai konfirmasi pengguna.
-- **Keputusan 2**: Accordion terlipat rapi dengan transisi mulus dan ikon perisai privasi diletakkan terpusat tepat di atas footer.
+- **Keputusan 1**: Tombol FAB berdesain bulat besar dengan bayangan elegan dan aksen terakota Notome.
+- **Keputusan 2**: Input durasi jam/menit/detik diletakkan langsung di kartu media untuk catatan sekilas.
 
 ---
 
 ### 1. Overview & Core Concept
 
-- **Apa yang Dilakukan**: Menyederhanakan tata letak halaman masuk (*landing login*) agar lebih bersih, berkarakter editorial, dan fokus pada aksi utama: video bumper bergerak dan tombol satu sentuhan masuk dengan akun Google.
-- **Audiens Target**: Pengguna perangkat seluler (iPhone, Android) dan tablet yang membuka santuari Notome.
-- **Nilai Utama**: Tampilan landing page terasa lebih tenang (*sanctuary vibe*), tidak sesak dengan badge status undangan berulang, dan tipografi display yang elegan menyampaikan esensi Notome (*Catat, Simpan, Ulangi*).
+- **Apa yang Dilakukan**: Memperbaiki alur pencatatan film dan serial TV dengan mengutamakan kecepatan aksi: menambah entri melalui tombol melayang yang selalu dapat dijangkau di layar mana pun, mengurangi atau menambah episode dengan 1 sentuhan, mengedit angka tanpa hambatan kursor, dan mencatat durasi waktu tonton sekilas.
+- **Audiens Target**: Pengguna santuari Notome yang aktif mencatat film dan serial di perangkat seluler maupun desktop.
+- **Nilai Utama**: Menghilangkan gesekan (*friction*) input angka, mempermudah koreksi episode salah klik dengan tombol minus, dan memberikan tombol aksi utama yang selalu terlihat saat menggulir daftar film yang panjang.
 
 ---
 
 ### 2. User Experience & Visual Design
 
 - **Alur Interaksi Pengguna**:
-  1. Pengguna membuka Notome di peramban seluler atau tablet.
-  2. Di kolom kiri, pengguna disambut tipografi serif elegan 3 baris: **Catat, / Simpan, / Ulangi.**
-  3. Video bumper animasi Notome berputar mulus secara berulang (*infinite loop*), bersih tanpa badge teks mengambang, hanya menyisakan tombol kontrol audio transparan di sudut kanan atas.
-  4. Di kolom kanan, kartu login Google tampil minimalis dan langsung pada intinya (tombol Google Sign-In instan).
-  5. Di bagian bawah layar (tepat di atas footer), terdapat tombol accordion ringkas *Akses Privat Terjamin*. Jika disentuh, teks penjelasan privasi mengembang secara mulus tanpa mengganggu tata letak utama.
+  1. Pengguna membuka tab Film & Serial.
+  2. Di bagian atas, header tampil bersih tanpa tag *KATALOG HIBURAN PRIBADI*, menampilkan judul multiline editorial:
+     - **Catat**
+     - **Film,**
+     - **Serial.**
+  3. Saat pengguna menggulir katalog ke bawah, tombol bulat besar berikon `Film` tetap melayang di pojok kanan bawah (`fixed`). Menekannya langsung memunculkan modal tambah entri baru.
+  4. Pada kartu serial TV, di sebelah kiri tombol `+1 Episode`, kini terdapat tombol pendamping `[-]` berukuran serasi untuk mengurangi episode jika pengguna ingin merevisi progres.
+  5. Pada kartu film maupun serial, terdapat tombol sekilas durasi `[ ⏱ --:--:-- ]` atau `[ ⏱ 01:45:20 ]`. Pengguna dapat mengklik untuk membuka dialog ringkas memasukkan Jam, Menit, dan Detik secara instan.
+  6. Saat membuka modal edit, pengguna dapat leluasa menghapus angka season, episode, atau rating tanpa terganjal angka `0` atau kursor yang melompat.
 
-- **Identitas Visual & Tipografi**:
-  - **Judul Utama**: `font-serif text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#2B241E] dark:text-[#EFE9E2] leading-tight`, dipisah per koma menjadi 3 baris:
-    - Baris 1: `Catat,`
-    - Baris 2: `Simpan,`
-    - Baris 3: `Ulangi.`
-  - **Pemutar Video**: Bingkai kartu `rounded-2xl border shadow-md` dengan rasio 16:9, kontrol audio transparan di sudut kanan atas, tanpa tag pill bawah.
-  - **Accordion Privasi di Atas Footer**: Komponen kompak dengan ikon `<ShieldCheck />`, teks ringkas, panah indikator buka/tutup, dan kontainer detail dengan latar belakang lembut adaptif 5 tema.
+- **Penataan Gaya & Ergonomi**:
+  - **Judul Header**: `font-serif text-3xl sm:text-4xl font-bold text-[#2B241E] dark:text-[#EFE9E2]` dengan jeda baris visual yang rapi.
+  - **FAB Kanan Bawah**: Tombol bulat `w-14 h-14 rounded-full bg-[#C85A32] text-white shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer fixed z-30 bottom-24 right-5 sm:bottom-8 sm:right-8`.
+  - **Tombol Step Episode**: Grid horizontal harmonis `[ - ] [ +1 Episode ]` di bawah progress bar.
+  - **Durasi Sekilas**: Badge interaktif bernuansa monospaced lembut dengan ikon jam.
 
 ---
 
 ### 3. Key Product Decisions & Trade-Offs
 
-- **Keputusan 1: Judul Multiline Terstruktur**:
-  - *Pendekatan*: Memecah string menjadi elemen `<span className="block">Catat,</span><span className="block">Simpan,</span><span className="block">Ulangi.</span>` atau array terpetakan dengan jeda visual mikro antar baris.
-  - *Alasan*: Menjamin pemisahan baris per koma terjadi secara konsisten dan indah di semua ukuran layar (HP kecil hingga monitor lebar), menghindari pemotongan kata acak oleh browser.
-- **Keputusan 2: Pemindahan dan Peringkasan Jaminan Privasi ke Accordion**:
-  - *Pendekatan*: Menghapus elemen static banner di bawah video dan meletakkannya sebagai dropdown disclosure sebelum footer.
-  - *Alasan*: Mengurangi kepadatan visual vertikal pada perangkat seluler, sehingga pengguna tidak perlu menggulir jauh untuk melihat tombol login Google.
+- **Keputusan 1: Mekanisme State Input Angka**:
+  - *Pendekatan*: Mengubah state input modal dari `number` murni menjadi `number | string` selama pengeditan, lalu mengonversi kembali ke `Number` saat form disubmit.
+  - *Alasan*: Menghilangkan bug `parseInt(e.target.value) || 0` yang menyebabkan input angka tidak bisa dikosongkan dengan tombol backspace.
+- **Keputusan 2: Durasi Sekilas Disimpan pada Objek MediaItem**:
+  - *Pendekatan*: Menambahkan kolom opsional `durationNotes?: { hours: number; minutes: number; seconds: number }` pada tipe `MediaItem`.
+  - *Alasan*: Memungkinkan data durasi tersimpan secara persisten baik di penyimpanan lokal (*localStorage*) maupun Supabase Cloud Sync tanpa merusak skema lama.
 
 ---
 
@@ -60,35 +59,31 @@ Penyederhanaan dan perapian visual landing page autentikasi (*AuthView*): mengha
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                      AuthView.tsx (Landing Page)                │
-├────────────────────────────────┬────────────────────────────────┤
-│    KOLOM KIRI (Brand Story)    │     KOLOM KANAN (Auth Card)    │
-│ ┌────────────────────────────┐ │ ┌────────────────────────────┐ │
-│ │ [UPDATE] Multiline Title   │ │ │ [UPDATE] Kartu Google      │ │
-│ │ • Catat,                   │ │ │ • Tanpa badge undangan     │ │
-│ │ • Simpan,                  │ │ │ • Tombol Masuk Google      │ │
-│ │ • Ulangi.                  │ │ │ • Bantuan kontak Admin     │ │
-│ ├────────────────────────────┤ │ └────────────────────────────┘ │
-│ │ [UPDATE] BumperVideoCard   │ │                                │
-│ │ • Video c91fac80.mp4       │ │                                │
-│ │ • Hapus tag 6 Life Pillars │ │                                │
-│ │ • Kontrol audio on/off     │ │                                │
-│ └────────────────────────────┘ │                                │
-├────────────────────────────────┴────────────────────────────────┤
-│ [BARU] Accordion Dropdown: Akses Privat Terjamin (Expandable)   │
+│                    MediaView.tsx (Katalog Film)                 │
 ├─────────────────────────────────────────────────────────────────┤
-│ Footer (Notome · Private Life Hub)                              │
+│ [UPDATE] Header: Judul Multiline (Catat / Film, / Serial.)      │
+│ [HAPUS] Tag "KATALOG HIBURAN PRIBADI" & Tombol Tambah Header    │
+├─────────────────────────────────────────────────────────────────┤
+│ Daftar Kartu Media (Film & Serial)                              │
+│ ┌─────────────────────────────────────────────────────────────┐ │
+│ │ Kartu Media                                                 │ │
+│ │ • Catatan Durasi Sekilas [ ⏱ 01:25:00 ] (Interactive Modal)  │ │
+│ │ • Kontrol Episode: [ - ]  [ +1 Episode ]                    │ │
+│ └─────────────────────────────────────────────────────────────┘ │
+├─────────────────────────────────────────────────────────────────┤
+│ [BARU] Floating Action Button (FAB) Melayang di Kanan Bawah     │
+│ • Fixed bottom-24 right-5 (Mobile Safe-Area)                   │
+│ • Ikon Film besar, memicu openModal()                           │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 - **Komponen yang Dimodifikasi**:
-  1. `src/components/Auth/BumperVideoCard.tsx`:
-     - Ganti sumber video ke `/assets/aistudio/notomee_bumper__1__c91fac80.mp4`.
-     - Hapus elemen overlay badge `Notomee · 6 Life Pillars` di sudut kiri bawah.
-     - Pertahankan tombol floating kontrol audio (Mute / Unmute).
-  2. `src/components/Auth/AuthView.tsx`:
-     - Hapus badge pill `Notomee Sanctuary · Invite-Only`.
-     - Render headline baru 3 baris: *Catat,* / *Simpan,* / *Ulangi.*
-     - Hapus banner jaminan privasi lama dari kolom kiri.
-     - Hapus badge `Sistem Privat Berbasis Undangan` dari kartu login Google OAuth.
-     - Tambahkan accordion interaktif `Akses Privat Terjamin` tepat di atas footer dengan status buka-tutup halus.
+  1. `src/types.ts`: Menambahkan kolom `durationNotes?: { hours: number; minutes: number; seconds: number }` ke dalam `MediaItem`.
+  2. `src/hooks/useStorage.ts`: Menambahkan fungsi `decrementEpisode(id: string)` dengan validasi batas bawah 0 dan pemulihan status dari `completed` ke `watching`.
+  3. `src/App.tsx`: Meneruskan `onDecrementEpisode` ke `MediaView`.
+  4. `src/components/MediaTracker/MediaModal.tsx`: Memperbaiki controlled input numerik (mengizinkan string kosong saat mengetik).
+  5. `src/components/MediaTracker/MediaView.tsx`:
+     - Memperbarui header multiline dan menghapus tag lama serta tombol tambah statis.
+     - Menambahkan tombol melayang FAB di kanan bawah dengan posisi `fixed`.
+     - Menyematkan tombol `[-]` di sebelah kiri `[+1 Episode]`.
+     - Menyematkan popover/modal ringkas catatan durasi sekilas (jam, menit, detik).

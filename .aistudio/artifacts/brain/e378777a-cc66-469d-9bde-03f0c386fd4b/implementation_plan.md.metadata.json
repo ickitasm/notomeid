@@ -1,6 +1,6 @@
 {
-  "summary":  "Rencana pembaruan antarmuka halaman depan/login Notome:\n1. Menghapus badge atas 'Notomee Sanctuary - Invite-Only'.\n2. Memperbarui title utama menjadi multiline editorial 'Catat,\\nSimpan,\\nUlangi.'.\n3. Menghapus badge 'Notomee - 6 Life Pillars' pada video bumper, menyisakan kontrol audio on/off.\n4. Mengganti sumber video looping dengan video bumper terbaru (c91fac80).\n5. Memindahkan 'Akses Privat Terjamin' ke atas footer dalam format accordion ringkas berikon perisai.\n6. Menghapus badge 'Sistem Privat Berbasis Undangan' pada kartu login Google OAuth.",
-  "updatedAt":  "2026-11-08T16:56:31.319011135Z",
+  "summary":  "Rencana implementasi modifikasi antarmuka modul Film & Serial TV:\n1. Pembaruan header: menghapus label 'KATALOG HIBURAN PRIBADI' dan mengubah judul menjadi multiline 'Catat\\nFilm,\\nSerial.'.\n2. Floating Action Button (FAB) bulat besar melayang dengan ikon Film di kanan bawah mengikuti scroll.\n3. Perbaikan input angka numerik pada MediaModal (rating, season, episode) agar dapat dihapus dengan leluasa tanpa terpental angka 0 atau 1.\n4. Penambahan tombol minus [-] di sebelah kiri tombol +1 Episode untuk mengurangi progres serial.\n5. Fitur pencatatan durasi sekilas (jam, menit, detik) langsung dari kartu media yang sudah ditambahkan.",
+  "updatedAt":  "2026-11-08T17:20:53.914966961Z",
   "requestFeedback":  true,
   "userFacing":  true
 }

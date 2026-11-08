@@ -17,6 +17,7 @@ import {
   Edit2,
   Trash2,
   Bookmark,
+  X,
 } from 'lucide-react';
 import { MediaItem, MediaType, MediaStatus } from '../../types';
 import { MiniCalendar, CalendarHighlight } from '../MiniCalendar';
@@ -30,6 +31,7 @@ interface MediaViewProps {
   onUpdateItem: (id: string, updates: Partial<MediaItem>) => void;
   onDeleteItem: (id: string) => void;
   onIncrementEpisode: (id: string) => void;
+  onDecrementEpisode?: (id: string) => void;
   language?: Language;
 }
 
@@ -39,6 +41,7 @@ export const MediaView: React.FC<MediaViewProps> = ({
   onUpdateItem,
   onDeleteItem,
   onIncrementEpisode,
+  onDecrementEpisode,
   language = 'id',
 }) => {
   const t = translations[language].media;
@@ -50,6 +53,42 @@ export const MediaView: React.FC<MediaViewProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<MediaItem | null>(null);
   const [itemToDelete, setItemToDelete] = useState<MediaItem | null>(null);
+
+  // Quick duration tracker state
+  const [durationItem, setDurationItem] = useState<MediaItem | null>(null);
+  const [durHours, setDurHours] = useState<number | string>('');
+  const [durMinutes, setDurMinutes] = useState<number | string>('');
+  const [durSeconds, setDurSeconds] = useState<number | string>('');
+
+  const handleOpenDuration = (item: MediaItem) => {
+    setDurationItem(item);
+    setDurHours(item.durationNotes?.hours !== undefined ? item.durationNotes.hours : '');
+    setDurMinutes(item.durationNotes?.minutes !== undefined ? item.durationNotes.minutes : '');
+    setDurSeconds(item.durationNotes?.seconds !== undefined ? item.durationNotes.seconds : '');
+  };
+
+  const handleSaveDuration = () => {
+    if (!durationItem) return;
+    const h = Math.max(0, parseInt(String(durHours), 10) || 0);
+    const m = Math.min(59, Math.max(0, parseInt(String(durMinutes), 10) || 0));
+    const s = Math.min(59, Math.max(0, parseInt(String(durSeconds), 10) || 0));
+    onUpdateItem(durationItem.id, {
+      durationNotes: (h > 0 || m > 0 || s > 0) ? { hours: h, minutes: m, seconds: s } : undefined,
+    });
+    setDurationItem(null);
+  };
+
+  const handleClearDuration = () => {
+    if (!durationItem) return;
+    onUpdateItem(durationItem.id, { durationNotes: undefined });
+    setDurationItem(null);
+  };
+
+  const formatDuration = (d?: { hours: number; minutes: number; seconds: number }) => {
+    if (!d || (d.hours === 0 && d.minutes === 0 && d.seconds === 0)) return null;
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${pad(d.hours)}:${pad(d.minutes)}:${pad(d.seconds)}`;
+  };
 
   // Compute stats
   const stats = useMemo(() => {
@@ -124,30 +163,17 @@ export const MediaView: React.FC<MediaViewProps> = ({
   return (
     <div className="space-y-8">
       {/* Editorial Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 pb-6 border-b border-[#E4DCDB] dark:border-[#352F2B]">
+      <div className="pb-6 border-b border-[#E4DCDB] dark:border-[#352F2B]">
         <div>
-          <div className="text-xs uppercase tracking-widest font-mono text-[#C85A32] font-semibold mb-1.5">
-            {t.tag}
-          </div>
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-[#2B241E] dark:text-[#EFE9E2]">
-            {t.title}
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#2B241E] dark:text-[#EFE9E2] leading-tight">
+            <span className="block">Catat</span>
+            <span className="block text-[#C85A32] dark:text-[#E07A52]">Film,</span>
+            <span className="block">Serial.</span>
           </h1>
-          <p className="text-sm sm:text-base text-[#7B6F63] dark:text-[#9F9184] mt-1.5 max-w-2xl leading-relaxed">
+          <p className="text-sm sm:text-base text-[#7B6F63] dark:text-[#9F9184] mt-2.5 max-w-2xl leading-relaxed">
             {t.subtitle}
           </p>
         </div>
-
-        <button
-          type="button"
-          onClick={() => {
-            setEditingItem(null);
-            setIsModalOpen(true);
-          }}
-          className="flex items-center gap-2.5 px-5 py-3 rounded-xl bg-[#C85A32] text-white text-sm font-medium hover:bg-[#B34B25] transition-all shadow-sm whitespace-nowrap self-start md:self-auto cursor-pointer active:scale-95"
-        >
-          <Plus className="w-4.5 h-4.5" />
-          <span>{t.addBtn}</span>
-        </button>
       </div>
 
       {/* KPI Stats Strip */}
@@ -375,25 +401,60 @@ export const MediaView: React.FC<MediaViewProps> = ({
                             />
                           </div>
 
-                          {/* Quick Step Button */}
+                          {/* Quick Step Buttons: [-] and [+1 Episode] */}
                           <div className="flex items-center justify-between pt-1">
                             <span className="text-xs text-[#7B6F63]">
                               {item.status === 'completed'
                                 ? 'Finished series'
                                 : `${details.totalEpisodes - details.currentEpisode} ep left`}
                             </span>
-                            <button
-                              type="button"
-                              onClick={() => onIncrementEpisode(item.id)}
-                              disabled={details.currentEpisode >= details.totalEpisodes}
-                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#C85A32] text-white text-xs font-medium hover:bg-[#B34B25] disabled:opacity-40 disabled:pointer-events-none transition-colors active:scale-95"
-                            >
-                              <Play className="w-3.5 h-3.5 fill-white" />
-                              <span>+1 Episode</span>
-                            </button>
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => onDecrementEpisode?.(item.id)}
+                                disabled={details.currentEpisode <= 0}
+                                className="flex items-center justify-center w-7 h-7 rounded-lg border border-[#D5CBC0] dark:border-[#403832] bg-white dark:bg-[#1E1916] text-[#6F645A] dark:text-[#A89C90] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] hover:bg-[#EFE8DD] dark:hover:bg-[#28221D] disabled:opacity-30 disabled:pointer-events-none transition-colors active:scale-95 cursor-pointer"
+                                title="Kurangi 1 Episode (-1)"
+                                aria-label="Kurangi 1 Episode"
+                              >
+                                <span className="text-base font-bold font-mono leading-none">−</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => onIncrementEpisode(item.id)}
+                                disabled={details.currentEpisode >= details.totalEpisodes}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#C85A32] text-white text-xs font-medium hover:bg-[#B34B25] disabled:opacity-40 disabled:pointer-events-none transition-colors active:scale-95 cursor-pointer"
+                                title="Tambah 1 Episode (+1)"
+                              >
+                                <Play className="w-3.5 h-3.5 fill-white" />
+                                <span>+1 Episode</span>
+                              </button>
+                            </div>
                           </div>
                         </div>
                       )}
+
+                      {/* Quick Duration Tracker on Card */}
+                      <div className="mt-3 pt-2.5 border-t border-[#EAE2D7]/70 dark:border-[#2D2722] flex items-center justify-between gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenDuration(item)}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono tabular-nums border border-[#E0D7CB] dark:border-[#38312B] bg-[#F7F2EB] dark:bg-[#201A16] text-[#594E44] dark:text-[#C5B8AA] hover:border-[#C85A32] hover:text-[#C85A32] transition-colors cursor-pointer"
+                          title="Klik untuk mencatat durasi sekilas (jam, menit, detik)"
+                        >
+                          <Clock className="w-3.5 h-3.5 text-[#C85A32]" />
+                          <span className="font-medium">
+                            {formatDuration(item.durationNotes) || (language === 'id' ? '+ Catat Durasi' : '+ Add Duration')}
+                          </span>
+                        </button>
+                        {formatDuration(item.durationNotes) && (
+                          <span className="text-[11px] font-mono text-[#8F8275] dark:text-[#7A7067]">
+                            {item.durationNotes?.hours ? `${item.durationNotes.hours}j ` : ''}
+                            {item.durationNotes?.minutes ? `${item.durationNotes.minutes}m ` : ''}
+                            {item.durationNotes?.seconds ? `${item.durationNotes.seconds}d` : ''}
+                          </span>
+                        )}
+                      </div>
 
                       {/* Movie Status or Notes */}
                       {item.notes && (
@@ -581,6 +642,127 @@ export const MediaView: React.FC<MediaViewProps> = ({
         }
         language={language}
       />
+
+      {/* Quick Duration Entry Modal */}
+      {durationItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
+          <div className="w-full max-w-sm rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FAF7F2] dark:bg-[#1C1815] p-5 text-[#2D2823] dark:text-[#EAE3DA] shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-[#E4DCDB] dark:border-[#352F2B]">
+              <div className="flex items-center gap-2 min-w-0">
+                <Clock className="w-4 h-4 text-[#C85A32] shrink-0" />
+                <h3 className="font-serif text-sm font-bold truncate">
+                  {language === 'id' ? 'Catatan Durasi Sekilas' : 'Quick Duration Stamp'}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDurationItem(null)}
+                className="p-1 rounded-lg hover:bg-[#EFE8DD] dark:hover:bg-[#2A2420] text-[#7B6F63] cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div>
+              <p className="text-xs text-[#7B6F63] dark:text-[#9F9184] truncate font-medium">
+                {durationItem.title}
+              </p>
+              <p className="text-[11px] text-[#8F8275] mt-0.5">
+                {language === 'id'
+                  ? 'Catat durasi total atau posisi tonton terakhir Anda (jam, menit, detik).'
+                  : 'Record total duration or your last watch timestamp (hours, mins, secs).'}
+              </p>
+            </div>
+
+            {/* Inputs: Jam, Menit, Detik */}
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <div>
+                <label className="block text-[11px] font-mono text-[#7B6F63] dark:text-[#9F9184] mb-1">
+                  {language === 'id' ? 'Jam' : 'Hours'}
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="99"
+                  placeholder="0"
+                  value={durHours}
+                  onChange={(e) => setDurHours(e.target.value)}
+                  className="w-full px-2 py-2 rounded-lg border border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] font-mono tabular-nums text-center text-sm font-semibold focus:outline-hidden focus:border-[#C85A32]"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-mono text-[#7B6F63] dark:text-[#9F9184] mb-1">
+                  {language === 'id' ? 'Menit' : 'Mins'}
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="59"
+                  placeholder="0"
+                  value={durMinutes}
+                  onChange={(e) => setDurMinutes(e.target.value)}
+                  className="w-full px-2 py-2 rounded-lg border border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] font-mono tabular-nums text-center text-sm font-semibold focus:outline-hidden focus:border-[#C85A32]"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-mono text-[#7B6F63] dark:text-[#9F9184] mb-1">
+                  {language === 'id' ? 'Detik' : 'Secs'}
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="59"
+                  placeholder="0"
+                  value={durSeconds}
+                  onChange={(e) => setDurSeconds(e.target.value)}
+                  className="w-full px-2 py-2 rounded-lg border border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] font-mono tabular-nums text-center text-sm font-semibold focus:outline-hidden focus:border-[#C85A32]"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#E4DCDB] dark:border-[#352F2B]">
+              {durationItem.durationNotes && (
+                <button
+                  type="button"
+                  onClick={handleClearDuration}
+                  className="px-3 py-1.5 rounded-lg text-xs text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer mr-auto"
+                >
+                  {language === 'id' ? 'Hapus' : 'Clear'}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setDurationItem(null)}
+                className="px-3 py-1.5 rounded-lg border border-[#E0D7CB] dark:border-[#38312B] text-xs font-medium hover:bg-[#EFE8DD] dark:hover:bg-[#28221D] transition-colors cursor-pointer"
+              >
+                {language === 'id' ? 'Batal' : 'Cancel'}
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveDuration}
+                className="px-4 py-1.5 rounded-lg bg-[#C85A32] text-white text-xs font-semibold hover:bg-[#B34B25] transition-colors cursor-pointer"
+              >
+                {language === 'id' ? 'Simpan' : 'Save'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Action Button (FAB) - stays fixed on scroll */}
+      <button
+        type="button"
+        onClick={() => {
+          setEditingItem(null);
+          setIsModalOpen(true);
+        }}
+        aria-label={t.addBtn || 'Tambah Film/Serial'}
+        title={t.addBtn || 'Tambah Film/Serial'}
+        className="fixed bottom-24 right-5 sm:bottom-8 sm:right-8 z-30 w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#C85A32] hover:bg-[#B34B25] text-white shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer border-2 border-white/20 dark:border-white/10 group focus-visible:outline-hidden"
+      >
+        <Film className="w-6 h-6 sm:w-7 sm:h-7 transition-transform group-hover:rotate-12" />
+        <span className="sr-only">{t.addBtn}</span>
+      </button>
     </div>
   );
 };

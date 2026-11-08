@@ -25,6 +25,11 @@ export interface MediaItem {
   notes?: string;
   seriesDetails?: SeriesDetails;
   scheduledWatchDate?: string; // YYYY-MM-DD
+  durationNotes?: {
+    hours: number;
+    minutes: number;
+    seconds: number;
+  };
   updatedAt: string;
 }
 

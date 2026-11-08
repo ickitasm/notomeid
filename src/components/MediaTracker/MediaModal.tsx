@@ -28,7 +28,7 @@ export const MediaModal: React.FC<MediaModalProps> = ({
   const [title, setTitle] = useState(initialItem?.title || '');
   const [type, setType] = useState<MediaType>(initialItem?.type || 'series');
   const [status, setStatus] = useState<MediaStatus>(initialItem?.status || 'watching');
-  const [rating, setRating] = useState<number>(initialItem?.rating ?? 8.5);
+  const [rating, setRating] = useState<number | string>(initialItem?.rating ?? 8.5);
   const [releaseDate, setReleaseDate] = useState(initialItem?.releaseDate || '');
   const [scheduledWatchDate, setScheduledWatchDate] = useState(initialItem?.scheduledWatchDate || '');
   const [posterUrl, setPosterUrl] = useState(initialItem?.posterUrl || '');
@@ -36,10 +36,10 @@ export const MediaModal: React.FC<MediaModalProps> = ({
   const [selectedGenres, setSelectedGenres] = useState<string[]>(initialItem?.genres || ['Sci-Fi', 'Drama']);
 
   // Series details
-  const [totalSeasons, setTotalSeasons] = useState(initialItem?.seriesDetails?.totalSeasons || 1);
-  const [totalEpisodes, setTotalEpisodes] = useState(initialItem?.seriesDetails?.totalEpisodes || 10);
-  const [currentSeason, setCurrentSeason] = useState(initialItem?.seriesDetails?.currentSeason || 1);
-  const [currentEpisode, setCurrentEpisode] = useState(initialItem?.seriesDetails?.currentEpisode || 1);
+  const [totalSeasons, setTotalSeasons] = useState<number | string>(initialItem?.seriesDetails?.totalSeasons ?? 1);
+  const [totalEpisodes, setTotalEpisodes] = useState<number | string>(initialItem?.seriesDetails?.totalEpisodes ?? 10);
+  const [currentSeason, setCurrentSeason] = useState<number | string>(initialItem?.seriesDetails?.currentSeason ?? 1);
+  const [currentEpisode, setCurrentEpisode] = useState<number | string>(initialItem?.seriesDetails?.currentEpisode ?? 1);
 
   // Synchronize state when initialItem or isOpen changes
   useEffect(() => {
@@ -53,10 +53,10 @@ export const MediaModal: React.FC<MediaModalProps> = ({
       setPosterUrl(initialItem.posterUrl || '');
       setNotes(initialItem.notes || '');
       setSelectedGenres(initialItem.genres && initialItem.genres.length > 0 ? initialItem.genres : ['Sci-Fi', 'Drama']);
-      setTotalSeasons(initialItem.seriesDetails?.totalSeasons || 1);
-      setTotalEpisodes(initialItem.seriesDetails?.totalEpisodes || 10);
-      setCurrentSeason(initialItem.seriesDetails?.currentSeason || 1);
-      setCurrentEpisode(initialItem.seriesDetails?.currentEpisode || 1);
+      setTotalSeasons(initialItem.seriesDetails?.totalSeasons ?? 1);
+      setTotalEpisodes(initialItem.seriesDetails?.totalEpisodes ?? 10);
+      setCurrentSeason(initialItem.seriesDetails?.currentSeason ?? 1);
+      setCurrentEpisode(initialItem.seriesDetails?.currentEpisode ?? 1);
     } else {
       setTitle('');
       setType('series');
@@ -86,11 +86,17 @@ export const MediaModal: React.FC<MediaModalProps> = ({
     e.preventDefault();
     if (!title.trim()) return;
 
+    const parsedRating = rating === '' ? 8.5 : Math.min(10, Math.max(0, Number(rating)));
+    const parsedTotalSeasons = totalSeasons === '' ? 1 : Math.max(1, Number(totalSeasons));
+    const parsedTotalEpisodes = totalEpisodes === '' ? 1 : Math.max(1, Number(totalEpisodes));
+    const parsedCurrentSeason = currentSeason === '' ? 1 : Math.max(1, Number(currentSeason));
+    const parsedCurrentEpisode = currentEpisode === '' ? 0 : Math.max(0, Number(currentEpisode));
+
     onSave({
       title: title.trim(),
       type,
       status,
-      rating: Number(rating),
+      rating: isNaN(parsedRating) ? 8.5 : parsedRating,
       releaseDate: releaseDate || undefined,
       scheduledWatchDate: scheduledWatchDate || undefined,
       posterUrl: posterUrl.trim() || undefined,
@@ -99,10 +105,10 @@ export const MediaModal: React.FC<MediaModalProps> = ({
       seriesDetails:
         type === 'series'
           ? {
-              totalSeasons: Math.max(1, Number(totalSeasons)),
-              totalEpisodes: Math.max(1, Number(totalEpisodes)),
-              currentSeason: Math.max(1, Number(currentSeason)),
-              currentEpisode: Math.max(0, Number(currentEpisode)),
+              totalSeasons: isNaN(parsedTotalSeasons) ? 1 : parsedTotalSeasons,
+              totalEpisodes: isNaN(parsedTotalEpisodes) ? 1 : parsedTotalEpisodes,
+              currentSeason: isNaN(parsedCurrentSeason) ? 1 : parsedCurrentSeason,
+              currentEpisode: isNaN(parsedCurrentEpisode) ? 0 : parsedCurrentEpisode,
             }
           : undefined,
     });
@@ -211,7 +217,7 @@ export const MediaModal: React.FC<MediaModalProps> = ({
                   max="10"
                   step="0.1"
                   value={rating}
-                  onChange={(e) => setRating(parseFloat(e.target.value) || 0)}
+                  onChange={(e) => setRating(e.target.value)}
                   className="w-full px-3 py-2 rounded-lg border border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] font-mono tabular-nums text-xs focus:outline-hidden focus:border-[#C85A32]"
                 />
                 <Star className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0" />
@@ -232,7 +238,7 @@ export const MediaModal: React.FC<MediaModalProps> = ({
                     type="number"
                     min="1"
                     value={currentSeason}
-                    onChange={(e) => setCurrentSeason(parseInt(e.target.value, 10) || 1)}
+                    onChange={(e) => setCurrentSeason(e.target.value)}
                     className="w-full mt-1 px-2.5 py-1.5 rounded-md border border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] font-mono tabular-nums text-xs"
                   />
                 </div>
@@ -242,7 +248,7 @@ export const MediaModal: React.FC<MediaModalProps> = ({
                     type="number"
                     min="0"
                     value={currentEpisode}
-                    onChange={(e) => setCurrentEpisode(parseInt(e.target.value, 10) || 0)}
+                    onChange={(e) => setCurrentEpisode(e.target.value)}
                     className="w-full mt-1 px-2.5 py-1.5 rounded-md border border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] font-mono tabular-nums text-xs"
                   />
                 </div>
@@ -252,7 +258,7 @@ export const MediaModal: React.FC<MediaModalProps> = ({
                     type="number"
                     min="1"
                     value={totalSeasons}
-                    onChange={(e) => setTotalSeasons(parseInt(e.target.value, 10) || 1)}
+                    onChange={(e) => setTotalSeasons(e.target.value)}
                     className="w-full mt-1 px-2.5 py-1.5 rounded-md border border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] font-mono tabular-nums text-xs"
                   />
                 </div>
@@ -262,7 +268,7 @@ export const MediaModal: React.FC<MediaModalProps> = ({
                     type="number"
                     min="1"
                     value={totalEpisodes}
-                    onChange={(e) => setTotalEpisodes(parseInt(e.target.value, 10) || 1)}
+                    onChange={(e) => setTotalEpisodes(e.target.value)}
                     className="w-full mt-1 px-2.5 py-1.5 rounded-md border border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] font-mono tabular-nums text-xs"
                   />
                 </div>
