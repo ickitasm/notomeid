@@ -296,8 +296,240 @@ html[data-theme="christmas"] ::-webkit-scrollbar-thumb:hover {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .snow-particle {
+  .snow-particle,
+  .halloween-ember,
+  .halloween-bat,
+  .retro-pixel-bit {
     display: none !important;
   }
+}
+
+/* ==========================================================================
+   HALLOWEEN THEME (Midnight Purple Horror & Ghostly Glow)
+   ========================================================================== */
+html[data-theme="halloween"],
+html[data-theme="halloween"] body {
+  background-color: #0D0914 !important;
+  color: #EDE8F5 !important;
+}
+
+html[data-theme="halloween"] [class*="bg-[#FAF7F2]"],
+html[data-theme="halloween"] [class*="bg-[#161311]"],
+html[data-theme="halloween"] [class*="bg-[#1C1815]"],
+html[data-theme="halloween"] [class*="bg-[#FFFDF9]"] {
+  background-color: #161022 !important;
+}
+
+html[data-theme="halloween"] [class*="bg-[#25201C]"],
+html[data-theme="halloween"] [class*="bg-[#2A231D]"],
+html[data-theme="halloween"] [class*="bg-[#28221D]"],
+html[data-theme="halloween"] [class*="bg-[#F4ECE3]"],
+html[data-theme="halloween"] [class*="bg-[#EAE2D7]"] {
+  background-color: #211733 !important;
+}
+
+html[data-theme="halloween"] [class*="border-[#E4DCDB]"],
+html[data-theme="halloween"] [class*="border-[#E5DDD2]"],
+html[data-theme="halloween"] [class*="border-[#352F2B]"],
+html[data-theme="halloween"] [class*="border-[#2D2722]"],
+html[data-theme="halloween"] [class*="border-[#38312B]"] {
+  border-color: #38244D !important;
+}
+
+html[data-theme="halloween"] [class*="text-[#2D2823]"],
+html[data-theme="halloween"] [class*="text-[#2B241E]"],
+html[data-theme="halloween"] [class*="text-[#EAE3DA]"],
+html[data-theme="halloween"] [class*="text-[#EFE9E2]"] {
+  color: #EDE8F5 !important;
+}
+
+html[data-theme="halloween"] [class*="text-[#7B6F63]"],
+html[data-theme="halloween"] [class*="text-[#8F8275]"],
+html[data-theme="halloween"] [class*="text-[#9F9184]"],
+html[data-theme="halloween"] [class*="text-[#A89C90]"] {
+  color: #9D8BB0 !important;
+}
+
+html[data-theme="halloween"] [class*="text-[#C85A32]"],
+html[data-theme="halloween"] [class*="text-[#A86438]"] {
+  color: #FF7518 !important;
+}
+
+html[data-theme="halloween"] [class*="bg-[#C85A32]"],
+html[data-theme="halloween"] [class*="bg-[#A86438]"] {
+  background-color: #FF7518 !important;
+}
+
+html[data-theme="halloween"] [class*="bg-[#C85A32]/10"],
+html[data-theme="halloween"] [class*="bg-[#A86438]/10"] {
+  background-color: rgba(255, 117, 24, 0.16) !important;
+}
+
+html[data-theme="halloween"] ::-webkit-scrollbar-thumb {
+  background: rgba(168, 85, 247, 0.28);
+}
+html[data-theme="halloween"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 117, 24, 0.48);
+}
+
+/* ==========================================================================
+   RETRO THEME (8-Bit Arcade CRT & Phosphor Cyan)
+   ========================================================================== */
+html[data-theme="retro"],
+html[data-theme="retro"] body {
+  background-color: #080B10 !important;
+  color: #E2F1F8 !important;
+}
+
+html[data-theme="retro"] [class*="bg-[#FAF7F2]"],
+html[data-theme="retro"] [class*="bg-[#161311]"],
+html[data-theme="retro"] [class*="bg-[#1C1815]"],
+html[data-theme="retro"] [class*="bg-[#FFFDF9]"] {
+  background-color: #0F1624 !important;
+}
+
+html[data-theme="retro"] [class*="bg-[#25201C]"],
+html[data-theme="retro"] [class*="bg-[#2A231D]"],
+html[data-theme="retro"] [class*="bg-[#28221D]"],
+html[data-theme="retro"] [class*="bg-[#F4ECE3]"],
+html[data-theme="retro"] [class*="bg-[#EAE2D7]"] {
+  background-color: #172238 !important;
+}
+
+html[data-theme="retro"] [class*="border-[#E4DCDB]"],
+html[data-theme="retro"] [class*="border-[#E5DDD2]"],
+html[data-theme="retro"] [class*="border-[#352F2B]"],
+html[data-theme="retro"] [class*="border-[#2D2722]"],
+html[data-theme="retro"] [class*="border-[#38312B]"] {
+  border-color: #223554 !important;
+}
+
+html[data-theme="retro"] [class*="text-[#2D2823]"],
+html[data-theme="retro"] [class*="text-[#2B241E]"],
+html[data-theme="retro"] [class*="text-[#EAE3DA]"],
+html[data-theme="retro"] [class*="text-[#EFE9E2]"] {
+  color: #E2F1F8 !important;
+}
+
+html[data-theme="retro"] [class*="text-[#7B6F63]"],
+html[data-theme="retro"] [class*="text-[#8F8275]"],
+html[data-theme="retro"] [class*="text-[#9F9184]"],
+html[data-theme="retro"] [class*="text-[#A89C90]"] {
+  color: #799AB8 !important;
+}
+
+html[data-theme="retro"] [class*="text-[#C85A32]"],
+html[data-theme="retro"] [class*="text-[#A86438]"] {
+  color: #00F5D4 !important;
+}
+
+html[data-theme="retro"] [class*="bg-[#C85A32]"],
+html[data-theme="retro"] [class*="bg-[#A86438]"] {
+  background-color: #00F5D4 !important;
+  color: #080B10 !important;
+}
+
+html[data-theme="retro"] [class*="bg-[#C85A32]/10"],
+html[data-theme="retro"] [class*="bg-[#A86438]/10"] {
+  background-color: rgba(0, 245, 212, 0.16) !important;
+}
+
+html[data-theme="retro"] ::-webkit-scrollbar-thumb {
+  background: rgba(0, 245, 212, 0.28);
+}
+html[data-theme="retro"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 245, 212, 0.5);
+}
+
+/* ==========================================================================
+   HALLOWEEN GPU ANIMATIONS (Floating Embers & Gliding Bats)
+   ========================================================================== */
+@keyframes ember-rise {
+  0% {
+    transform: translate3d(0, 105vh, 0);
+    opacity: 0;
+  }
+  20% {
+    opacity: var(--ember-opacity, 0.6);
+  }
+  80% {
+    opacity: var(--ember-opacity, 0.6);
+  }
+  100% {
+    transform: translate3d(var(--ember-drift, 20px), -20px, 0);
+    opacity: 0;
+  }
+}
+
+.halloween-ember {
+  position: absolute;
+  bottom: 0;
+  border-radius: 9999px;
+  pointer-events: none;
+  will-change: transform, opacity;
+  animation-name: ember-rise;
+  animation-timing-function: ease-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes bat-glide {
+  0% {
+    transform: translate3d(-60px, 0, 0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.85;
+  }
+  90% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate3d(calc(100vw + 60px), 18px, 0);
+    opacity: 0;
+  }
+}
+
+.halloween-bat {
+  position: absolute;
+  left: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+  animation-name: bat-glide;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* ==========================================================================
+   RETRO 8-BIT GPU ANIMATIONS (Scanlines & Twinkling Pixel Bits)
+   ========================================================================== */
+.retro-crt-scanlines {
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    rgba(0, 0, 0, 0.3) 3px,
+    rgba(0, 0, 0, 0.3) 4px
+  );
+}
+
+@keyframes pixel-twinkle {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.25;
+  }
+  50% {
+    transform: translate3d(0, -6px, 0) scale(1.3);
+    opacity: 0.95;
+  }
+}
+
+.retro-pixel-bit {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 1px;
+  will-change: transform, opacity;
+  animation-name: pixel-twinkle;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
 }
 

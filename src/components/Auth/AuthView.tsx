@@ -18,10 +18,14 @@ import {
   AlertTriangle,
   Trees,
   ChevronDown,
+  Ghost,
+  Gamepad2,
 } from 'lucide-react';
 import { translations, Language } from '../../lib/translations';
 import { ThemeMode } from '../../types';
 import { ChristmasSnowEffect } from '../ChristmasSnowEffect';
+import { HalloweenEffect } from '../Themes/HalloweenEffect';
+import { RetroPixelEffect } from '../Themes/RetroPixelEffect';
 import { BrandLogo } from '../Brand/BrandLogo';
 import { BumperVideoCard } from './BumperVideoCard';
 
@@ -78,6 +82,8 @@ export const AuthView: React.FC<AuthViewProps> = ({
   return (
     <div className="min-h-screen flex flex-col justify-between bg-[#FAF7F2] text-[#2D2823] dark:bg-[#161311] dark:text-[#EAE3DA] transition-colors duration-200">
       {theme === 'christmas' && <ChristmasSnowEffect />}
+      {theme === 'halloween' && <HalloweenEffect />}
+      {theme === 'retro' && <RetroPixelEffect />}
       {/* Top Brand Bar */}
       <header className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center">
@@ -104,7 +110,11 @@ export const AuthView: React.FC<AuthViewProps> = ({
             className="p-2 rounded-lg text-[#6F645A] dark:text-[#A89C90] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] hover:bg-[#EFE8DD] dark:hover:bg-[#28221D] transition-colors touch-manipulation cursor-pointer"
             title={`Tema saat ini: ${theme}. Klik untuk beralih.`}
           >
-            {theme === 'christmas' ? (
+            {theme === 'halloween' ? (
+              <Ghost className="w-4 h-4 text-[#FF7518]" />
+            ) : theme === 'retro' ? (
+              <Gamepad2 className="w-4 h-4 text-[#00F5D4]" />
+            ) : theme === 'christmas' ? (
               <Trees className="w-4 h-4 text-[#10B981]" />
             ) : theme === 'cinema' ? (
               <Film className="w-4 h-4 text-[#FB7185]" />

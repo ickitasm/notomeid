@@ -119,7 +119,7 @@ export interface CalendarEvent {
   isCompleted?: boolean;
 }
 
-export type ThemeMode = 'light' | 'dark' | 'cinema' | 'romantic' | 'christmas';
+export type ThemeMode = 'light' | 'dark' | 'cinema' | 'romantic' | 'christmas' | 'halloween' | 'retro';
 
 export interface UserPreferences {
   theme: ThemeMode;

@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Film, Utensils, HeartPulse, Calendar, Sun, Moon, Sliders, LogOut, CheckCircle2, Globe, ShieldCheck, BookOpen, MoonStar, Sparkles, Bell, Menu, User as UserIcon, Trees } from 'lucide-react';
+import { Film, Utensils, HeartPulse, Calendar, Sun, Moon, Sliders, LogOut, CheckCircle2, Globe, ShieldCheck, BookOpen, MoonStar, Sparkles, Bell, Menu, User as UserIcon, Trees, Ghost, Gamepad2 } from 'lucide-react';
 import { AppUser } from '../hooks/useAuth';
 import { UpcomingAlert } from '../lib/notifications';
 import { NotificationPanel } from './Notifications/NotificationPanel';
@@ -58,6 +58,8 @@ export const Navigation: React.FC<NavigationProps> = ({
     { id: 'cinema', labelId: 'Cinema Velvet', labelEn: 'Cinema Velvet', bgDot: '#120406', accentDot: '#E11D48' },
     { id: 'romantic', labelId: 'Romantic Rose', labelEn: 'Romantic Rose', bgDot: '#FDF7F8', accentDot: '#DB2777' },
     { id: 'christmas', labelId: 'Christmas Eve', labelEn: 'Christmas Eve', bgDot: '#071911', accentDot: '#DC2626' },
+    { id: 'halloween', labelId: 'Halloween Horror', labelEn: 'Halloween Horror', bgDot: '#0D0914', accentDot: '#FF7518' },
+    { id: 'retro', labelId: 'Arcade 8-Bit', labelEn: 'Arcade 8-Bit', bgDot: '#080B10', accentDot: '#00F5D4' },
   ];
 
   const navItems: { id: ActiveTab; label: string; shortLabel: string; icon: React.ComponentType<{ className?: string }> }[] = [
@@ -154,7 +156,11 @@ export const Navigation: React.FC<NavigationProps> = ({
                 className="min-w-[38px] min-h-[38px] flex items-center justify-center rounded-xl text-[#6F645A] dark:text-[#A89C90] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] hover:bg-[#EFE8DD] dark:hover:bg-[#28221D] active:scale-95 transition-all touch-manipulation cursor-pointer"
                 title={`Tema saat ini: ${theme}. Klik untuk beralih.`}
               >
-                {theme === 'christmas' ? (
+                {theme === 'halloween' ? (
+                  <Ghost className="w-4 h-4 text-[#FF7518]" />
+                ) : theme === 'retro' ? (
+                  <Gamepad2 className="w-4 h-4 text-[#00F5D4]" />
+                ) : theme === 'christmas' ? (
                   <Trees className="w-4 h-4 text-[#10B981]" />
                 ) : theme === 'cinema' ? (
                   <Film className="w-4 h-4 text-[#FB7185]" />
@@ -256,13 +262,25 @@ export const Navigation: React.FC<NavigationProps> = ({
                     <div className="flex items-center justify-between text-xs font-semibold text-[#6F645A] dark:text-[#A89C90]">
                       <span>{language === 'id' ? 'Tema Tampilan' : 'Visual Theme'}</span>
                       <span className="font-mono text-[10px] capitalize text-[#8F8275]">
-                        {theme === 'christmas' ? 'Christmas Eve' : theme === 'cinema' ? 'Cinema Velvet' : theme === 'romantic' ? 'Romantic Rose' : theme}
+                        {theme === 'halloween'
+                          ? 'Halloween Horror'
+                          : theme === 'retro'
+                          ? 'Arcade 8-Bit'
+                          : theme === 'christmas'
+                          ? 'Christmas Eve'
+                          : theme === 'cinema'
+                          ? 'Cinema Velvet'
+                          : theme === 'romantic'
+                          ? 'Romantic Rose'
+                          : theme}
                       </span>
                     </div>
                     <div className="grid grid-cols-2 gap-1.5">
                       {themesList.map((tItem) => {
                         const isSelected = theme === tItem.id;
                         const isChristmas = tItem.id === 'christmas';
+                        const isHalloween = tItem.id === 'halloween';
+                        const isRetro = tItem.id === 'retro';
                         return (
                           <button
                             key={tItem.id}
@@ -275,8 +293,6 @@ export const Navigation: React.FC<NavigationProps> = ({
                               }
                             }}
                             className={`flex items-center gap-2 p-2 rounded-xl text-xs transition-all cursor-pointer touch-manipulation ${
-                              isChristmas ? 'col-span-2' : ''
-                            } ${
                               isSelected
                                 ? 'bg-[#EAE2D7] dark:bg-[#28221D] text-[#2B241E] dark:text-[#EFE9E2] font-semibold ring-1 ring-[#C85A32]/40 shadow-xs'
                                 : 'text-[#6F645A] dark:text-[#A89C90] hover:bg-[#F4ECE3] dark:hover:bg-[#201B17]'
@@ -295,6 +311,16 @@ export const Navigation: React.FC<NavigationProps> = ({
                             {isChristmas && (
                               <span className="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#DC2626]/15 text-[#EF4444] font-semibold">
                                 Festive
+                              </span>
+                            )}
+                            {isHalloween && (
+                              <span className="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#FF7518]/15 text-[#FF7518] font-semibold">
+                                Spooky
+                              </span>
+                            )}
+                            {isRetro && (
+                              <span className="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#00F5D4]/15 text-[#00F5D4] font-semibold">
+                                8-Bit
                               </span>
                             )}
                           </button>

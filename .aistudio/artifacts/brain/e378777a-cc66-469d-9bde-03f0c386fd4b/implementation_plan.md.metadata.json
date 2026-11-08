@@ -1,6 +1,6 @@
 {
-  "summary":  "Rencana implementasi tombol notifikasi kalender terintegrasi di header:\n1. Menampilkan tombol lonceng notifikasi di header pada semua perangkat (mobile dan desktop) di sebelah tombol bahasa.\n2. Memperluas rentang peringatan kalender menjadi 7 hari ke depan (minggu ini), mencakup semua fitur: Kalender Utama, Jadwal Nonton Film/Serial, dan Janji/Vaksin Hewan Peliharaan.\n3. Menata popover dropdown ringkas tepat di bawah lonceng header dengan pengelompokan waktu (Hari Ini, Besok, Minggu Ini), badge kategori yang jelas, dan tautan sinkronisasi 1-klik ke Google Calendar.",
-  "updatedAt":  "2026-11-08T17:33:39.857256924Z",
+  "summary":  "Rencana implementasi dua tema baru berkinerja tinggi untuk perangkat spesifikasi rendah: Tema Halloween (Midnight ungu gelap horor dengan partikel kelelawar dan bara api melayang) dan Tema Retro (Arcade 8-bit gelap dengan efek scanline CRT halus dan bintang piksel berkelip).",
+  "updatedAt":  "2026-11-08T17:43:15.895935984Z",
   "requestFeedback":  true,
   "userFacing":  true
 }

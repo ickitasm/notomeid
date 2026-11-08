@@ -100,7 +100,13 @@ export function useStorage() {
   // Sync theme with HTML data-theme attribute and dark class
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', preferences.theme);
-    if (preferences.theme === 'dark' || preferences.theme === 'cinema' || preferences.theme === 'christmas') {
+    if (
+      preferences.theme === 'dark' ||
+      preferences.theme === 'cinema' ||
+      preferences.theme === 'christmas' ||
+      preferences.theme === 'halloween' ||
+      preferences.theme === 'retro'
+    ) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
@@ -127,7 +133,7 @@ export function useStorage() {
 
   const toggleTheme = useCallback(() => {
     setPreferencesState((prev) => {
-      const themes: ThemeMode[] = ['light', 'dark', 'cinema', 'romantic', 'christmas'];
+      const themes: ThemeMode[] = ['light', 'dark', 'cinema', 'romantic', 'christmas', 'halloween', 'retro'];
       const currentIndex = themes.indexOf(prev.theme);
       const nextTheme = themes[(currentIndex + 1) % themes.length];
       const next: UserPreferences = { ...prev, theme: nextTheme };

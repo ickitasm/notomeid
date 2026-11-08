@@ -23,6 +23,8 @@ import { useUpdateLogs } from './hooks/useUpdateLogs';
 import { getUpcomingAlerts } from './lib/notifications';
 import { translations, Language } from './lib/translations';
 import { ChristmasSnowEffect } from './components/ChristmasSnowEffect';
+import { HalloweenEffect } from './components/Themes/HalloweenEffect';
+import { RetroPixelEffect } from './components/Themes/RetroPixelEffect';
 import { useMaintenance } from './hooks/useMaintenance';
 import { MaintenanceView } from './components/Maintenance/MaintenanceView';
 import { BrandLogo } from './components/Brand/BrandLogo';
@@ -148,6 +150,8 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#2D2823] dark:bg-[#161311] dark:text-[#EAE3DA] transition-colors duration-200">
       {storage.preferences.theme === 'christmas' && <ChristmasSnowEffect />}
+      {storage.preferences.theme === 'halloween' && <HalloweenEffect />}
+      {storage.preferences.theme === 'retro' && <RetroPixelEffect />}
       {/* Primary Admin Active Maintenance Indicator Banner */}
       {maintenance.isMaintenance && auth.isPrimaryAdmin && (
         <div className="bg-rose-600 text-white px-4 py-2 text-xs font-semibold flex items-center justify-between gap-3 shadow-sm sticky top-0 z-40">
