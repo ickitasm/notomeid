@@ -26,6 +26,8 @@ import { ChristmasSnowEffect } from './components/ChristmasSnowEffect';
 import { useMaintenance } from './hooks/useMaintenance';
 import { MaintenanceView } from './components/Maintenance/MaintenanceView';
 import { BrandLogo } from './components/Brand/BrandLogo';
+import { useDeviceDetection } from './hooks/useDeviceDetection';
+import { DesktopBlockedView } from './components/Common/DesktopBlockedView';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('media');
@@ -37,6 +39,7 @@ export default function App() {
   const auth = useAuth();
   const updateLogs = useUpdateLogs();
   const maintenance = useMaintenance();
+  const device = useDeviceDetection();
 
   const currentLanguage: Language = storage.preferences.language || 'id';
 
@@ -64,6 +67,20 @@ export default function App() {
   const handleSelectLanguage = (lang: Language) => {
     storage.updatePreferences({ language: lang });
   };
+
+  // Desktop Restriction Gate: Access closed on desktop PC/Laptop
+  // People can only access via iPhone, Android, or Tablet devices
+  if (device.isDesktop && !device.hasAdminOverride && !auth.isPrimaryAdmin) {
+    return (
+      <DesktopBlockedView
+        language={currentLanguage}
+        onSelectLanguage={handleSelectLanguage}
+        theme={storage.preferences.theme}
+        onToggleTheme={storage.toggleTheme}
+        onAdminOverride={() => device.setAdminOverride(true)}
+      />
+    );
+  }
 
   // If user is not authenticated, render pure Google Invite-Only Login Screen
   if (!auth.user) {
