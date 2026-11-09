@@ -52,14 +52,19 @@ export const Navigation: React.FC<NavigationProps> = ({
 
   const t = translations[language].nav;
 
-  const themesList: { id: ThemeMode; labelId: string; labelEn: string; bgDot: string; accentDot: string }[] = [
-    { id: 'light', labelId: 'Warm Paper', labelEn: 'Warm Paper', bgDot: '#FAF7F2', accentDot: '#C85A32' },
-    { id: 'dark', labelId: 'Roast Dark', labelEn: 'Roast Dark', bgDot: '#161311', accentDot: '#D9822B' },
-    { id: 'cinema', labelId: 'Cinema Velvet', labelEn: 'Cinema Velvet', bgDot: '#120406', accentDot: '#E11D48' },
-    { id: 'romantic', labelId: 'Romantic Rose', labelEn: 'Romantic Rose', bgDot: '#FDF7F8', accentDot: '#DB2777' },
-    { id: 'christmas', labelId: 'Christmas Eve', labelEn: 'Christmas Eve', bgDot: '#071911', accentDot: '#DC2626' },
-    { id: 'halloween', labelId: 'Halloween Horror', labelEn: 'Halloween Horror', bgDot: '#0D0914', accentDot: '#FF7518' },
-    { id: 'retro', labelId: 'Arcade 8-Bit', labelEn: 'Arcade 8-Bit', bgDot: '#080B10', accentDot: '#00F5D4' },
+  const themesList: {
+    id: ThemeMode;
+    labelId: string;
+    labelEn: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }[] = [
+    { id: 'light', labelId: 'Warm Paper', labelEn: 'Warm Paper', icon: Sun },
+    { id: 'dark', labelId: 'Roast Dark', labelEn: 'Roast Dark', icon: Moon },
+    { id: 'cinema', labelId: 'Cinema Velvet', labelEn: 'Cinema Velvet', icon: Film },
+    { id: 'romantic', labelId: 'Romantic Rose', labelEn: 'Romantic Rose', icon: Sparkles },
+    { id: 'christmas', labelId: 'Christmas Eve', labelEn: 'Christmas Eve', icon: Trees },
+    { id: 'halloween', labelId: 'Halloween Horror', labelEn: 'Halloween Horror', icon: Ghost },
+    { id: 'retro', labelId: 'Arcade 8-Bit', labelEn: 'Arcade 8-Bit', icon: Gamepad2 },
   ];
 
   const navItems: { id: ActiveTab; label: string; shortLabel: string; icon: React.ComponentType<{ className?: string }> }[] = [
@@ -234,22 +239,22 @@ export const Navigation: React.FC<NavigationProps> = ({
 
               {/* Dropdown Menu */}
               {isProfileOpen && (
-                <div className="absolute right-0 mt-2 w-72 rounded-2xl border border-[#E4DCDB] dark:border-[#38312B] bg-[#FFFDF9] dark:bg-[#1C1815] p-3.5 shadow-2xl z-50 text-xs space-y-2.5 animate-in fade-in duration-150">
+                <div className="absolute right-0 mt-2 w-80 rounded-2xl border border-[#E4DCDB] dark:border-[#38312B] bg-[#FFFDF9] dark:bg-[#1C1815] p-3.5 shadow-2xl z-50 text-[13px] space-y-2.5 animate-in fade-in duration-150">
                   <div className="pb-2.5 border-b border-[#EAE2D8] dark:border-[#2E2823]">
-                    <div className="font-semibold text-sm text-[#2B241E] dark:text-[#EFE9E2] truncate">
+                    <div className="font-semibold text-[15px] sm:text-base text-[#2B241E] dark:text-[#EFE9E2] truncate">
                       {user?.fullName || 'Notome User'}
                     </div>
-                    <div className="text-xs text-[#7B6F63] dark:text-[#9F9184] font-mono truncate mt-0.5">
+                    <div className="text-[13px] text-[#7B6F63] dark:text-[#9F9184] font-mono truncate mt-0.5">
                       {user?.email || 'Akses Privat Mobile'}
                     </div>
                     {user && (
-                      <div className="mt-1.5 flex items-center justify-between gap-1 text-[11px]">
-                        <div className="flex items-center gap-1 text-[#5B7A58] font-medium">
-                          <CheckCircle2 className="w-3 h-3" />
+                      <div className="mt-1.5 flex items-center justify-between gap-1 text-xs">
+                        <div className="flex items-center gap-1.5 text-[#5B7A58] font-medium">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
                           <span>{t.verifiedGoogle}</span>
                         </div>
                         {isPrimaryAdmin && (
-                          <span className="font-mono text-[9px] font-semibold px-1.5 py-0.5 rounded bg-[#C85A32]/15 text-[#C85A32]">
+                          <span className="font-mono text-[10px] font-semibold px-2 py-0.5 rounded bg-[#C85A32]/15 text-[#C85A32]">
                             Primary Admin
                           </span>
                         )}
@@ -257,11 +262,11 @@ export const Navigation: React.FC<NavigationProps> = ({
                     )}
                   </div>
 
-                  {/* Interactive 5-Theme Swatch Selector */}
-                  <div className="py-2.5 px-3 border-b border-[#EAE2D8] dark:border-[#2E2823] space-y-2">
-                    <div className="flex items-center justify-between text-xs font-semibold text-[#6F645A] dark:text-[#A89C90]">
+                  {/* Interactive 7-Theme Horizontal Icon Row */}
+                  <div className="py-2.5 px-1 border-b border-[#EAE2D8] dark:border-[#2E2823] space-y-2">
+                    <div className="flex items-center justify-between text-[13px] font-semibold text-[#6F645A] dark:text-[#A89C90] px-1">
                       <span>{language === 'id' ? 'Tema Tampilan' : 'Visual Theme'}</span>
-                      <span className="font-mono text-[10px] capitalize text-[#8F8275]">
+                      <span className="font-mono text-[11px] capitalize text-[#C85A32] font-medium">
                         {theme === 'halloween'
                           ? 'Halloween Horror'
                           : theme === 'retro'
@@ -272,15 +277,16 @@ export const Navigation: React.FC<NavigationProps> = ({
                           ? 'Cinema Velvet'
                           : theme === 'romantic'
                           ? 'Romantic Rose'
-                          : theme}
+                          : theme === 'dark'
+                          ? 'Roast Dark'
+                          : 'Warm Paper'}
                       </span>
                     </div>
-                    <div className="grid grid-cols-2 gap-1.5">
+                    <div className="flex items-center justify-between gap-1 p-1 bg-[#FAF7F2] dark:bg-[#161311] rounded-xl border border-[#EAE2D8] dark:border-[#2E2823]">
                       {themesList.map((tItem) => {
+                        const Icon = tItem.icon;
                         const isSelected = theme === tItem.id;
-                        const isChristmas = tItem.id === 'christmas';
-                        const isHalloween = tItem.id === 'halloween';
-                        const isRetro = tItem.id === 'retro';
+                        const themeName = language === 'id' ? tItem.labelId : tItem.labelEn;
                         return (
                           <button
                             key={tItem.id}
@@ -292,37 +298,15 @@ export const Navigation: React.FC<NavigationProps> = ({
                                 onToggleTheme();
                               }
                             }}
-                            className={`flex items-center gap-2 p-2 rounded-xl text-xs transition-all cursor-pointer touch-manipulation ${
+                            title={themeName}
+                            aria-label={themeName}
+                            className={`flex-1 min-w-[34px] h-9 flex items-center justify-center rounded-lg transition-all cursor-pointer touch-manipulation ${
                               isSelected
-                                ? 'bg-[#EAE2D7] dark:bg-[#28221D] text-[#2B241E] dark:text-[#EFE9E2] font-semibold ring-1 ring-[#C85A32]/40 shadow-xs'
-                                : 'text-[#6F645A] dark:text-[#A89C90] hover:bg-[#F4ECE3] dark:hover:bg-[#201B17]'
+                                ? 'bg-white dark:bg-[#2A231D] text-[#C85A32] shadow-xs ring-1.5 ring-[#C85A32]'
+                                : 'text-[#7B6F63] dark:text-[#9F9184] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] hover:bg-[#EFE8DD] dark:hover:bg-[#201B17]'
                             }`}
                           >
-                            <span
-                              className="w-4 h-4 rounded-full border border-black/20 shrink-0 shadow-2xs flex items-center justify-center"
-                              style={{ backgroundColor: tItem.bgDot }}
-                            >
-                              <span
-                                className="w-1.5 h-1.5 rounded-full"
-                                style={{ backgroundColor: tItem.accentDot }}
-                              />
-                            </span>
-                            <span className="truncate">{language === 'id' ? tItem.labelId : tItem.labelEn}</span>
-                            {isChristmas && (
-                              <span className="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#DC2626]/15 text-[#EF4444] font-semibold">
-                                Festive
-                              </span>
-                            )}
-                            {isHalloween && (
-                              <span className="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#FF7518]/15 text-[#FF7518] font-semibold">
-                                Spooky
-                              </span>
-                            )}
-                            {isRetro && (
-                              <span className="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#00F5D4]/15 text-[#00F5D4] font-semibold">
-                                8-Bit
-                              </span>
-                            )}
+                            <Icon className="w-4 h-4" />
                           </button>
                         );
                       })}
@@ -336,14 +320,14 @@ export const Navigation: React.FC<NavigationProps> = ({
                         setIsProfileOpen(false);
                         onOpenAdminPanel();
                       }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl bg-[#C85A32]/10 hover:bg-[#C85A32]/20 text-[#C85A32] font-semibold transition-colors cursor-pointer text-left"
+                      className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-[#C85A32]/10 hover:bg-[#C85A32]/20 text-[#C85A32] font-semibold transition-colors cursor-pointer text-left"
                     >
-                      <ShieldCheck className="w-4 h-4 text-[#C85A32] shrink-0" />
+                      <ShieldCheck className="w-4.5 h-4.5 text-[#C85A32] shrink-0" />
                       <div>
-                        <div className="leading-tight text-xs font-semibold">
+                        <div className="leading-tight text-[13.5px] font-semibold">
                           {language === 'id' ? 'Buka Panel Admin' : 'Open Admin Panel'}
                         </div>
-                        <div className="text-[10px] text-[#C85A32]/80 font-normal">
+                        <div className="text-[11px] text-[#C85A32]/80 font-normal">
                           {language === 'id' ? 'Kelola anggota & whitelist' : 'Manage members & whitelist'}
                         </div>
                       </div>
@@ -357,9 +341,9 @@ export const Navigation: React.FC<NavigationProps> = ({
                         setIsProfileOpen(false);
                         onOpenUpdateLogs();
                       }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-[#F4ECE3] dark:hover:bg-[#25201C] text-[#594E44] dark:text-[#C5B8AA] transition-colors cursor-pointer font-medium"
+                      className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-[#F4ECE3] dark:hover:bg-[#25201C] text-[#594E44] dark:text-[#C5B8AA] transition-colors cursor-pointer font-medium text-[13.5px]"
                     >
-                      <Sparkles className="w-4 h-4 text-[#C85A32]" />
+                      <Sparkles className="w-4.5 h-4.5 text-[#C85A32]" />
                       <span>{language === 'id' ? 'Log Pembaruan' : 'Update Logs'}</span>
                     </button>
                   )}
@@ -370,9 +354,9 @@ export const Navigation: React.FC<NavigationProps> = ({
                       setIsProfileOpen(false);
                       onOpenSettings();
                     }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-[#F4ECE3] dark:hover:bg-[#25201C] text-[#594E44] dark:text-[#C5B8AA] transition-colors cursor-pointer font-medium"
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-[#F4ECE3] dark:hover:bg-[#25201C] text-[#594E44] dark:text-[#C5B8AA] transition-colors cursor-pointer font-medium text-[13.5px]"
                   >
-                    <Sliders className="w-4 h-4 text-[#8C6D4F]" />
+                    <Sliders className="w-4.5 h-4.5 text-[#8C6D4F]" />
                     <span>{t.syncAndData}</span>
                   </button>
 
@@ -383,9 +367,9 @@ export const Navigation: React.FC<NavigationProps> = ({
                         setIsProfileOpen(false);
                         onSignOut();
                       }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors pt-2 border-t border-[#EAE2D8] dark:border-[#2E2823] cursor-pointer font-medium"
+                      className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors pt-2 border-t border-[#EAE2D8] dark:border-[#2E2823] cursor-pointer font-medium text-[13.5px]"
                     >
-                      <LogOut className="w-4 h-4" />
+                      <LogOut className="w-4.5 h-4.5" />
                       <span>{t.signOut}</span>
                     </button>
                   )}

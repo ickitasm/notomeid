@@ -14,7 +14,7 @@ import { PetView } from './components/PetTracker/PetView';
 import { MasterCalendarView } from './components/MasterCalendar/MasterCalendarView';
 import { NotesView } from './components/Notes/NotesView';
 import { DreamCatcherView } from './components/DreamCatcher/DreamCatcherView';
-import { SettingsModal } from './components/SettingsModal';
+import { SettingsView } from './components/Settings/SettingsView';
 import { AuthView } from './components/Auth/AuthView';
 import { AccessDeniedView } from './components/Auth/AccessDeniedView';
 import { AdminPanelModal } from './components/Admin/AdminPanelModal';
@@ -175,7 +175,10 @@ export default function App() {
       {/* 3-Zone Top Bar Navigation */}
       <Navigation
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={(tab) => {
+          setIsSettingsOpen(false);
+          setActiveTab(tab);
+        }}
         theme={storage.preferences.theme}
         onToggleTheme={storage.toggleTheme}
         onSetTheme={storage.setTheme}
@@ -224,84 +227,125 @@ export default function App() {
           </div>
         )}
 
-        {activeTab === 'media' && (
-          <MediaView
-            mediaItems={storage.mediaItems}
-            onAddItem={storage.addMediaItem}
-            onUpdateItem={storage.updateMediaItem}
-            onDeleteItem={storage.deleteMediaItem}
-            onIncrementEpisode={storage.incrementEpisode}
-            onDecrementEpisode={storage.decrementEpisode}
+        {isSettingsOpen ? (
+          <SettingsView
+            onBack={() => setIsSettingsOpen(false)}
+            previousTabName={
+              currentLanguage === 'id'
+                ? activeTab === 'media'
+                  ? 'Serial & Film'
+                  : activeTab === 'nutrition'
+                  ? 'Nutrisi'
+                  : activeTab === 'pets'
+                  ? 'Peliharaan'
+                  : activeTab === 'calendar'
+                  ? 'Kalender'
+                  : activeTab === 'notes'
+                  ? 'Catatan'
+                  : 'Mimpi'
+                : activeTab === 'media'
+                ? 'Series & Film'
+                : activeTab === 'nutrition'
+                ? 'Nutrition'
+                : activeTab === 'pets'
+                ? 'Pets'
+                : activeTab === 'calendar'
+                ? 'Calendar'
+                : activeTab === 'notes'
+                ? 'Notes'
+                : 'Dreams'
+            }
+            preferences={storage.preferences}
+            onUpdatePreferences={storage.updatePreferences}
+            onExportData={storage.exportAllData}
+            onImportData={storage.importAllData}
+            onResetSeed={storage.resetToSeed}
+            onClearAllData={storage.clearAllData}
             language={currentLanguage}
+            onSelectLanguage={handleSelectLanguage}
           />
-        )}
+        ) : (
+          <>
+            {activeTab === 'media' && (
+              <MediaView
+                mediaItems={storage.mediaItems}
+                onAddItem={storage.addMediaItem}
+                onUpdateItem={storage.updateMediaItem}
+                onDeleteItem={storage.deleteMediaItem}
+                onIncrementEpisode={storage.incrementEpisode}
+                onDecrementEpisode={storage.decrementEpisode}
+                language={currentLanguage}
+              />
+            )}
 
-        {activeTab === 'nutrition' && (
-          <NutritionView
-            logs={storage.nutritionLogs}
-            getLogForDate={storage.getLogForDate}
-            onAddMeal={storage.addMealToDate}
-            onUpdateMeal={storage.updateMealInDate}
-            onDeleteMeal={storage.deleteMealFromDate}
-            onUpdateWeight={storage.updateWeightForDate}
-            onUpdateWater={storage.updateWaterForDate}
-            calorieGoal={storage.preferences.defaultCalorieGoal}
-            sugarLimit={storage.preferences.defaultSugarLimit}
-            language={currentLanguage}
-          />
-        )}
+            {activeTab === 'nutrition' && (
+              <NutritionView
+                logs={storage.nutritionLogs}
+                getLogForDate={storage.getLogForDate}
+                onAddMeal={storage.addMealToDate}
+                onUpdateMeal={storage.updateMealInDate}
+                onDeleteMeal={storage.deleteMealFromDate}
+                onUpdateWeight={storage.updateWeightForDate}
+                onUpdateWater={storage.updateWaterForDate}
+                calorieGoal={storage.preferences.defaultCalorieGoal}
+                sugarLimit={storage.preferences.defaultSugarLimit}
+                language={currentLanguage}
+              />
+            )}
 
-        {activeTab === 'pets' && (
-          <PetView
-            pets={storage.pets}
-            medicalRecords={storage.medicalRecords}
-            medications={storage.medications}
-            onAddPet={storage.addPet}
-            onUpdatePet={storage.updatePet}
-            onDeletePet={storage.deletePet}
-            onAddMedicalRecord={storage.addMedicalRecord}
-            onUpdateMedicalRecord={storage.updateMedicalRecord}
-            onDeleteMedicalRecord={storage.deleteMedicalRecord}
-            onAddMedication={storage.addMedication}
-            onUpdateMedication={storage.updateMedication}
-            onDeleteMedication={storage.deleteMedication}
-            language={currentLanguage}
-          />
-        )}
+            {activeTab === 'pets' && (
+              <PetView
+                pets={storage.pets}
+                medicalRecords={storage.medicalRecords}
+                medications={storage.medications}
+                onAddPet={storage.addPet}
+                onUpdatePet={storage.updatePet}
+                onDeletePet={storage.deletePet}
+                onAddMedicalRecord={storage.addMedicalRecord}
+                onUpdateMedicalRecord={storage.updateMedicalRecord}
+                onDeleteMedicalRecord={storage.deleteMedicalRecord}
+                onAddMedication={storage.addMedication}
+                onUpdateMedication={storage.updateMedication}
+                onDeleteMedication={storage.deleteMedication}
+                language={currentLanguage}
+              />
+            )}
 
-        {activeTab === 'calendar' && (
-          <MasterCalendarView
-            customEvents={storage.calendarEvents}
-            mediaItems={storage.mediaItems}
-            nutritionLogs={storage.nutritionLogs}
-            medicalRecords={storage.medicalRecords}
-            pets={storage.pets}
-            onAddEvent={storage.addCalendarEvent}
-            onUpdateEvent={storage.updateCalendarEvent}
-            onDeleteEvent={storage.deleteCalendarEvent}
-            language={currentLanguage}
-          />
-        )}
+            {activeTab === 'calendar' && (
+              <MasterCalendarView
+                customEvents={storage.calendarEvents}
+                mediaItems={storage.mediaItems}
+                nutritionLogs={storage.nutritionLogs}
+                medicalRecords={storage.medicalRecords}
+                pets={storage.pets}
+                onAddEvent={storage.addCalendarEvent}
+                onUpdateEvent={storage.updateCalendarEvent}
+                onDeleteEvent={storage.deleteCalendarEvent}
+                language={currentLanguage}
+              />
+            )}
 
-        {activeTab === 'notes' && (
-          <NotesView
-            notes={storage.notes}
-            onAddNote={storage.addNote}
-            onUpdateNote={storage.updateNote}
-            onDeleteNote={storage.deleteNote}
-            onTogglePin={storage.togglePinNote}
-            language={currentLanguage}
-          />
-        )}
+            {activeTab === 'notes' && (
+              <NotesView
+                notes={storage.notes}
+                onAddNote={storage.addNote}
+                onUpdateNote={storage.updateNote}
+                onDeleteNote={storage.deleteNote}
+                onTogglePin={storage.togglePinNote}
+                language={currentLanguage}
+              />
+            )}
 
-        {activeTab === 'dreams' && (
-          <DreamCatcherView
-            dreams={storage.dreamLogs}
-            onAddDream={storage.addDreamLog}
-            onUpdateDream={storage.updateDreamLog}
-            onDeleteDream={storage.deleteDreamLog}
-            language={currentLanguage}
-          />
+            {activeTab === 'dreams' && (
+              <DreamCatcherView
+                dreams={storage.dreamLogs}
+                onAddDream={storage.addDreamLog}
+                onUpdateDream={storage.updateDreamLog}
+                onDeleteDream={storage.deleteDreamLog}
+                language={currentLanguage}
+              />
+            )}
+          </>
         )}
       </main>
 
@@ -323,42 +367,60 @@ export default function App() {
           <div className="flex flex-wrap items-center gap-4">
             <button
               type="button"
-              onClick={() => setActiveTab('media')}
+              onClick={() => {
+                setIsSettingsOpen(false);
+                setActiveTab('media');
+              }}
               className="hover:text-[#2D2823] dark:hover:text-[#EAE3DA] transition-colors cursor-pointer"
             >
               {tNav.media}
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab('nutrition')}
+              onClick={() => {
+                setIsSettingsOpen(false);
+                setActiveTab('nutrition');
+              }}
               className="hover:text-[#2D2823] dark:hover:text-[#EAE3DA] transition-colors cursor-pointer"
             >
               {tNav.nutrition}
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab('pets')}
+              onClick={() => {
+                setIsSettingsOpen(false);
+                setActiveTab('pets');
+              }}
               className="hover:text-[#2D2823] dark:hover:text-[#EAE3DA] transition-colors cursor-pointer"
             >
               {tNav.pets}
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab('calendar')}
+              onClick={() => {
+                setIsSettingsOpen(false);
+                setActiveTab('calendar');
+              }}
               className="hover:text-[#2D2823] dark:hover:text-[#EAE3DA] transition-colors cursor-pointer"
             >
               {tNav.calendar}
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab('notes')}
+              onClick={() => {
+                setIsSettingsOpen(false);
+                setActiveTab('notes');
+              }}
               className="hover:text-[#2D2823] dark:hover:text-[#EAE3DA] transition-colors cursor-pointer"
             >
               {tNav.notes}
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab('dreams')}
+              onClick={() => {
+                setIsSettingsOpen(false);
+                setActiveTab('dreams');
+              }}
               className="hover:text-[#2D2823] dark:hover:text-[#EAE3DA] transition-colors cursor-pointer"
             >
               {tNav.dreams}
@@ -366,20 +428,6 @@ export default function App() {
           </div>
         </div>
       </footer>
-
-      {/* Settings Modal */}
-      <SettingsModal
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-        preferences={storage.preferences}
-        onUpdatePreferences={storage.updatePreferences}
-        onExportData={storage.exportAllData}
-        onImportData={storage.importAllData}
-        onResetSeed={storage.resetToSeed}
-        onClearAllData={storage.clearAllData}
-        language={currentLanguage}
-        onSelectLanguage={handleSelectLanguage}
-      />
 
       {/* Primary Admin Management Panel */}
       {auth.isPrimaryAdmin && (

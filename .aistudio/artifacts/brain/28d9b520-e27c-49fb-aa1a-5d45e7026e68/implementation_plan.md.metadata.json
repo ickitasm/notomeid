@@ -1,6 +1,6 @@
 {
-  "summary":  "Implementasi penyesuaian halaman login (AuthView.tsx) khusus layar mobile dan tablet telah selesai dilakukan sesuai 6 poin instruksi:\n1. Subheadline baru khusus non-desktop: 'Pantau progres mulai dengan Serial, Nutrisi, Peliharaan bahkan Mimpimu sendiri!'\n2. Judul kartu 'Masuk' khusus non-desktop.\n3. Menghilangkan paragraf deskripsi privat panjang di mobile/tablet.\n4. Menghilangkan kata '(Gmail)' pada tombol Google.\n5. Menghilangkan kalimat keterangan login instan di bawah tombol.\n6. Menambahkan dropdown accordion 'Cara Login?' yang tertutup secara default tepat di atas 'Akses Privat Terjamin'.",
-  "updatedAt":  "2026-11-09T11:47:32.721788420Z",
+  "summary":  "Pembaruan Panel Profil & Halaman Penuh Pengaturan (Settings & Sync) telah selesai dan terverifikasi:\n- Baris 7 ikon tema horizontal dengan tooltip pada panel profil\n- Navigasi halaman penuh Pengaturan & Sinkronisasi dengan tombol kembali ke modul sebelumnya\n- Seksi Schedule & Upcoming Alerts dihapus dari tab Cloud Sync\n- Bahasa tampilan menggunakan bendera 🇮🇩 dan 🇬🇧 tanpa teks\n- Pilihan 7 tema visual lengkap di tab Pengaturan\n- Pembesaran tipografi sebesar 5-10% di panel profil dan halaman pengaturan",
+  "updatedAt":  "2026-11-09T12:11:15.971534133Z",
   "requestFeedback":  true,
   "userFacing":  true
 }

@@ -1,68 +1,82 @@
-# Rencana Implementasi: Penyesuaian Halaman Login Khusus Layar Mobile & Tablet
+# Rencana Implementasi: Pembaruan Panel Profil & Halaman Penuh Pengaturan (Settings & Sync)
 
-Menyesuaikan konten dan tata letak halaman login (`AuthView.tsx`) khusus untuk perangkat non-desktop (HP dan tablet) agar lebih ringkas, fokus, dan nyaman digunakan, sementara tampilan desktop tetap mempertahankan format editorial penuh.
+Menyesuaikan panel profil dengan baris ikon tema yang ringkas, mengubah popup Pengaturan menjadi halaman penuh mandiri dengan tombol navigasi kembali, merapikan Cloud Sync, menyederhanakan pemilih bahasa menjadi bendera, melengkapi 7 tema visual, serta memperbesar tipografi 5–10% untuk keterbacaan optimal.
 
 ---
 
 ## Status: Selesai & Terverifikasi ✅
 
-Semua 6 poin penyesuaian telah berhasil diimplementasikan:
-- [x] **Poin 1**: Subheadline mobile/tablet diganti menjadi *"Pantau progres mulai dengan Serial, Nutrisi, Peliharaan bahkan Mimpimu sendiri!"*.
-- [x] **Poin 2**: Judul kartu pada mobile/tablet diganti menjadi *"Masuk"*.
-- [x] **Poin 3**: Paragraf deskripsi panjang kartu disembunyikan pada perangkat mobile/tablet.
-- [x] **Poin 4**: Kata `(Gmail)` dihapus dari tombol Google pada perangkat mobile/tablet (*"Lanjutkan dengan Google"*).
-- [x] **Poin 5**: Keterangan kata sandi di bawah tombol Google disembunyikan pada perangkat mobile/tablet.
-- [x] **Poin 6**: Dropdown accordion *"Cara Login?"* ditambahkan di atas dropdown *"Akses Privat Terjamin"* dengan status default tertutup (*closed*).
+Semua permintaan telah selesai diimplementasikan:
+- [x] **Panel Profil - Tema Ikon**: Mengubah daftar tema di panel profil menjadi satu baris horizontal 7 ikon (`Sun`, `Moon`, `Film`, `Sparkles`, `Trees`, `Ghost`, `Gamepad2`) dengan *tooltip* nama tema dan indikator aktif.
+- [x] **Halaman Penuh Pengaturan**: Mengubah dialog popup modal menjadi halaman penuh mandiri (`SettingsView.tsx`) dengan tombol *"Kembali ke [Modul Sebelumnya]"*.
+- [x] **Pembersihan Cloud Sync**: Menghapus seksi *Schedule & Upcoming Alerts*, hanya menyisakan kartu *Cloud Sync Status* (status koneksi, deskripsi, dan tombol uji koneksi).
+- [x] **Bahasa Tampilan Bendera Saja**: Menghapus teks *"Bahasa Indonesia"* dan *"English"*, menyisakan hanya bendera negara `🇮🇩` dan `🇬🇧` dengan area klik besar dan indikator terpilih.
+- [x] **7 Tema Visual Lengkap di Pengaturan**: Menyelaraskan kartu *Application Visual Theme* dengan 7 tema (Warm Paper, Roast Dark, Cinema Velvet, Romantic Rose, Christmas Eve, Halloween Horror, Arcade 8-Bit).
+- [x] **Preservasi Fungsionalitas**: Seluruh fungsi target nutrisi (kalori & gula), ekspor JSON, impor JSON, dan reset data tetap berjalan normal.
+- [x] **Pembesaran Teks (+5-10%)**: Tipografi di panel profil dan di halaman pengaturan diperbesar 5–10% untuk kenyamanan membaca.
 
 ---
 
-## 1. Overview & Konsep Perubahan
+## 1. Overview & Core Concept
 
-Sesuai instruksi dan konfirmasi pengguna, terdapat 6 poin penyesuaian yang diterapkan khusus pada perangkat non-desktop (`< lg`):
-1. **Penyederhanaan Teks Subheadline**: Mengganti teks pengantar pada layar HP/tablet menjadi:
-   > *"Pantau progres mulai dengan Serial, Nutrisi, Peliharaan bahkan Mimpimu sendiri!"*
-2. **Penyederhanaan Judul Kartu**: Mengganti *"Masuk ke Notome"* menjadi *"Masuk"*.
-3. **Pembersihan Deskripsi Kartu**: Menghapus paragraf penjelasan panjang *"Notome adalah platform personal privat. Masuk..."* di layar mobile.
-4. **Pembersihan Tombol Google**: Menghilangkan kata *"(Gmail)"* pada tombol aksi, sehingga menjadi *"Lanjutkan dengan Google"*.
-5. **Penghapusan Kalimat Keterangan Kata Sandi**: Menghapus kalimat *"Login instan aman dengan identitas Google Anda tanpa perlu mengingat kata sandi."* pada layar mobile.
-6. **Penambahan Dropdown "Cara Login?"**: Menambahkan section accordion baru tepat di atas dropdown *"Akses Privat Terjamin"* dengan kondisi awal tertutup (*default closed*), berisi:
-   > *"Notome merupakan platform privat. Login dengan Akun Google Anda yang telah didaftarkan oleh Admin mike777rafael@gmail.com"*
+Pembaruan ini berfokus pada dua area inti pengalaman pengguna:
+- **Panel Profil Ringkas & Ergonomis**: Penggantian daftar tombol tema bertulisan panjang menjadi satu baris 7 ikon representatif yang minimalis, disertai pembesaran teks 5–10% agar lebih nyaman dibaca dan diakses dengan jari.
+- **Halaman Penuh Pengaturan & Sinkronisasi**: Mengubah interaksi pembukaan Pengaturan dari dialog modal kecil menjadi halaman editorial penuh yang lapang, mempertahankan seluruh fungsionalitas (target nutrisi, backup/restore JSON, reset data, koneksi cloud), menyederhanakan pilihan bahasa menjadi ikon bendera, menghapus peringatan jadwal yang tidak diperlukan, dan menampilkan 7 tema visual secara lengkap.
 
 ---
 
-## 2. User Experience & Tata Letak Responsif
+## 2. User Experience & Visual Design
 
-### 2.1 Skema Komponen Responsif (Mobile vs Desktop)
+### 2.1 Alur Navigasi & Tampilan Halaman Pengaturan
 
 ```
-┌────────────────────────────────────────────────────────┐
-│ MOBILE / TABLET (< lg)       │ DESKTOP (>= lg)         │
-├──────────────────────────────┼─────────────────────────┤
-│ • Subheadline Ringkas        │ • Subheadline Lengkap   │
-│ • Judul: "Masuk"             │ • Judul: "Masuk..."     │
-│ • Deskripsi Card: Ditiadakan │ • Deskripsi Card Ada    │
-│ • Tombol: "...dengan Google" │ • Tombol Google         │
-│ • Accordion: "Cara Login?"   │ • Accordion "Cara Login"│
-│   (Tertutup secara default)  │                         │
-│ • Accordion: "Akses Privat"  │ • Accordion Privasi     │
-└──────────────────────────────┴─────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────┐
+│ TOP BAR NAVIGATION (Tetap Konsisten)                                  │
+├────────────────────────────────────────────────────────────────────────┤
+│ [← Kembali ke Catatan / Serial / dll]                                  │
+│                                                                        │
+│ PENGATURAN & SINKRONISASI                                              │
+│ Kelola preferensi personal, integrasi cloud, dan cadangan data privat  │
+│                                                                        │
+│ ┌──────────────────────────┐  ┌─────────────────────────────────────┐  │
+│ │ [Umum & Cadangan Data]   │  │ [Status Sinkronisasi Cloud]         │  │
+│ └──────────────────────────┘  └─────────────────────────────────────┘  │
+│                                                                        │
+│ 1. Bahasa Tampilan:                                                    │
+│    [ 🇮🇩 ]    [ 🇬🇧 ]  (Hanya bendera, tanpa teks)                       │
+│                                                                        │
+│ 2. Tema Visual Aplikasi (7 Tema Lengkap):                              │
+│    • Warm Paper     • Roast Dark      • Cinema Velvet                  │
+│    • Romantic Rose  • Christmas Eve   • Halloween Horror               │
+│    • Arcade 8-Bit                                                      │
+│                                                                        │
+│ 3. Target Dasar Nutrisi (Kalori & Batas Gula Harian)                  │
+│ 4. Ekspor Cadangan JSON & Pemulihan Data Offline                       │
+│ 5. Tindakan Bersihkan / Reset Data Bawaan                              │
+└────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 2.2 Rincian Fitur Accordion "Cara Login?"
-- Ditempatkan tepat di atas accordion *"Akses Privat Terjamin"* di bagian bawah halaman.
-- Menggunakan state `isHowToLoginOpen` (default: `false` / tertutup).
-- Dilengkapi ikon panduan (`HelpCircle`), teks judul *"Cara Login?"*, dan panah animasi *chevron*.
-- Memuat teks informasi resmi dengan tautan interaktif `mailto:mike777rafael@gmail.com`.
+### 2.2 Baris 7 Ikon Tema pada Panel Profil
+Dalam menu *dropdown* profil, bagian pemilih tema ditata secara horizontal dengan 7 tombol ikon:
+1. **Warm Paper (Light)**: Ikon `Sun` (`#C85A32`)
+2. **Roast Dark (Dark)**: Ikon `Moon` (`#D9822B`)
+3. **Cinema Velvet (Cinema)**: Ikon `Film` (`#E11D48`)
+4. **Romantic Rose (Romantic)**: Ikon `Sparkles` (`#DB2777`)
+5. **Christmas Eve (Christmas)**: Ikon `Trees` (`#DC2626`)
+6. **Halloween Horror (Halloween)**: Ikon `Ghost` (`#FF7518`)
+7. **Arcade 8-Bit (Retro)**: Ikon `Gamepad2` (`#00F5D4`)
 
----
+Setiap ikon memiliki:
+- *Hitbox* sentuh ramah jari ($\ge 40\times 40\text{px}$)
+- *Ring highlight* dan warna latar pembeda saat sedang aktif
+- Atribut `title` (tooltip bawaan peramban) dan label aksesibilitas untuk nama tema
 
-## 3. Rincian Perubahan File
-
-### 3.1 `src/components/Auth/AuthView.tsx`
-- Menambahkan state `isHowToLoginOpen` dan ikon `HelpCircle`.
-- Mengatur subheadline responsif (`block lg:hidden` vs `hidden lg:block`).
-- Mengatur judul kartu responsif (*"Masuk"* vs *t.signInTitle*).
-- Menyembunyikan `t.inviteOnlyDesc` di layar mobile (`hidden lg:block`).
-- Menyesuaikan teks tombol Google agar tanpa `(Gmail)` di mobile.
-- Menyembunyikan kalimat login instan di mobile (`hidden lg:block`).
-- Menambahkan blok accordion *Cara Login?* di atas accordion *Akses Privat Terjamin*.
+### 2.3 Pembesaran Tipografi (+5% hingga 10%)
+- **Panel Profil**:
+  - Nama pengguna: `text-sm` $\rightarrow$ `text-[15px] sm:text-base`
+  - Email: `text-xs` $\rightarrow$ `text-[13px]`
+  - Badge verifikasi & admin: `text-[11px]` $\rightarrow$ `text-xs`
+  - Tombol menu aksi: `text-xs` $\rightarrow$ `text-[13.5px] font-medium`
+- **Halaman Pengaturan**:
+  - Judul halaman & tab: `text-xl` / `text-2xl`
+  - Label pengaturan, keterangan formulir, dan input teks: dinaikkan 1 tingkat ukuran standar (`text-xs` $\rightarrow$ `text-[13px]`, `text-sm` $\rightarrow$ `text-[15px]`)
