@@ -20,6 +20,7 @@ import {
   ChevronDown,
   Ghost,
   Gamepad2,
+  HelpCircle,
 } from 'lucide-react';
 import { translations, Language } from '../../lib/translations';
 import { ThemeMode } from '../../types';
@@ -57,6 +58,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
   const [localError, setLocalError] = useState<string | null>(null);
   const [copiedAdmin, setCopiedAdmin] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+  const [isHowToLoginOpen, setIsHowToLoginOpen] = useState(false);
 
   const t = translations[language].auth;
   const isId = language === 'id';
@@ -145,8 +147,11 @@ export const AuthView: React.FC<AuthViewProps> = ({
                   </span>
                 ))}
               </h1>
-              <p className="text-sm sm:text-base text-[#7B6F63] dark:text-[#9F9184] mt-3 leading-relaxed">
+              <p className="text-sm sm:text-base text-[#7B6F63] dark:text-[#9F9184] mt-3 leading-relaxed hidden lg:block">
                 {t.subheadline}
+              </p>
+              <p className="text-sm text-[#7B6F63] dark:text-[#9F9184] mt-3 leading-relaxed block lg:hidden">
+                Pantau progres mulai dengan Serial, Nutrisi, Peliharaan bahkan Mimpimu sendiri!
               </p>
             </div>
 
@@ -160,9 +165,10 @@ export const AuthView: React.FC<AuthViewProps> = ({
               {/* Card Header */}
               <div className="space-y-2">
                 <h2 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#2B241E] dark:text-[#EFE9E2]">
-                  {t.signInTitle}
+                  <span className="lg:hidden">Masuk</span>
+                  <span className="hidden lg:inline">{t.signInTitle}</span>
                 </h2>
-                <p className="text-xs text-[#7B6F63] dark:text-[#9F9184] leading-relaxed">
+                <p className="text-xs text-[#7B6F63] dark:text-[#9F9184] leading-relaxed hidden lg:block">
                   {t.inviteOnlyDesc}
                 </p>
               </div>
@@ -228,10 +234,19 @@ export const AuthView: React.FC<AuthViewProps> = ({
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
                     />
                   </svg>
-                  <span>{loading ? (isId ? 'Membuka Google...' : 'Connecting to Google...') : t.continueWithGoogle}</span>
+                  <span>
+                    {loading ? (
+                      isId ? 'Membuka Google...' : 'Connecting to Google...'
+                    ) : (
+                      <>
+                        <span className="lg:hidden">{isId ? 'Lanjutkan dengan Google' : 'Continue with Google'}</span>
+                        <span className="hidden lg:inline">{t.continueWithGoogle}</span>
+                      </>
+                    )}
+                  </span>
                 </button>
 
-                <p className="text-[11px] text-center text-[#8F8275] dark:text-[#7A7067]">
+                <p className="text-[11px] text-center text-[#8F8275] dark:text-[#7A7067] hidden lg:block">
                   {isId
                     ? 'Login instan aman dengan identitas Google Anda tanpa perlu mengingat kata sandi.'
                     : 'Instant secure login with your Google identity without passwords.'}
@@ -265,8 +280,58 @@ export const AuthView: React.FC<AuthViewProps> = ({
         </div>
       </main>
 
-      {/* Collapsible Privacy Guarantee Accordion above Footer */}
-      <section className="w-full max-w-xl mx-auto px-4 pb-6">
+      {/* Collapsible Info Accordions above Footer */}
+      <section className="w-full max-w-xl mx-auto px-4 pb-6 space-y-2.5">
+        {/* Dropdown 1: Cara Login? */}
+        <div className="rounded-xl border border-[#E0D7CB] dark:border-[#332C26] bg-[#FFFDF9]/90 dark:bg-[#1C1815]/90 backdrop-blur-xs transition-all overflow-hidden shadow-2xs">
+          <button
+            type="button"
+            onClick={() => setIsHowToLoginOpen(!isHowToLoginOpen)}
+            className="w-full px-4 py-3 flex items-center justify-between gap-3 text-xs font-medium text-[#6F645A] dark:text-[#A89C90] hover:text-[#2B241E] dark:hover:text-[#EFE9E2] cursor-pointer transition-colors"
+            aria-expanded={isHowToLoginOpen}
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <HelpCircle className="w-4 h-4 text-[#C85A32] shrink-0" />
+              <span className="font-semibold text-[#3D342C] dark:text-[#E2D8CC] truncate">
+                {isId ? 'Cara Login?' : 'How to Login?'}
+              </span>
+            </div>
+            <ChevronDown
+              className={`w-4 h-4 text-[#8F8275] transition-transform duration-200 shrink-0 ${
+                isHowToLoginOpen ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
+          {isHowToLoginOpen && (
+            <div className="px-4 pb-3.5 pt-0 text-xs leading-relaxed text-[#7B6F63] dark:text-[#9F9184] border-t border-[#EAE2D7] dark:border-[#2A231D]">
+              <p className="mt-2.5">
+                {isId ? (
+                  <>
+                    Notome merupakan platform privat. Login dengan Akun Google Anda yang telah didaftarkan oleh Admin{' '}
+                    <a
+                      href={`mailto:${adminEmail}`}
+                      className="text-[#C85A32] dark:text-[#E07A52] font-semibold underline hover:opacity-85 transition-opacity"
+                    >
+                      {adminEmail}
+                    </a>
+                  </>
+                ) : (
+                  <>
+                    Notome is a private platform. Sign in with your Google Account that has been registered by Admin{' '}
+                    <a
+                      href={`mailto:${adminEmail}`}
+                      className="text-[#C85A32] dark:text-[#E07A52] font-semibold underline hover:opacity-85 transition-opacity"
+                    >
+                      {adminEmail}
+                    </a>
+                  </>
+                )}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Dropdown 2: Akses Privat Terjamin */}
         <div className="rounded-xl border border-[#E0D7CB] dark:border-[#332C26] bg-[#FFFDF9]/90 dark:bg-[#1C1815]/90 backdrop-blur-xs transition-all overflow-hidden shadow-2xs">
           <button
             type="button"

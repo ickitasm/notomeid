@@ -1,6 +1,6 @@
 {
-  "summary":  "Pemulihan logo orisinal CSS Notomee (kotak N terakota dan tipografi Notomee) telah selesai diterapkan dengan proteksi anti-seleksi (user-select: none), anti-drag (draggable=\"false\"), anti-klik-kanan khusus logo, dan 100% kebal dari ad-blocker karena tidak menggunakan tag img eksternal.",
-  "updatedAt":  "2026-11-08T14:49:16.157992154Z",
+  "summary":  "Implementasi penyesuaian halaman login (AuthView.tsx) khusus layar mobile dan tablet telah selesai dilakukan sesuai 6 poin instruksi:\n1. Subheadline baru khusus non-desktop: 'Pantau progres mulai dengan Serial, Nutrisi, Peliharaan bahkan Mimpimu sendiri!'\n2. Judul kartu 'Masuk' khusus non-desktop.\n3. Menghilangkan paragraf deskripsi privat panjang di mobile/tablet.\n4. Menghilangkan kata '(Gmail)' pada tombol Google.\n5. Menghilangkan kalimat keterangan login instan di bawah tombol.\n6. Menambahkan dropdown accordion 'Cara Login?' yang tertutup secara default tepat di atas 'Akses Privat Terjamin'.",
+  "updatedAt":  "2026-11-09T11:47:32.721788420Z",
   "requestFeedback":  true,
   "userFacing":  true
 }
