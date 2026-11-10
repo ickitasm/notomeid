@@ -1,6 +1,6 @@
 {
-  "summary":  "Rencana implementasi Infinite Looping Sliding Carousel pada Bottom Dock Bar dengan deteksi otomatis saat scroll berhenti (scroll end) untuk mengganti modul aktif di Notomee.",
-  "updatedAt":  "2026-11-10T12:13:43.930951335Z",
+  "summary":  "Rencana modifikasi Bottom Dock Bar: menghapus mekanisme looping, mempertegas kontras warna teks dan ikon (lebih pekat/hitam/jelas), serta mengaktifkan scroll snap otomatis ke tengah ikon setiap kali bar digeser.",
+  "updatedAt":  "2026-11-10T12:24:00.048537162Z",
   "requestFeedback":  true,
   "userFacing":  true
 }

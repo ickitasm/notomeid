@@ -91,25 +91,15 @@ export const Navigation: React.FC<NavigationProps> = ({
     onSelectLanguage(language === 'id' ? 'en' : 'id');
   };
 
-  // Virtual infinite circular list: render 3 repeated sets of navItems
-  const infiniteNavItems = useMemo(() => {
-    return [
-      ...navItems.map((item) => ({ ...item, cycle: -1, key: `${item.id}-prev` })),
-      ...navItems.map((item) => ({ ...item, cycle: 0, key: `${item.id}-main` })),
-      ...navItems.map((item) => ({ ...item, cycle: 1, key: `${item.id}-next` })),
-    ];
-  }, [navItems]);
-
   // References for bottom dock carousel
   const bottomNavContainerRef = useRef<HTMLDivElement>(null);
   const bottomTabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const isProgrammaticScroll = useRef(false);
   const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Center the active tab in the main set (cycle 0)
+  // Center the active tab smoothly
   const centerActiveTab = useCallback((targetTab: ActiveTab, smooth = true) => {
-    const mainKey = `${targetTab}-main`;
-    const activeEl = bottomTabRefs.current[mainKey];
+    const activeEl = bottomTabRefs.current[targetTab];
     if (activeEl && bottomNavContainerRef.current) {
       isProgrammaticScroll.current = true;
       activeEl.scrollIntoView({
@@ -117,10 +107,9 @@ export const Navigation: React.FC<NavigationProps> = ({
         inline: 'center',
         block: 'nearest',
       });
-      // Release lock after smooth scroll finishes
       setTimeout(() => {
         isProgrammaticScroll.current = false;
-      }, 350);
+      }, 300);
     }
   }, []);
 
@@ -129,7 +118,7 @@ export const Navigation: React.FC<NavigationProps> = ({
     centerActiveTab(activeTab, true);
   }, [activeTab, centerActiveTab]);
 
-  // Handle seamless infinite looping and scroll-end auto selection
+  // Handle scroll snap to center and auto-selection when user swipes bottom dock
   const handleScrollEnd = useCallback(() => {
     const container = bottomNavContainerRef.current;
     if (!container || isProgrammaticScroll.current) return;
@@ -138,60 +127,48 @@ export const Navigation: React.FC<NavigationProps> = ({
     const containerCenter = containerRect.left + containerRect.width / 2;
 
     // Find the item currently closest to the center line
-    let closestKey = '';
     let closestId: ActiveTab = activeTab;
     let minDistance = Infinity;
 
-    infiniteNavItems.forEach((item) => {
-      const el = bottomTabRefs.current[item.key];
+    navItems.forEach((item) => {
+      const el = bottomTabRefs.current[item.id];
       if (el) {
         const rect = el.getBoundingClientRect();
         const itemCenter = rect.left + rect.width / 2;
         const distance = Math.abs(itemCenter - containerCenter);
         if (distance < minDistance) {
           minDistance = distance;
-          closestKey = item.key;
           closestId = item.id;
         }
       }
     });
 
-    // Check boundary wrap-around for infinite looping
-    // If closest item is in the prev (-1) or next (1) cycle, jump instantly to cycle 0
-    if (closestKey && closestId) {
-      if (closestKey.endsWith('-prev') || closestKey.endsWith('-next')) {
-        const correspondingMainEl = bottomTabRefs.current[`${closestId}-main`];
-        if (correspondingMainEl) {
-          isProgrammaticScroll.current = true;
-          correspondingMainEl.scrollIntoView({
-            behavior: 'instant',
-            inline: 'center',
-            block: 'nearest',
-          });
-          setTimeout(() => {
-            isProgrammaticScroll.current = false;
-          }, 60);
-        }
-      }
-
-      // If the selected closest item is different from active tab, switch page!
-      if (closestId !== activeTab) {
-        onTabChange(closestId);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
+    // Snap the closest item cleanly to center
+    const closestEl = bottomTabRefs.current[closestId];
+    if (closestEl) {
+      closestEl.scrollIntoView({
+        behavior: 'smooth',
+        inline: 'center',
+        block: 'nearest',
+      });
     }
-  }, [activeTab, infiniteNavItems, onTabChange]);
+
+    // If the snapped item is different from active tab, switch page!
+    if (closestId !== activeTab) {
+      onTabChange(closestId);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [activeTab, navItems, onTabChange]);
 
   const onScroll = useCallback(() => {
     if (isProgrammaticScroll.current) return;
 
-    // Debounce fallback for scroll-end
     if (scrollTimeoutRef.current) {
       clearTimeout(scrollTimeoutRef.current);
     }
     scrollTimeoutRef.current = setTimeout(() => {
       handleScrollEnd();
-    }, 130);
+    }, 110);
   }, [handleScrollEnd]);
 
   return (
@@ -483,25 +460,25 @@ export const Navigation: React.FC<NavigationProps> = ({
         </div>
       </header>
 
-      {/* Android & Mobile Sliding Carousel Bottom Dock Bar (Center Highlight & Dimmed Sides & Infinite Loop) */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FAF7F2]/95 dark:bg-[#161311]/95 backdrop-blur-xl border-t border-[#E5DDD2] dark:border-[#2D2722] safe-area-pb select-none">
-        {/* Soft edge gradient masks to emphasize slide depth */}
+      {/* Android & Mobile Sliding Carousel Bottom Dock Bar (Center Highlight & High-Contrast Icons & Auto Snap) */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FAF7F2]/95 dark:bg-[#161311]/95 backdrop-blur-xl border-t border-[#D9CEBF] dark:border-[#382E26] safe-area-pb select-none shadow-lg">
+        {/* Soft edge gradient masks */}
         <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#FAF7F2] dark:from-[#161311] to-transparent z-10" />
         <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#FAF7F2] dark:from-[#161311] to-transparent z-10" />
 
         <div
           ref={bottomNavContainerRef}
           onScroll={onScroll}
-          className="flex items-center h-18 overflow-x-auto scrollbar-none scroll-smooth px-[38vw] snap-x snap-mandatory"
+          className="flex items-center h-18 overflow-x-auto scrollbar-none scroll-smooth px-[calc(50vw-38px)] snap-x snap-mandatory"
         >
-          {infiniteNavItems.map((item) => {
+          {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
             return (
               <button
-                key={item.key}
+                key={item.id}
                 ref={(el) => {
-                  bottomTabRefs.current[item.key] = el;
+                  bottomTabRefs.current[item.id] = el;
                 }}
                 type="button"
                 onClick={() => {
@@ -509,34 +486,34 @@ export const Navigation: React.FC<NavigationProps> = ({
                   centerActiveTab(item.id, true);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className={`relative flex flex-col items-center justify-center min-w-[76px] py-1.5 transition-all duration-300 ease-out touch-manipulation cursor-pointer snap-center shrink-0 ${
+                className={`relative flex flex-col items-center justify-center min-w-[76px] py-1 transition-all duration-200 ease-out touch-manipulation cursor-pointer snap-center shrink-0 ${
                   isActive
                     ? 'scale-115 opacity-100 z-10'
-                    : 'scale-90 opacity-35 hover:opacity-60 z-0'
+                    : 'scale-90 opacity-60 hover:opacity-85 z-0'
                 }`}
               >
                 <div
-                  className={`p-2 rounded-2xl transition-all duration-300 ${
+                  className={`p-2 rounded-2xl transition-all duration-200 ${
                     isActive
-                      ? 'bg-[#C85A32]/15 text-[#C85A32] shadow-sm ring-1 ring-[#C85A32]/30'
-                      : 'text-[#7B6F63] dark:text-[#9F9184]'
+                      ? 'bg-[#C85A32]/15 text-[#C85A32] shadow-sm ring-1.5 ring-[#C85A32]/40'
+                      : 'text-[#1F1914] dark:text-[#F2EDE8]'
                   }`}
                 >
-                  <Icon className="w-5 h-5 transition-transform" />
+                  <Icon className="w-5 h-5 transition-transform stroke-[2.25]" />
                 </div>
                 <span
-                  className={`text-[11px] tracking-tight mt-1 whitespace-nowrap transition-all duration-300 ${
+                  className={`text-[11px] tracking-tight mt-0.5 whitespace-nowrap transition-all duration-200 ${
                     isActive
-                      ? 'text-[#C85A32] font-bold'
-                      : 'text-[#7B6F63] dark:text-[#9F9184] font-medium'
+                      ? 'text-[#C85A32] font-black'
+                      : 'text-[#1F1914] dark:text-[#F2EDE8] font-bold'
                   }`}
                 >
                   {item.shortLabel}
                 </span>
 
-                {/* Subtle active dot underneath */}
+                {/* Active indicator dot underneath */}
                 {isActive && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#C85A32] mt-0.5 animate-pulse" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#C85A32] mt-0.5 shadow-xs" />
                 )}
               </button>
             );
