@@ -91,6 +91,22 @@ export const Navigation: React.FC<NavigationProps> = ({
     onSelectLanguage(language === 'id' ? 'en' : 'id');
   };
 
+  // References for bottom dock carousel auto-centering
+  const bottomNavContainerRef = useRef<HTMLDivElement>(null);
+  const bottomTabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+
+  // Auto-scroll active bottom tab to the exact center of screen when activeTab changes
+  useEffect(() => {
+    const activeEl = bottomTabRefs.current[activeTab];
+    if (activeEl && bottomNavContainerRef.current) {
+      activeEl.scrollIntoView({
+        behavior: 'smooth',
+        inline: 'center',
+        block: 'nearest',
+      });
+    }
+  }, [activeTab]);
+
   return (
     <>
       {/* Top Header Bar */}
@@ -380,36 +396,63 @@ export const Navigation: React.FC<NavigationProps> = ({
         </div>
       </header>
 
-      {/* Android & Mobile Bottom Navigation Bar (Natural Thumb Zone) */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FAF7F2]/95 dark:bg-[#161311]/95 backdrop-blur-lg border-t border-[#E5DDD2] dark:border-[#2D2722] safe-area-pb">
-        <nav className="grid grid-cols-6 items-center h-18 max-w-lg mx-auto px-1.5">
+      {/* Android & Mobile Sliding Carousel Bottom Dock Bar (Center Highlight & Dimmed Sides) */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FAF7F2]/95 dark:bg-[#161311]/95 backdrop-blur-xl border-t border-[#E5DDD2] dark:border-[#2D2722] safe-area-pb select-none">
+        {/* Soft edge gradient masks to emphasize slide depth */}
+        <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#FAF7F2] dark:from-[#161311] to-transparent z-10" />
+        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#FAF7F2] dark:from-[#161311] to-transparent z-10" />
+
+        <div
+          ref={bottomNavContainerRef}
+          className="flex items-center h-18 overflow-x-auto scrollbar-none scroll-smooth px-[38vw] snap-x snap-mandatory"
+        >
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
             return (
               <button
                 key={item.id}
+                ref={(el) => {
+                  bottomTabRefs.current[item.id] = el;
+                }}
                 type="button"
                 onClick={() => {
                   onTabChange(item.id);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className={`flex flex-col items-center justify-center min-h-[52px] py-1 rounded-xl transition-all touch-manipulation active:scale-95 ${
+                className={`relative flex flex-col items-center justify-center min-w-[76px] py-1.5 transition-all duration-300 ease-out touch-manipulation cursor-pointer snap-center shrink-0 ${
                   isActive
-                    ? 'text-[#C85A32] font-semibold'
-                    : 'text-[#7B6F63] dark:text-[#9F9184] hover:text-[#2B241E] dark:hover:text-[#EFE9E2]'
+                    ? 'scale-115 opacity-100 z-10'
+                    : 'scale-90 opacity-35 hover:opacity-60 z-0'
                 }`}
               >
-                <div className={`p-1.5 rounded-lg transition-colors ${isActive ? 'bg-[#C85A32]/10' : ''}`}>
-                  <Icon className="w-4.5 h-4.5" />
+                <div
+                  className={`p-2 rounded-2xl transition-all duration-300 ${
+                    isActive
+                      ? 'bg-[#C85A32]/15 text-[#C85A32] shadow-sm ring-1 ring-[#C85A32]/30'
+                      : 'text-[#7B6F63] dark:text-[#9F9184]'
+                  }`}
+                >
+                  <Icon className="w-5 h-5 transition-transform" />
                 </div>
-                <span className="text-[10px] sm:text-[11px] tracking-tight mt-0.5 whitespace-nowrap font-medium">
+                <span
+                  className={`text-[11px] tracking-tight mt-1 whitespace-nowrap transition-all duration-300 ${
+                    isActive
+                      ? 'text-[#C85A32] font-bold'
+                      : 'text-[#7B6F63] dark:text-[#9F9184] font-medium'
+                  }`}
+                >
                   {item.shortLabel}
                 </span>
+
+                {/* Subtle active dot underneath */}
+                {isActive && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#C85A32] mt-0.5 animate-pulse" />
+                )}
               </button>
             );
           })}
-        </nav>
+        </div>
       </div>
     </>
   );

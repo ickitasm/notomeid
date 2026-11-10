@@ -1,46 +1,51 @@
-# Rencana Implementasi: Mekanisme Slide & Swipe Horizontal Antar-Halaman di Notomee
+# Rencana Implementasi: Carousel Bottom Dock Slide (Highlight Tengah & Gelapkan Sisi Kanan/Kiri)
 
-Berdasarkan diskusi dan preferensi Anda:
-1. **Interaksi**: Menggunakan sentuhan gesture swipe kiri/kanan pada layar ponsel/tablet, sekaligus tetap terintegrasi sempurna dengan klik tab navigasi di menu bar atas maupun dock bar bawah.
-2. **Animasi**: Animasi slide halus horizontal dengan arah transisi natural (bergerak ke kiri saat navigasi maju, bergerak ke kanan saat navigasi mundur) dengan akselerasi hardware (`will-change: transform`, 60/120fps).
-
----
-
-## 1. Urutan Modul / Tab
-Daftar halaman Notomee berurutan secara konsisten sesuai tab navigasi:
-1. **Serial & Film** (`media`) - Index 0
-2. **Nutrisi** (`nutrition`) - Index 1
-3. **Peliharaan** (`pets`) - Index 2
-4. **Kalender** (`calendar`) - Index 3
-5. **Catatan** (`notes`) - Index 4
-6. **Mimpi** (`dreams`) - Index 5
+Berdasarkan screenshot dan penjelasan Anda:
+1. **Rollback Perubahan Swipe Halaman**: Menghapus gesture swipe di area konten halaman (`useSwipeableTabs` & `SlideViewTransition` di halaman utama) sehingga navigasi konten kembali normal dan stabil.
+2. **Carousel Bottom Dock Bar (Bawah)**:
+   - Tombol-tombol modul navigasi di bawah diubah menjadi dock horizontal yang dapat bergeser (sliding/scrolling dock).
+   - **Auto-Center Scroll**: Setiap kali modul aktif berganti (atau diklik), tab aktif akan otomatis meluncur mulus ke posisi tengah layar (`scrollIntoView({ inline: 'center', behavior: 'smooth' })`).
+   - **Highlight Tengah (Active Tab)**:
+     - Ikon dan label tab aktif berada di tengah, memiliki ukuran lebih besar (`scale-110` / `scale-115`), warna menyala/terang (tema accent color).
+     - Memiliki container background aktif yang bersih dan terdefinisi dengan jelas.
+   - **Redup/Gelap di Kanan & Kiri (Inactive Tabs)**:
+     - Tab-tab lain di sisi kanan dan kiri dibuat redup / gelap (`opacity-45` hingga `opacity-30`, `scale-90` atau `scale-95`, warna muted), sehingga fokus pandangan mata langsung tertuju pada tab aktif di tengah.
+   - **Touch Drag / Swipe pada Dock Bawah**:
+     - Pengguna juga dapat menyentuh/menggeser dock bar bawah secara horizontal dengan efek scroll snap dan momentum scrolling alami (`overflow-x-auto`, `scroll-snap-type: x mandatory`).
 
 ---
 
-## 2. Rincian Teknis Implementasi
+## Rincian Perubahan File
 
-### A. Komponen Transisi Slide (`SlideContainer` / Swipe Hook)
-- Mendeteksi swipe gesture sentuhan (`touchstart`, `touchmove`, `touchend`).
-- Menghitung ambang batas (threshold) swipe minimal: ~50px dengan sudut horizontal dominan (`|deltaX| > |deltaY| * 1.5`), sehingga tidak mengganggu scroll vertikal ke atas/bawah halaman.
-- Mengabaikan swipe jika interaksi berasal dari slider horizontal internal (seperti poster carousel atau input range kalori/air) atau modal aktif.
-- Menghitung arah perpindahan (`direction`: `left` atau `right` / `+1` atau `-1`).
+### 1. `src/App.tsx`
+- Hapus ketergantungan `useSwipeableTabs` dan pembungkus `SlideViewTransition` pada `<main>`.
+- Mengembalikan rendering modul `<main>` langsung tanpa intersep sentuhan layar.
+- Tetap menjaga state `activeTab` terhubung dua arah dengan `Navigation`.
 
-### B. Animasi Transisi Halus & Natural
-- Saat tab berpindah:
-  - Jika menuju tab berikutnya (misal `media` -> `nutrition`), konten bergeser masuk dari kanan ke kiri.
-  - Jika menuju tab sebelumnya (misal `pets` -> `nutrition`), konten bergeser masuk dari kiri ke kanan.
-- Menggunakan CSS translate3d / GPU-accelerated transition yang ringan dan responsif di browser mobile (Safari iOS & Chrome Android).
-- Memberikan feedback visual halus (misal indikator subtle hint jika diinginkan, atau tab bar highlight yang otomatis berpindah mengikuti halaman aktif).
+### 2. `src/components/Navigation.tsx`
+- Mengganti grid statis 6-kolom (`grid-cols-6`) pada bottom navigation bar mobile dengan:
+  - Container horizontal scrollable dengan padding tepi kiri/kanan (`px-[38vw]`) agar tab pertama (*Film*) dan tab terakhir (*Mimpi*) bisa berada tepat di tengah layar saat aktif.
+  - Setiap tab item memiliki ref dan `scrollIntoView({ inline: 'center', behavior: 'smooth' })` yang aktif otomatis saat tab tersebut terpilih.
+  - Efek visual:
+    - **Tab Aktif (Tengah)**: `scale-110`, `opacity-100`, warna aksen tema cerah, teks tebal (`font-bold`), ikon menonjol.
+    - **Tab Non-Aktif (Sisi)**: `scale-90`, `opacity-40` (gelap/redup), teks halus, transisi halus saat berpindah.
+  - Tambahkan efek gradient fade halus di tepi kiri dan kanan dock bawah untuk mempertegas kesan kedalaman visual (depth of field).
 
-### C. Pemulihan Scroll & UX Ergonomics
-- Setiap kali modul berpindah, posisi scroll jendela diatur secara rapi ke bagian atas (`window.scrollTo({ top: 0, behavior: 'instant' })`).
-- Jika Admin Panel atau Settings sedang terbuka, gesture swipe antar-modul dinonaktifkan sementara agar tidak terjadi konflik tampilan.
+### 3. Cleanup File Tidak Terpakai
+- Hapus atau bersihkan hook/komponen sisa swipe yang tidak digunakan (`src/hooks/useSwipeableTabs.ts`, `src/components/Common/SlideViewTransition.tsx`, CSS slide di `src/index.css`).
 
 ---
 
-## 3. Langkah Verifikasi
-1. Melakukan swipe ke kiri pada layar HP di halaman *Serial & Film* -> berpindah ke *Nutrisi* dengan animasi meluncur ke kiri.
-2. Melakukan swipe ke kanan di halaman *Nutrisi* -> kembali ke *Serial & Film* dengan animasi meluncur ke kanan.
-3. Mencoba klik tab dari menu bar (misal dari *Serial & Film* langsung klik *Kalender*) -> animasi bergerak ke arah yang sesuai dengan urutan indeks tab.
-4. Memastikan scroll vertikal (ke atas/bawah melihat daftar item, resep, atau catatan) tetap lancar tanpa terpicu swipe tak sengaja.
-5. Menjalankan `compile_applet` dan `lint_applet` untuk memastikan tidak ada error kompilasi.
+## Langkah Verifikasi
+1. Buka aplikasi pada mode mobile (viewport HP).
+2. Periksa bar navigasi bawah:
+   - Modul yang aktif (misal *Kalender* seperti di screenshot) berada di tengah dengan highlight terang dan ikon membesar.
+   - Modul-modul di sebelah kanan dan kirinya (*Film*, *Nutrisi*, *Hewan*, *Catatan*, *Mimpi*) tampak redup/gelap.
+3. Klik modul lain (misal *Nutrisi* atau *Mimpi*):
+   - Bar bawah otomatis meluncur mulus (smooth slide) membawa modul tersebut ke tengah layar.
+   - Modul tersebut menjadi terang dan membesar, sementara modul sebelumnya meredup.
+4. Sentuh dan geser (drag) dock bawah secara langsung:
+   - Pengguna dapat menggeser bar bawah dengan jari.
+5. Verifikasi area konten utama halaman:
+   - Scroll konten ke atas dan ke bawah berfungsi normal tanpa gesture swipe layar yang mengganggu.
+6. Jalankan `compile_applet` dan `lint_applet` untuk memastikan kode 100% bebas error.

@@ -30,41 +30,6 @@
   }
 }
 
-/* ==========================================================================
-   SMOOTH HORIZONTAL SLIDE TRANSITIONS (GPU ACCELERATED)
-   ========================================================================== */
-@keyframes slide-in-from-right {
-  0% {
-    opacity: 0;
-    transform: translate3d(36px, 0, 0);
-  }
-  100% {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes slide-in-from-left {
-  0% {
-    opacity: 0;
-    transform: translate3d(-36px, 0, 0);
-  }
-  100% {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-.animate-slide-left {
-  animation: slide-in-from-right 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
-  will-change: transform, opacity;
-}
-
-.animate-slide-right {
-  animation: slide-in-from-left 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
-  will-change: transform, opacity;
-}
-
 /* Custom subtle scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
