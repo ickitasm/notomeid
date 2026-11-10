@@ -17,7 +17,7 @@ import { DreamCatcherView } from './components/DreamCatcher/DreamCatcherView';
 import { SettingsView } from './components/Settings/SettingsView';
 import { AuthView } from './components/Auth/AuthView';
 import { AccessDeniedView } from './components/Auth/AccessDeniedView';
-import { AdminPanelModal } from './components/Admin/AdminPanelModal';
+import { AdminDashboardView } from './components/Admin/AdminDashboardView';
 import { UpdateLogsModal } from './components/UpdateLogs/UpdateLogsModal';
 import { useUpdateLogs } from './hooks/useUpdateLogs';
 import { getUpcomingAlerts } from './lib/notifications';
@@ -34,7 +34,7 @@ import { DesktopBlockedView } from './components/Common/DesktopBlockedView';
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('media');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isUpdateLogsOpen, setIsUpdateLogsOpen] = useState(false);
 
   const storage = useStorage();
@@ -177,13 +177,20 @@ export default function App() {
         activeTab={activeTab}
         onTabChange={(tab) => {
           setIsSettingsOpen(false);
+          setIsAdminOpen(false);
           setActiveTab(tab);
         }}
         theme={storage.preferences.theme}
         onToggleTheme={storage.toggleTheme}
         onSetTheme={storage.setTheme}
-        onOpenSettings={() => setIsSettingsOpen(true)}
-        onOpenAdminPanel={() => setIsAdminPanelOpen(true)}
+        onOpenSettings={() => {
+          setIsAdminOpen(false);
+          setIsSettingsOpen(true);
+        }}
+        onOpenAdminPanel={() => {
+          setIsSettingsOpen(false);
+          setIsAdminOpen(true);
+        }}
         onOpenUpdateLogs={() => setIsUpdateLogsOpen(true)}
         isPrimaryAdmin={auth.isPrimaryAdmin}
         language={currentLanguage}
@@ -227,7 +234,48 @@ export default function App() {
           </div>
         )}
 
-        {isSettingsOpen ? (
+        {isAdminOpen ? (
+          <AdminDashboardView
+            onBack={() => setIsAdminOpen(false)}
+            previousTabName={
+              currentLanguage === 'id'
+                ? activeTab === 'media'
+                  ? 'Serial & Film'
+                  : activeTab === 'nutrition'
+                  ? 'Nutrisi'
+                  : activeTab === 'pets'
+                  ? 'Peliharaan'
+                  : activeTab === 'calendar'
+                  ? 'Kalender'
+                  : activeTab === 'notes'
+                  ? 'Catatan'
+                  : 'Mimpi'
+                : activeTab === 'media'
+                ? 'Series & Film'
+                : activeTab === 'nutrition'
+                ? 'Nutrition'
+                : activeTab === 'pets'
+                ? 'Pets'
+                : activeTab === 'calendar'
+                ? 'Calendar'
+                : activeTab === 'notes'
+                ? 'Notes'
+                : 'Dreams'
+            }
+            invitedUsers={auth.invitedUsers}
+            onAddUser={auth.addInvitedUser}
+            onUpdateStatus={auth.updateInvitedUserStatus}
+            onDeleteUser={auth.deleteInvitedUser}
+            onRefresh={auth.fetchInvitedUsers}
+            language={currentLanguage}
+            isMaintenance={maintenance.isMaintenance}
+            maintenanceReason={maintenance.reason}
+            onToggleMaintenance={(enabled, reason) =>
+              maintenance.setMaintenanceMode(enabled, reason, auth.user?.email)
+            }
+            adminEmail={auth.user?.email}
+          />
+        ) : isSettingsOpen ? (
           <SettingsView
             onBack={() => setIsSettingsOpen(false)}
             previousTabName={
@@ -369,6 +417,7 @@ export default function App() {
               type="button"
               onClick={() => {
                 setIsSettingsOpen(false);
+                setIsAdminOpen(false);
                 setActiveTab('media');
               }}
               className="hover:text-[#2D2823] dark:hover:text-[#EAE3DA] transition-colors cursor-pointer"
@@ -379,6 +428,7 @@ export default function App() {
               type="button"
               onClick={() => {
                 setIsSettingsOpen(false);
+                setIsAdminOpen(false);
                 setActiveTab('nutrition');
               }}
               className="hover:text-[#2D2823] dark:hover:text-[#EAE3DA] transition-colors cursor-pointer"
@@ -389,6 +439,7 @@ export default function App() {
               type="button"
               onClick={() => {
                 setIsSettingsOpen(false);
+                setIsAdminOpen(false);
                 setActiveTab('pets');
               }}
               className="hover:text-[#2D2823] dark:hover:text-[#EAE3DA] transition-colors cursor-pointer"
@@ -399,6 +450,7 @@ export default function App() {
               type="button"
               onClick={() => {
                 setIsSettingsOpen(false);
+                setIsAdminOpen(false);
                 setActiveTab('calendar');
               }}
               className="hover:text-[#2D2823] dark:hover:text-[#EAE3DA] transition-colors cursor-pointer"
@@ -409,6 +461,7 @@ export default function App() {
               type="button"
               onClick={() => {
                 setIsSettingsOpen(false);
+                setIsAdminOpen(false);
                 setActiveTab('notes');
               }}
               className="hover:text-[#2D2823] dark:hover:text-[#EAE3DA] transition-colors cursor-pointer"
@@ -419,6 +472,7 @@ export default function App() {
               type="button"
               onClick={() => {
                 setIsSettingsOpen(false);
+                setIsAdminOpen(false);
                 setActiveTab('dreams');
               }}
               className="hover:text-[#2D2823] dark:hover:text-[#EAE3DA] transition-colors cursor-pointer"
@@ -428,25 +482,6 @@ export default function App() {
           </div>
         </div>
       </footer>
-
-      {/* Primary Admin Management Panel */}
-      {auth.isPrimaryAdmin && (
-        <AdminPanelModal
-          isOpen={isAdminPanelOpen}
-          onClose={() => setIsAdminPanelOpen(false)}
-          invitedUsers={auth.invitedUsers}
-          onAddUser={auth.addInvitedUser}
-          onUpdateStatus={auth.updateInvitedUserStatus}
-          onDeleteUser={auth.deleteInvitedUser}
-          onRefresh={auth.fetchInvitedUsers}
-          language={currentLanguage}
-          isMaintenance={maintenance.isMaintenance}
-          maintenanceReason={maintenance.reason}
-          onToggleMaintenance={(enabled, reason) =>
-            maintenance.setMaintenanceMode(enabled, reason, auth.user?.email)
-          }
-        />
-      )}
 
       {/* Public Update Logs & Roadmap Modal with Interactive Likes */}
       <UpdateLogsModal
