@@ -18,6 +18,7 @@ import {
 export const initialPreferences: UserPreferences = {
   theme: 'light',
   language: 'id',
+  fontFamily: 'default',
   defaultCalorieGoal: 2100,
   defaultSugarLimit: 36, // AHA guideline ~36g for men / 25g for women
   weightUnit: 'kg',

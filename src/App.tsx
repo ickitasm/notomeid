@@ -51,6 +51,12 @@ export default function App() {
   };
 
   const currentLanguage: Language = storage.preferences.language || 'id';
+  const currentFontFamily = storage.preferences.fontFamily || 'default';
+
+  // Apply selected global font family to document root
+  useEffect(() => {
+    document.documentElement.setAttribute('data-font', currentFontFamily);
+  }, [currentFontFamily]);
 
   // Auto-dismiss notice after 7 seconds
   useEffect(() => {

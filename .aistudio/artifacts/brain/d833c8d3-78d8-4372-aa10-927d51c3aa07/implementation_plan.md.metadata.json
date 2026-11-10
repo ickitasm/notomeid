@@ -1,6 +1,6 @@
 {
-  "summary":  "Rencana modifikasi Bottom Dock Bar: menghapus mekanisme looping, mempertegas kontras warna teks dan ikon (lebih pekat/hitam/jelas), serta mengaktifkan scroll snap otomatis ke tengah ikon setiap kali bar digeser.",
-  "updatedAt":  "2026-11-10T12:24:00.048537162Z",
+  "summary":  "Rencana implementasi 3 opsi font (default/saat ini, sans, fun) di Pengaturan tepat di bawah opsi bahasa, tanpa keterangan teks melainkan simbol/huruf representasi gaya tipografi, dan diterapkan ke seluruh teks aplikasi.",
+  "updatedAt":  "2026-11-10T13:29:07.407394742Z",
   "requestFeedback":  true,
   "userFacing":  true
 }

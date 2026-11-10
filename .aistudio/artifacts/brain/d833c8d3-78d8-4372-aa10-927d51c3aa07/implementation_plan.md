@@ -1,26 +1,52 @@
-# Rencana Implementasi: Bottom Dock Bar (Non-Looping, Teks/Ikon Kontras Tinggi & Auto-Snap ke Tengah)
+# Rencana Implementasi: 3 Opsi Pilihan Font di Pengaturan (Di Bawah Opsi Bahasa)
 
 Sesuai permintaan Anda:
-1. **Hapus Mekanisme Looping**:
-   - Menghapus virtual circular 3-set loop (`-prev`, `-main`, `-next`).
-   - Mengembalikan daftar 6 tab asli (`Film`, `Nutrisi`, `Hewan`, `Kalender`, `Catatan`, `Mimpi`) berurutan wajar dan rapi dengan padding horizontal yang cukup (`px-[calc(50vw-38px)]`) agar tab pertama dan tab terakhir tetap bisa tepat berada di tengah layar.
+1. **Posisi**: Terletak di halaman Pengaturan (Tab Umum), tepat di bawah bagian pilihan Bahasa (🇮🇩 / 🇬🇧).
+2. **Tanpa Keterangan Teks Tambahan**: Menampilkan simbol / representasi visual huruf seperti tombol bendera bahasa (misalnya huruf berkarakter khas sesuai jenis font: `Aa` klasik serif untuk default, `Aa` modern untuk sans, dan `Aa` membulat/ceria untuk fun).
+3. **3 Opsi Font**:
+   - **Saat ini (Default)**: Klasik Editorial & Warm Serifs (`Playfair Display` + `DM Sans`).
+   - **Sans**: Bersih, Modern, Minimalis (`DM Sans` / `Inter` / Clean Sans untuk seluruh teks dan judul).
+   - **Fun**: Ceria, Hangat, & Rounded Playful (menggunakan Google Font `Quicksand` / `Fredoka` / `Comfortaa`).
+4. **Cakupan Font**: Berlaku secara menyeluruh untuk teks dan judul di aplikasi Notomee via CSS variables pada root / html (`data-font="default" | "sans" | "fun"`).
 
-2. **Teks dan Ikon Lebih Kontras / Hitam**:
-   - Untuk tab aktif di tengah: Teks dan ikon dibuat tebal, pekat, dan tajam (kontras tinggi: `text-stone-900 dark:text-stone-100 font-extrabold`, aksen warna tema tegas).
-   - Untuk tab samping (non-aktif): Tulisan dan ikon dibuat lebih mudah dibaca dan tidak pudar abu-abu pucat, melainkan warna hitam/gelap yang jelas (`text-stone-800 dark:text-stone-200 font-semibold opacity-60 hover:opacity-80`), dengan tetap menjaga perbedaan visual yang elegan terhadap tab aktif.
+---
 
-3. **Snap Otomatis ke Tengah Setiap Kali Menggeser**:
-   - Menggunakan CSS scroll snap native yang presisi: `scroll-snap-type: x mandatory` pada container dan `scroll-snap-align: center` pada setiap tab button, ditambah `scroll-snap-stop: always`.
-   - Menghitung koordinat tab yang paling dekat dengan garis tengah layar saat digeser/berhenti, lalu langsung mengeksekusi snap smooth ke tengah (`scrollIntoView({ inline: 'center', behavior: 'smooth' })`) dan mengalihkan halaman modul aktif secara instan.
+## Rincian Perubahan File
+
+### 1. `index.html`
+- Tambahkan Google Font untuk tema **Fun** (misalnya `Quicksand:wght@500;600;700`) di samping font yang sudah ada (`Playfair Display`, `DM Sans`, `JetBrains Mono`).
+
+### 2. `src/types.ts` & `src/data/seedData.ts`
+- Tambahkan tipe `FontOption`:
+  ```ts
+  export type FontFamilyOption = 'default' | 'sans' | 'fun';
+  ```
+- Tambahkan properti `fontFamily?: FontFamilyOption` pada `UserPreferences` dengan nilai default `'default'`.
+
+### 3. `src/index.css`
+- Konfigurasikan variabel font global dan selektor atribut `html[data-font="..."]`:
+  - `data-font="default"`: font serif untuk heading, font DM Sans untuk body.
+  - `data-font="sans"`: font DM Sans / system-ui untuk seluruh heading & body.
+  - `data-font="fun"`: font Quicksand / Rounded untuk seluruh heading & body.
+
+### 4. `src/components/Settings/SettingsView.tsx`
+- Tepat di bawah kotak pilihan bahasa (`🇮🇩` / `🇬🇧`), tambahkan baris 3 tombol pilihan font:
+  - Tanpa teks keterangan panjang.
+  - Masing-masing tombol memiliki ukuran dan style yang serasi dengan tombol bahasa (`min-h-[50px] min-w-[70px]`), menampilkan representasi tipografi:
+    - **Saat Ini**: `Aa` (bergaya font Serif anggun)
+    - **Sans**: `Aa` (bergaya font Sans rapi)
+    - **Fun**: `Aa` (bergaya font Fun membulat ceria)
+  - Dilengkapi highlight border aksen dan ring aktif saat opsi tersebut dipilih.
+
+### 5. `src/App.tsx`
+- Sinkronkan `storage.preferences.fontFamily` ke atribut `document.documentElement.setAttribute('data-font', ...)` sehingga perubahan langsung terlihat seketika di seluruh aplikasi.
 
 ---
 
 ## Langkah Verifikasi
-1. Buka tampilan mobile di ponsel/browser.
-2. Geser bar navigasi bawah ke kiri dan kanan:
-   - Bar berhenti secara natural di tab awal (*Film*) dan tab akhir (*Mimpi*) tanpa looping melingkar.
-   - Setiap kali digeser, tab terdekat langsung **menge-snap otomatis tepat ke posisi tengah layar**.
-   - Halaman modul langsung berganti sesuai tab yang tersnap di tengah.
-3. Periksa tampilan teks dan ikon:
-   - Terlihat jauh lebih tajam, kontras, dan pekat/hitam (tidak buram atau pudar).
-4. Jalankan `compile_applet` dan `lint_applet` untuk memastikan tidak ada error.
+1. Buka Pengaturan di Notomee.
+2. Periksa di bawah tombol bahasa (🇮🇩 / 🇬🇧): Terdapat 3 tombol pilihan font dengan simbol huruf representasi tipografi tanpa teks berlebih.
+3. Klik tombol font ke-2 (Sans) -> Seluruh teks dan judul berubah menjadi gaya Sans yang rapi.
+4. Klik tombol font ke-3 (Fun) -> Seluruh teks berubah menjadi gaya membulat ceria (Quicksand/Rounded).
+5. Klik tombol font ke-1 (Default) -> Font kembali ke gaya estetika warm paper aslinya.
+6. Jalankan `compile_applet` dan `lint_applet` untuk memastikan tidak ada kesalahan kompilasi.

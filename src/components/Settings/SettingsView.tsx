@@ -240,8 +240,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       {/* Tab Content */}
       {activeTab === 'general' ? (
         <div className="space-y-6">
-          {/* Section 1: Display Language (Clean Flags Only) */}
-          <div className="p-4 sm:p-5 rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] shadow-xs">
+          {/* Section 1: Display Language (Clean Flags Only) & Typography Options (Clean Symbols Only) */}
+          <div className="p-4 sm:p-5 rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] shadow-xs space-y-4">
+            {/* Language Selection Row */}
             <div className="flex items-center gap-3">
               <button
                 type="button"
@@ -269,6 +270,55 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 }`}
               >
                 <span>🇬🇧</span>
+              </button>
+            </div>
+
+            {/* Font Family Options (Directly Under Language - Clean Typography Symbols Only) */}
+            <div className="pt-2 border-t border-[#EAE2D8] dark:border-[#2E2823] flex items-center gap-3">
+              {/* Option 1: Saat ini (Default Serif & Editorial) */}
+              <button
+                type="button"
+                onClick={() => onUpdatePreferences({ fontFamily: 'default' })}
+                title="Serif"
+                aria-label="Font Serif"
+                className={`min-h-[50px] min-w-[70px] px-4 py-2 rounded-xl border transition-all active:scale-95 touch-manipulation cursor-pointer flex items-center justify-center ${
+                  (preferences?.fontFamily || 'default') === 'default'
+                    ? 'border-[#C85A32] bg-[#C85A32]/10 ring-2 ring-[#C85A32]/40 text-[#C85A32] shadow-xs'
+                    : 'border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] text-[#2B241E] dark:text-[#EFE9E2] hover:bg-[#F3ECE4] dark:hover:bg-[#2A231D] opacity-60 hover:opacity-100'
+                }`}
+              >
+                <span className="font-serif text-xl font-bold tracking-tight">Aa</span>
+              </button>
+
+              {/* Option 2: Sans (Clean Modern) */}
+              <button
+                type="button"
+                onClick={() => onUpdatePreferences({ fontFamily: 'sans' })}
+                title="Sans"
+                aria-label="Font Sans"
+                className={`min-h-[50px] min-w-[70px] px-4 py-2 rounded-xl border transition-all active:scale-95 touch-manipulation cursor-pointer flex items-center justify-center ${
+                  preferences?.fontFamily === 'sans'
+                    ? 'border-[#C85A32] bg-[#C85A32]/10 ring-2 ring-[#C85A32]/40 text-[#C85A32] shadow-xs'
+                    : 'border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] text-[#2B241E] dark:text-[#EFE9E2] hover:bg-[#F3ECE4] dark:hover:bg-[#2A231D] opacity-60 hover:opacity-100'
+                }`}
+              >
+                <span className="font-sans text-xl font-bold tracking-tight">Aa</span>
+              </button>
+
+              {/* Option 3: Fun (Playful Rounded) */}
+              <button
+                type="button"
+                onClick={() => onUpdatePreferences({ fontFamily: 'fun' })}
+                title="Fun"
+                aria-label="Font Fun"
+                className={`min-h-[50px] min-w-[70px] px-4 py-2 rounded-xl border transition-all active:scale-95 touch-manipulation cursor-pointer flex items-center justify-center ${
+                  preferences?.fontFamily === 'fun'
+                    ? 'border-[#C85A32] bg-[#C85A32]/10 ring-2 ring-[#C85A32]/40 text-[#C85A32] shadow-xs'
+                    : 'border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#25201C] text-[#2B241E] dark:text-[#EFE9E2] hover:bg-[#F3ECE4] dark:hover:bg-[#2A231D] opacity-60 hover:opacity-100'
+                }`}
+                style={{ fontFamily: "'Quicksand', sans-serif" }}
+              >
+                <span className="text-xl font-extrabold tracking-wide">Aa</span>
               </button>
             </div>
           </div>

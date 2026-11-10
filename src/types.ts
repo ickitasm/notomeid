@@ -121,9 +121,12 @@ export interface CalendarEvent {
 
 export type ThemeMode = 'light' | 'dark' | 'cinema' | 'romantic' | 'christmas' | 'halloween' | 'retro';
 
+export type FontFamilyOption = 'default' | 'sans' | 'fun';
+
 export interface UserPreferences {
   theme: ThemeMode;
   language: 'id' | 'en';
+  fontFamily?: FontFamilyOption;
   defaultCalorieGoal: number;
   defaultSugarLimit: number; // in grams
   weightUnit: 'kg' | 'lbs';
