@@ -91,85 +91,6 @@ export const Navigation: React.FC<NavigationProps> = ({
     onSelectLanguage(language === 'id' ? 'en' : 'id');
   };
 
-  // References for bottom dock carousel
-  const bottomNavContainerRef = useRef<HTMLDivElement>(null);
-  const bottomTabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
-  const isProgrammaticScroll = useRef(false);
-  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Center the active tab smoothly
-  const centerActiveTab = useCallback((targetTab: ActiveTab, smooth = true) => {
-    const activeEl = bottomTabRefs.current[targetTab];
-    if (activeEl && bottomNavContainerRef.current) {
-      isProgrammaticScroll.current = true;
-      activeEl.scrollIntoView({
-        behavior: smooth ? 'smooth' : 'instant',
-        inline: 'center',
-        block: 'nearest',
-      });
-      setTimeout(() => {
-        isProgrammaticScroll.current = false;
-      }, 300);
-    }
-  }, []);
-
-  // When activeTab changes from click or desktop nav, center it smoothly
-  useEffect(() => {
-    centerActiveTab(activeTab, true);
-  }, [activeTab, centerActiveTab]);
-
-  // Handle scroll snap to center and auto-selection when user swipes bottom dock
-  const handleScrollEnd = useCallback(() => {
-    const container = bottomNavContainerRef.current;
-    if (!container || isProgrammaticScroll.current) return;
-
-    const containerRect = container.getBoundingClientRect();
-    const containerCenter = containerRect.left + containerRect.width / 2;
-
-    // Find the item currently closest to the center line
-    let closestId: ActiveTab = activeTab;
-    let minDistance = Infinity;
-
-    navItems.forEach((item) => {
-      const el = bottomTabRefs.current[item.id];
-      if (el) {
-        const rect = el.getBoundingClientRect();
-        const itemCenter = rect.left + rect.width / 2;
-        const distance = Math.abs(itemCenter - containerCenter);
-        if (distance < minDistance) {
-          minDistance = distance;
-          closestId = item.id;
-        }
-      }
-    });
-
-    // Snap the closest item cleanly to center
-    const closestEl = bottomTabRefs.current[closestId];
-    if (closestEl) {
-      closestEl.scrollIntoView({
-        behavior: 'smooth',
-        inline: 'center',
-        block: 'nearest',
-      });
-    }
-
-    // If the snapped item is different from active tab, switch page!
-    if (closestId !== activeTab) {
-      onTabChange(closestId);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }, [activeTab, navItems, onTabChange]);
-
-  const onScroll = useCallback(() => {
-    if (isProgrammaticScroll.current) return;
-
-    if (scrollTimeoutRef.current) {
-      clearTimeout(scrollTimeoutRef.current);
-    }
-    scrollTimeoutRef.current = setTimeout(() => {
-      handleScrollEnd();
-    }, 110);
-  }, [handleScrollEnd]);
 
   return (
     <>
@@ -460,49 +381,37 @@ export const Navigation: React.FC<NavigationProps> = ({
         </div>
       </header>
 
-      {/* Android & Mobile Sliding Carousel Bottom Dock Bar (Center Highlight & High-Contrast Icons & Auto Snap) */}
+      {/* Android & Mobile Bottom Navigation Bar (High Contrast, Sharp Text & Icons, Highlight Active) */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FAF7F2]/95 dark:bg-[#161311]/95 backdrop-blur-xl border-t border-[#D9CEBF] dark:border-[#382E26] safe-area-pb select-none shadow-lg">
-        {/* Soft edge gradient masks */}
-        <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#FAF7F2] dark:from-[#161311] to-transparent z-10" />
-        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#FAF7F2] dark:from-[#161311] to-transparent z-10" />
-
-        <div
-          ref={bottomNavContainerRef}
-          onScroll={onScroll}
-          className="flex items-center h-18 overflow-x-auto scrollbar-none scroll-smooth px-[calc(50vw-38px)] snap-x snap-mandatory"
-        >
+        <nav className="grid grid-cols-6 items-center h-18 max-w-lg mx-auto px-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
             return (
               <button
                 key={item.id}
-                ref={(el) => {
-                  bottomTabRefs.current[item.id] = el;
-                }}
                 type="button"
                 onClick={() => {
                   onTabChange(item.id);
-                  centerActiveTab(item.id, true);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className={`relative flex flex-col items-center justify-center min-w-[76px] py-1 transition-all duration-200 ease-out touch-manipulation cursor-pointer snap-center shrink-0 ${
+                className={`flex flex-col items-center justify-center min-h-[54px] py-1 transition-all duration-200 touch-manipulation cursor-pointer active:scale-95 ${
                   isActive
-                    ? 'scale-115 opacity-100 z-10'
-                    : 'scale-90 opacity-60 hover:opacity-85 z-0'
+                    ? 'scale-105 opacity-100'
+                    : 'opacity-70 hover:opacity-100'
                 }`}
               >
                 <div
-                  className={`p-2 rounded-2xl transition-all duration-200 ${
+                  className={`p-1.5 rounded-xl transition-all duration-200 ${
                     isActive
-                      ? 'bg-[#C85A32]/15 text-[#C85A32] shadow-sm ring-1.5 ring-[#C85A32]/40'
+                      ? 'bg-[#C85A32]/15 text-[#C85A32] shadow-2xs ring-1 ring-[#C85A32]/35'
                       : 'text-[#1F1914] dark:text-[#F2EDE8]'
                   }`}
                 >
-                  <Icon className="w-5 h-5 transition-transform stroke-[2.25]" />
+                  <Icon className="w-5 h-5 stroke-[2.25]" />
                 </div>
                 <span
-                  className={`text-[11px] tracking-tight mt-0.5 whitespace-nowrap transition-all duration-200 ${
+                  className={`text-[10px] sm:text-[11px] tracking-tight mt-0.5 whitespace-nowrap transition-colors ${
                     isActive
                       ? 'text-[#C85A32] font-black'
                       : 'text-[#1F1914] dark:text-[#F2EDE8] font-bold'
@@ -511,14 +420,14 @@ export const Navigation: React.FC<NavigationProps> = ({
                   {item.shortLabel}
                 </span>
 
-                {/* Active indicator dot underneath */}
+                {/* Active indicator dot */}
                 {isActive && (
                   <span className="w-1.5 h-1.5 rounded-full bg-[#C85A32] mt-0.5 shadow-xs" />
                 )}
               </button>
             );
           })}
-        </div>
+        </nav>
       </div>
     </>
   );
