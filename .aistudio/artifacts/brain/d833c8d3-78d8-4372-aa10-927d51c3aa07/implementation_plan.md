@@ -1,51 +1,47 @@
-# Rencana Implementasi: Carousel Bottom Dock Slide (Highlight Tengah & Gelapkan Sisi Kanan/Kiri)
+# Rencana Implementasi: Infinite Looping Sliding Bottom Bar dengan Deteksi Auto-Select on Scroll End
 
-Berdasarkan screenshot dan penjelasan Anda:
-1. **Rollback Perubahan Swipe Halaman**: Menghapus gesture swipe di area konten halaman (`useSwipeableTabs` & `SlideViewTransition` di halaman utama) sehingga navigasi konten kembali normal dan stabil.
-2. **Carousel Bottom Dock Bar (Bawah)**:
-   - Tombol-tombol modul navigasi di bawah diubah menjadi dock horizontal yang dapat bergeser (sliding/scrolling dock).
-   - **Auto-Center Scroll**: Setiap kali modul aktif berganti (atau diklik), tab aktif akan otomatis meluncur mulus ke posisi tengah layar (`scrollIntoView({ inline: 'center', behavior: 'smooth' })`).
-   - **Highlight Tengah (Active Tab)**:
-     - Ikon dan label tab aktif berada di tengah, memiliki ukuran lebih besar (`scale-110` / `scale-115`), warna menyala/terang (tema accent color).
-     - Memiliki container background aktif yang bersih dan terdefinisi dengan jelas.
-   - **Redup/Gelap di Kanan & Kiri (Inactive Tabs)**:
-     - Tab-tab lain di sisi kanan dan kiri dibuat redup / gelap (`opacity-45` hingga `opacity-30`, `scale-90` atau `scale-95`, warna muted), sehingga fokus pandangan mata langsung tertuju pada tab aktif di tengah.
-   - **Touch Drag / Swipe pada Dock Bawah**:
-     - Pengguna juga dapat menyentuh/menggeser dock bar bawah secara horizontal dengan efek scroll snap dan momentum scrolling alami (`overflow-x-auto`, `scroll-snap-type: x mandatory`).
+Berdasarkan jawaban Anda:
+1. **Pergantian Halaman Otomatis**: Saat jari menggeser bar bawah dan berhenti (on scroll end), modul/tab yang paling dekat dengan garis tengah layar otomatis terpilih, disnap rapi ke tengah, dan halaman modul utama langsung berganti.
+2. **Infinite Looping Melingkar**: Bar dock di bawah bisa digeser tanpa henti ke kiri maupun ke kanan (setelah *Mimpi* bersambung kembali ke *Film*, begitu pula sebaliknya jika digeser ke kiri dari *Film* langsung bersambung ke *Mimpi*).
 
 ---
 
-## Rincian Perubahan File
-
-### 1. `src/App.tsx`
-- Hapus ketergantungan `useSwipeableTabs` dan pembungkus `SlideViewTransition` pada `<main>`.
-- Mengembalikan rendering modul `<main>` langsung tanpa intersep sentuhan layar.
-- Tetap menjaga state `activeTab` terhubung dua arah dengan `Navigation`.
-
-### 2. `src/components/Navigation.tsx`
-- Mengganti grid statis 6-kolom (`grid-cols-6`) pada bottom navigation bar mobile dengan:
-  - Container horizontal scrollable dengan padding tepi kiri/kanan (`px-[38vw]`) agar tab pertama (*Film*) dan tab terakhir (*Mimpi*) bisa berada tepat di tengah layar saat aktif.
-  - Setiap tab item memiliki ref dan `scrollIntoView({ inline: 'center', behavior: 'smooth' })` yang aktif otomatis saat tab tersebut terpilih.
-  - Efek visual:
-    - **Tab Aktif (Tengah)**: `scale-110`, `opacity-100`, warna aksen tema cerah, teks tebal (`font-bold`), ikon menonjol.
-    - **Tab Non-Aktif (Sisi)**: `scale-90`, `opacity-40` (gelap/redup), teks halus, transisi halus saat berpindah.
-  - Tambahkan efek gradient fade halus di tepi kiri dan kanan dock bawah untuk mempertegas kesan kedalaman visual (depth of field).
-
-### 3. Cleanup File Tidak Terpakai
-- Hapus atau bersihkan hook/komponen sisa swipe yang tidak digunakan (`src/hooks/useSwipeableTabs.ts`, `src/components/Common/SlideViewTransition.tsx`, CSS slide di `src/index.css`).
+## 1. Mekanisme Infinite Looping (Virtual Circular Carousel)
+- Daftar modul Notomee: `['media', 'nutrition', 'pets', 'calendar', 'notes', 'dreams']` (6 item).
+- Untuk menciptakan ilusi putaran melingkar tanpa batas yang mulus di web/mobile:
+  - Kita merender 3 siklus set item berturut-turut: `[...Set1, ...Set2 (Utama), ...Set3]`.
+  - Posisi awal selalu berada di `Set2` (tengah).
+  - Saat pengguna menggeser bar mendekati batas ujung kiri (`Set1`) atau ujung kanan (`Set3`), listener scroll secara instan dan tanpa animasi (`scrollLeft = offset`) melompatkan posisi scroll kembali ke item yang setara di `Set2`. Karena elemennya identik secara visual, mata pengguna tidak akan melihat lompatan sama sekali (seamless infinite wheel).
 
 ---
 
-## Langkah Verifikasi
-1. Buka aplikasi pada mode mobile (viewport HP).
-2. Periksa bar navigasi bawah:
-   - Modul yang aktif (misal *Kalender* seperti di screenshot) berada di tengah dengan highlight terang dan ikon membesar.
-   - Modul-modul di sebelah kanan dan kirinya (*Film*, *Nutrisi*, *Hewan*, *Catatan*, *Mimpi*) tampak redup/gelap.
-3. Klik modul lain (misal *Nutrisi* atau *Mimpi*):
-   - Bar bawah otomatis meluncur mulus (smooth slide) membawa modul tersebut ke tengah layar.
-   - Modul tersebut menjadi terang dan membesar, sementara modul sebelumnya meredup.
-4. Sentuh dan geser (drag) dock bawah secara langsung:
-   - Pengguna dapat menggeser bar bawah dengan jari.
-5. Verifikasi area konten utama halaman:
-   - Scroll konten ke atas dan ke bawah berfungsi normal tanpa gesture swipe layar yang mengganggu.
-6. Jalankan `compile_applet` dan `lint_applet` untuk memastikan kode 100% bebas error.
+## 2. Deteksi Tab Tengah saat Scroll Berhenti (On Scroll End)
+- Kita menggunakan `scrollend` event (dengan fallback timer debounce 120ms untuk browser mobile lama):
+  - Mengambil koordinat tengah container bar bawah (`container.getBoundingClientRect().left + container.clientWidth / 2`).
+  - Menghitung jarak (`Math.abs(tabCenter - containerCenter)`) dari semua tab yang sedang terlihat.
+  - Memilih tab dengan jarak terkecil ke titik tengah.
+  - Jika tab tersebut berbeda dengan `activeTab` saat ini, picu `onTabChange(tab.id)`.
+  - Mengunci status programmatis (`isProgrammaticScroll = true`) agar saat tab diklik atau diubah tidak memicu trigger ganda berulang.
+
+---
+
+## 3. Visual Highlight & Dimming Realtime
+- Tab yang berada tepat di tengah:
+  - Membesar (`scale-115`), terang penuh (`opacity-100`), warna aksen tema aktif, dot bercahaya aktif di bawah.
+- Tab-tab di kanan dan kiri:
+  - Menjadi gelap/redup (`opacity-35`, `scale-90`).
+- Transisi CSS hardware-accelerated 300ms yang sangat halus.
+
+---
+
+## 4. Langkah Verifikasi
+1. Buka Notomee pada tampilan mobile layar HP.
+2. Geser bar navigasi bawah ke kiri melampaui tab terakhir (*Mimpi*):
+   - Periksa apakah bar berputar mulus kembali ke *Film* tanpa macet atau mentok (infinite loop).
+3. Geser bar navigasi bawah ke kanan melampaui tab pertama (*Film*):
+   - Periksa apakah bar berputar mulus ke *Mimpi*.
+4. Lepaskan jari saat menggeser dan biarkan berhenti:
+   - Tab yang paling dekat dengan tengah otomatis tersnap ke tengah dan halaman modul utama langsung berganti ke modul tersebut.
+5. Klik tab manapun langsung dari dock:
+   - Tab langsung meluncur ke tengah dan halaman aktif berganti seketika.
+6. Jalankan `compile_applet` dan `lint_applet` untuk memastikan tidak ada kesalahan kompilasi.

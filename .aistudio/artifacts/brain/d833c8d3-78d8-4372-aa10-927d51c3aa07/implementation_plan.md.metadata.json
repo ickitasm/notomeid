@@ -1,6 +1,6 @@
 {
-  "summary":  "Rencana rollback mekanisme swipe konten halaman dan implementasi Carousel Bottom Bar (Bottom Dock) dengan mekanisme auto-scroll ke tengah, tab aktif menonjol (scale-up & terang), serta tab samping redup/gelap.",
-  "updatedAt":  "2026-11-10T12:04:29.598631832Z",
+  "summary":  "Rencana implementasi Infinite Looping Sliding Carousel pada Bottom Dock Bar dengan deteksi otomatis saat scroll berhenti (scroll end) untuk mengganti modul aktif di Notomee.",
+  "updatedAt":  "2026-11-10T12:13:43.930951335Z",
   "requestFeedback":  true,
   "userFacing":  true
 }

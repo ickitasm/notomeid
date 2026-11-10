@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { Film, Utensils, HeartPulse, Calendar, Sun, Moon, Sliders, LogOut, CheckCircle2, Globe, ShieldCheck, BookOpen, MoonStar, Sparkles, Bell, Menu, User as UserIcon, Trees, Ghost, Gamepad2 } from 'lucide-react';
 import { AppUser } from '../hooks/useAuth';
 import { UpcomingAlert } from '../lib/notifications';
@@ -91,21 +91,108 @@ export const Navigation: React.FC<NavigationProps> = ({
     onSelectLanguage(language === 'id' ? 'en' : 'id');
   };
 
-  // References for bottom dock carousel auto-centering
+  // Virtual infinite circular list: render 3 repeated sets of navItems
+  const infiniteNavItems = useMemo(() => {
+    return [
+      ...navItems.map((item) => ({ ...item, cycle: -1, key: `${item.id}-prev` })),
+      ...navItems.map((item) => ({ ...item, cycle: 0, key: `${item.id}-main` })),
+      ...navItems.map((item) => ({ ...item, cycle: 1, key: `${item.id}-next` })),
+    ];
+  }, [navItems]);
+
+  // References for bottom dock carousel
   const bottomNavContainerRef = useRef<HTMLDivElement>(null);
   const bottomTabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const isProgrammaticScroll = useRef(false);
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Auto-scroll active bottom tab to the exact center of screen when activeTab changes
-  useEffect(() => {
-    const activeEl = bottomTabRefs.current[activeTab];
+  // Center the active tab in the main set (cycle 0)
+  const centerActiveTab = useCallback((targetTab: ActiveTab, smooth = true) => {
+    const mainKey = `${targetTab}-main`;
+    const activeEl = bottomTabRefs.current[mainKey];
     if (activeEl && bottomNavContainerRef.current) {
+      isProgrammaticScroll.current = true;
       activeEl.scrollIntoView({
-        behavior: 'smooth',
+        behavior: smooth ? 'smooth' : 'instant',
         inline: 'center',
         block: 'nearest',
       });
+      // Release lock after smooth scroll finishes
+      setTimeout(() => {
+        isProgrammaticScroll.current = false;
+      }, 350);
     }
-  }, [activeTab]);
+  }, []);
+
+  // When activeTab changes from click or desktop nav, center it smoothly
+  useEffect(() => {
+    centerActiveTab(activeTab, true);
+  }, [activeTab, centerActiveTab]);
+
+  // Handle seamless infinite looping and scroll-end auto selection
+  const handleScrollEnd = useCallback(() => {
+    const container = bottomNavContainerRef.current;
+    if (!container || isProgrammaticScroll.current) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const containerCenter = containerRect.left + containerRect.width / 2;
+
+    // Find the item currently closest to the center line
+    let closestKey = '';
+    let closestId: ActiveTab = activeTab;
+    let minDistance = Infinity;
+
+    infiniteNavItems.forEach((item) => {
+      const el = bottomTabRefs.current[item.key];
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        const itemCenter = rect.left + rect.width / 2;
+        const distance = Math.abs(itemCenter - containerCenter);
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestKey = item.key;
+          closestId = item.id;
+        }
+      }
+    });
+
+    // Check boundary wrap-around for infinite looping
+    // If closest item is in the prev (-1) or next (1) cycle, jump instantly to cycle 0
+    if (closestKey && closestId) {
+      if (closestKey.endsWith('-prev') || closestKey.endsWith('-next')) {
+        const correspondingMainEl = bottomTabRefs.current[`${closestId}-main`];
+        if (correspondingMainEl) {
+          isProgrammaticScroll.current = true;
+          correspondingMainEl.scrollIntoView({
+            behavior: 'instant',
+            inline: 'center',
+            block: 'nearest',
+          });
+          setTimeout(() => {
+            isProgrammaticScroll.current = false;
+          }, 60);
+        }
+      }
+
+      // If the selected closest item is different from active tab, switch page!
+      if (closestId !== activeTab) {
+        onTabChange(closestId);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  }, [activeTab, infiniteNavItems, onTabChange]);
+
+  const onScroll = useCallback(() => {
+    if (isProgrammaticScroll.current) return;
+
+    // Debounce fallback for scroll-end
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+    scrollTimeoutRef.current = setTimeout(() => {
+      handleScrollEnd();
+    }, 130);
+  }, [handleScrollEnd]);
 
   return (
     <>
@@ -396,7 +483,7 @@ export const Navigation: React.FC<NavigationProps> = ({
         </div>
       </header>
 
-      {/* Android & Mobile Sliding Carousel Bottom Dock Bar (Center Highlight & Dimmed Sides) */}
+      {/* Android & Mobile Sliding Carousel Bottom Dock Bar (Center Highlight & Dimmed Sides & Infinite Loop) */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FAF7F2]/95 dark:bg-[#161311]/95 backdrop-blur-xl border-t border-[#E5DDD2] dark:border-[#2D2722] safe-area-pb select-none">
         {/* Soft edge gradient masks to emphasize slide depth */}
         <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#FAF7F2] dark:from-[#161311] to-transparent z-10" />
@@ -404,20 +491,22 @@ export const Navigation: React.FC<NavigationProps> = ({
 
         <div
           ref={bottomNavContainerRef}
+          onScroll={onScroll}
           className="flex items-center h-18 overflow-x-auto scrollbar-none scroll-smooth px-[38vw] snap-x snap-mandatory"
         >
-          {navItems.map((item) => {
+          {infiniteNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
             return (
               <button
-                key={item.id}
+                key={item.key}
                 ref={(el) => {
-                  bottomTabRefs.current[item.id] = el;
+                  bottomTabRefs.current[item.key] = el;
                 }}
                 type="button"
                 onClick={() => {
                   onTabChange(item.id);
+                  centerActiveTab(item.id, true);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
                 className={`relative flex flex-col items-center justify-center min-w-[76px] py-1.5 transition-all duration-300 ease-out touch-manipulation cursor-pointer snap-center shrink-0 ${
