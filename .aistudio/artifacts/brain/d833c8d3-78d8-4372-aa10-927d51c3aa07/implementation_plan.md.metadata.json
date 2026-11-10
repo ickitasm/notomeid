@@ -1,6 +1,6 @@
 {
-  "summary":  "Rencana perbaikan mekanisme pengiriman email Gmail ke aplikasi native:\n1. Memperbaiki fungsi pembangun URL dan mekanisme pembuka email di `memberNotifications.ts`: beralih dari tautan web lawas (`mail.google.com/?view=cm`) yang membuka webmail jadul ke protokol native (`mailto:` & skema app intent Gmail) yang langsung mengarahkan peramban seluler (Android/iOS) ke aplikasi Gmail native.\n2. Memperbarui aksi pembukaan otomatis saat anggota baru didaftarkan agar langsung mengarahkan ke aplikasi Gmail tanpa membuka tab kosong di peramban.\n3. Memperbarui seluruh tombol kirim email di `AdminDashboardView.tsx` dan `AdminPanelModal.tsx` agar menggunakan protokol native universal yang membuka aplikasi Gmail secara langsung.",
-  "updatedAt":  "2026-11-10T08:19:04.138146758Z",
+  "summary":  "Rencana implementasi mekanisme gestur swipe sentuh dan animasi slide halus horizontal untuk pergantian modul/halaman di Notomee.",
+  "updatedAt":  "2026-11-10T11:43:42.965735632Z",
   "requestFeedback":  true,
   "userFacing":  true
 }

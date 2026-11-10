@@ -30,6 +30,8 @@ import { MaintenanceView } from './components/Maintenance/MaintenanceView';
 import { BrandLogo } from './components/Brand/BrandLogo';
 import { useDeviceDetection } from './hooks/useDeviceDetection';
 import { DesktopBlockedView } from './components/Common/DesktopBlockedView';
+import { useSwipeableTabs, TAB_ORDER } from './hooks/useSwipeableTabs';
+import { SlideViewTransition } from './components/Common/SlideViewTransition';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('media');
@@ -42,6 +44,39 @@ export default function App() {
   const updateLogs = useUpdateLogs();
   const maintenance = useMaintenance();
   const device = useDeviceDetection();
+
+  // Swipeable module navigation hook
+  const {
+    slideDirection,
+    setSlideDirection,
+    touchHandlers,
+    goToNextTab,
+    goToPrevTab,
+    canGoNext,
+    canGoPrev,
+    currentIndex,
+    totalTabs,
+  } = useSwipeableTabs({
+    activeTab,
+    onTabChange: (newTab) => {
+      setIsSettingsOpen(false);
+      setIsAdminOpen(false);
+      setActiveTab(newTab);
+    },
+    disabled: isAdminOpen || isSettingsOpen || isUpdateLogsOpen || !auth.user,
+  });
+
+  const handleTabSelect = (targetTab: ActiveTab) => {
+    setIsSettingsOpen(false);
+    setIsAdminOpen(false);
+    const prevIndex = TAB_ORDER.indexOf(activeTab);
+    const nextIndex = TAB_ORDER.indexOf(targetTab);
+    if (prevIndex !== -1 && nextIndex !== -1 && prevIndex !== nextIndex) {
+      setSlideDirection(nextIndex > prevIndex ? 'forward' : 'backward');
+    }
+    setActiveTab(targetTab);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
 
   const currentLanguage: Language = storage.preferences.language || 'id';
 
@@ -175,11 +210,7 @@ export default function App() {
       {/* 3-Zone Top Bar Navigation */}
       <Navigation
         activeTab={activeTab}
-        onTabChange={(tab) => {
-          setIsSettingsOpen(false);
-          setIsAdminOpen(false);
-          setActiveTab(tab);
-        }}
+        onTabChange={handleTabSelect}
         theme={storage.preferences.theme}
         onToggleTheme={storage.toggleTheme}
         onSetTheme={storage.setTheme}
@@ -200,8 +231,11 @@ export default function App() {
         alerts={upcomingAlerts}
       />
 
-      {/* Main Content Area - Responsive editorial shell with generous standard desktop width */}
-      <main className="flex-1 max-w-2xl sm:max-w-3xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8 pb-28 sm:pb-32 md:pb-12 min-w-0">
+      {/* Main Content Area - Responsive editorial shell with touch swipe listeners for smooth module navigation */}
+      <main
+        {...touchHandlers}
+        className="flex-1 max-w-2xl sm:max-w-3xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8 pb-28 sm:pb-32 md:pb-12 min-w-0 select-text"
+      >
         {/* Verification / Auth Alert Banner */}
         {auth.notice && (
           <div
@@ -313,7 +347,7 @@ export default function App() {
             onSelectLanguage={handleSelectLanguage}
           />
         ) : (
-          <>
+          <SlideViewTransition currentTab={activeTab} direction={slideDirection}>
             {activeTab === 'media' && (
               <MediaView
                 mediaItems={storage.mediaItems}
@@ -393,7 +427,7 @@ export default function App() {
                 language={currentLanguage}
               />
             )}
-          </>
+          </SlideViewTransition>
         )}
       </main>
 

@@ -1,65 +1,46 @@
-# Fix Gmail Email Dispatch Mechanism (Direct Native App Integration)
+# Rencana Implementasi: Mekanisme Slide & Swipe Horizontal Antar-Halaman di Notomee
 
-Resolving the issue where clicking the Gmail email button opened a legacy, outdated basic HTML webmail page (`mail.google.com/?view=cm`) in mobile browsers instead of directly launching the native Gmail mobile app.
-
----
-
-## User Review & Critical Decisions
-
-> [!NOTE]
-> **Status: Selesai & Terverifikasi (Completed & Verified)**
-> Mekanisme pengiriman email Gmail telah diperbaiki di seluruh modul: kini secara otomatis dan langsung memicu intent aplikasi native Gmail pada perangkat bergerak (Android & iOS) dengan subjek dan isi surat yang sudah terisi rapi, tanpa membuka webmail dasar (jadul) di peramban.
-
-> [!IMPORTANT]
-> The solution is specifically optimized for mobile devices (Android, iPhone, iPad, and Tablets) where Notomee runs:
-
-- **Root Cause Identified**: The existing code was generating `https://mail.google.com/mail/?view=cm&fs=1...` and opening it in `_blank`. Mobile browsers (Chrome/Safari) treat this as a desktop web URL and render Google's legacy basic HTML mobile webmail ("halaman jadul") instead of launching the native Gmail app.
-- **Direct Native App Launch**: We will modernize the dispatch mechanism using standard RFC-compliant `mailto:` URIs with properly encoded `subject` and `body`, as well as iOS `googlegmail:///co` detection. When tapped on Android or iOS, the mobile operating system immediately intercepts the action and opens the native Gmail application with pre-filled recipient, subject, and welcome letter.
-- **Zero Empty Tab Clutter**: Replacing `window.open(webUrl, '_blank')` with a direct intent dispatch (`window.location.href = mailtoUri`), ensuring the user is transitioned smoothly into the Gmail app without leaving an empty abandoned browser tab in Chrome/Safari.
+Berdasarkan diskusi dan preferensi Anda:
+1. **Interaksi**: Menggunakan sentuhan gesture swipe kiri/kanan pada layar ponsel/tablet, sekaligus tetap terintegrasi sempurna dengan klik tab navigasi di menu bar atas maupun dock bar bawah.
+2. **Animasi**: Animasi slide halus horizontal dengan arah transisi natural (bergerak ke kiri saat navigasi maju, bergerak ke kanan saat navigasi mundur) dengan akselerasi hardware (`will-change: transform`, 60/120fps).
 
 ---
 
-## 1. Overview & Core Concept
-
-- **What It Delivers**: Seamless, 1-click email dispatch from the Admin Dashboard directly into the user's native Gmail app on Android and iOS.
-- **Key Value**: The admin can invite or notify members in a single tap without being subjected to Google's legacy mobile web interface, login re-prompts, or broken mobile web forms.
-
----
-
-## 2. Technical Architecture & Modifications
-
-### A. Enhanced Email Dispatch Utilities (`src/lib/memberNotifications.ts`)
-
-1. **`buildDirectMailUrl(to, subject, body)`**:
-   - Generates clean, RFC-compliant `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`.
-   - Universally supported across Android, iOS, and all mobile operating systems to trigger the default mail client (Gmail).
-
-2. **`openNativeGmailApp(to, subject, body)`**:
-   - Programmatically triggers the native Gmail composer.
-   - For iOS devices: attempts `googlegmail:///co?to=...` with automatic fallback to `mailto:`.
-   - For Android devices: triggers standard `mailto:` via `window.location.href`, which Android OS binds directly to the installed Gmail application.
-
-3. **Modern Fallback URL**:
-   - If a web URL is ever needed, uses modern Gmail web parameters (`https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&to=...`) rather than basic HTML.
-
-### B. Admin Dashboard Updates (`src/components/Admin/AdminDashboardView.tsx`)
-
-1. **New Member Registration (`handleAddSubmit`)**:
-   - When "Buka Gmail otomatis" is checked, invokes `openNativeGmailApp(email, subject, body)` directly on submission.
-2. **Notification Banner Action**:
-   - Updates the "Buka Gmail (1-Klik)" button to use the direct native app launcher.
-3. **Member Directory Rows**:
-   - Replaces `<a href="https://mail.google.com/..." target="_blank">` with `<a href={mailtoUrl}>` with a click handler triggering `openNativeGmailApp`.
-4. **Deletion Action**:
-   - Updates the "Hapus & Gmail" flow to trigger native Gmail dispatch smoothly.
+## 1. Urutan Modul / Tab
+Daftar halaman Notomee berurutan secara konsisten sesuai tab navigasi:
+1. **Serial & Film** (`media`) - Index 0
+2. **Nutrisi** (`nutrition`) - Index 1
+3. **Peliharaan** (`pets`) - Index 2
+4. **Kalender** (`calendar`) - Index 3
+5. **Catatan** (`notes`) - Index 4
+6. **Mimpi** (`dreams`) - Index 5
 
 ---
 
-## 3. Verification & Execution Steps
+## 2. Rincian Teknis Implementasi
 
-1. Update `src/lib/memberNotifications.ts`:
-   - Implement `buildDirectMailUrl`, `openNativeGmailApp`, and update `notifyMemberInvited` / `notifyMemberRemoved` outputs.
-2. Update `src/components/Admin/AdminDashboardView.tsx`:
-   - Replace web links with native app dispatch calls.
-3. Update `src/components/Admin/AdminPanelModal.tsx` for consistency.
-4. Run `compile_applet` and `lint_applet` to verify zero type or build errors.
+### A. Komponen Transisi Slide (`SlideContainer` / Swipe Hook)
+- Mendeteksi swipe gesture sentuhan (`touchstart`, `touchmove`, `touchend`).
+- Menghitung ambang batas (threshold) swipe minimal: ~50px dengan sudut horizontal dominan (`|deltaX| > |deltaY| * 1.5`), sehingga tidak mengganggu scroll vertikal ke atas/bawah halaman.
+- Mengabaikan swipe jika interaksi berasal dari slider horizontal internal (seperti poster carousel atau input range kalori/air) atau modal aktif.
+- Menghitung arah perpindahan (`direction`: `left` atau `right` / `+1` atau `-1`).
+
+### B. Animasi Transisi Halus & Natural
+- Saat tab berpindah:
+  - Jika menuju tab berikutnya (misal `media` -> `nutrition`), konten bergeser masuk dari kanan ke kiri.
+  - Jika menuju tab sebelumnya (misal `pets` -> `nutrition`), konten bergeser masuk dari kiri ke kanan.
+- Menggunakan CSS translate3d / GPU-accelerated transition yang ringan dan responsif di browser mobile (Safari iOS & Chrome Android).
+- Memberikan feedback visual halus (misal indikator subtle hint jika diinginkan, atau tab bar highlight yang otomatis berpindah mengikuti halaman aktif).
+
+### C. Pemulihan Scroll & UX Ergonomics
+- Setiap kali modul berpindah, posisi scroll jendela diatur secara rapi ke bagian atas (`window.scrollTo({ top: 0, behavior: 'instant' })`).
+- Jika Admin Panel atau Settings sedang terbuka, gesture swipe antar-modul dinonaktifkan sementara agar tidak terjadi konflik tampilan.
+
+---
+
+## 3. Langkah Verifikasi
+1. Melakukan swipe ke kiri pada layar HP di halaman *Serial & Film* -> berpindah ke *Nutrisi* dengan animasi meluncur ke kiri.
+2. Melakukan swipe ke kanan di halaman *Nutrisi* -> kembali ke *Serial & Film* dengan animasi meluncur ke kanan.
+3. Mencoba klik tab dari menu bar (misal dari *Serial & Film* langsung klik *Kalender*) -> animasi bergerak ke arah yang sesuai dengan urutan indeks tab.
+4. Memastikan scroll vertikal (ke atas/bawah melihat daftar item, resep, atau catatan) tetap lancar tanpa terpicu swipe tak sengaja.
+5. Menjalankan `compile_applet` dan `lint_applet` untuk memastikan tidak ada error kompilasi.
