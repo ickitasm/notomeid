@@ -1,6 +1,6 @@
 {
-  "summary":  "Rencana transformasi Panel Admin Notomee dari jendela modal dialog menjadi Halaman Penuh Panel Admin Profesional (Executive Admin Dashboard):\n1. Pengalihan tombol 'Admin' di bilah navigasi dan menu profil agar membuka halaman penuh mandiri (bukan modal popup), dilengkapi tombol kembali horizontal selebar penuh halaman ('Kembali ke [Modul]').\n2. Implementasi strip 4 kartu KPI eksekutif (Total Anggota, Anggota Aktif, Akses Ditangguhkan, dan Status Kesehatan Sistem/Maintenance).\n3. Penambahan fitur krusial baru: Ekspor data anggota ke CSV/JSON, Pratinjau Siaran Pengumuman Pemeliharaan (Live Broadcast Banner Preview), serta penyempurnaan manajemen anggota dengan pencarian live dan generator tautan undangan.\n4. Integrasi penuh ke status cloud Supabase dengan kontrol pemeliharaan global dan panduan skrip SQL RLS.",
-  "updatedAt":  "2026-11-10T07:46:19.484160988Z",
+  "summary":  "Rencana perbaikan mekanisme pengiriman email Gmail ke aplikasi native:\n1. Memperbaiki fungsi pembangun URL dan mekanisme pembuka email di `memberNotifications.ts`: beralih dari tautan web lawas (`mail.google.com/?view=cm`) yang membuka webmail jadul ke protokol native (`mailto:` & skema app intent Gmail) yang langsung mengarahkan peramban seluler (Android/iOS) ke aplikasi Gmail native.\n2. Memperbarui aksi pembukaan otomatis saat anggota baru didaftarkan agar langsung mengarahkan ke aplikasi Gmail tanpa membuka tab kosong di peramban.\n3. Memperbarui seluruh tombol kirim email di `AdminDashboardView.tsx` dan `AdminPanelModal.tsx` agar menggunakan protokol native universal yang membuka aplikasi Gmail secara langsung.",
+  "updatedAt":  "2026-11-10T08:19:04.138146758Z",
   "requestFeedback":  true,
   "userFacing":  true
 }

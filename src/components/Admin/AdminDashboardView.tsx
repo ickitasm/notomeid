@@ -39,7 +39,8 @@ import {
   notifyMemberInvited,
   notifyMemberRemoved,
   getInviteEmailContent,
-  buildGmailComposeUrl,
+  buildMailtoUrl,
+  openNativeGmailApp,
 } from '../../lib/memberNotifications';
 
 export interface AdminDashboardViewProps {
@@ -97,8 +98,8 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
     name?: string;
     automated: boolean;
     message: string;
-    gmailUrl: string;
-    mailtoUrl: string;
+    subject?: string;
+    body?: string;
   } | null>(null);
 
   // Deletion modal confirmation
@@ -145,8 +146,8 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
     } else {
       const notifResult = await notifyMemberInvited(emailTrimmed, nameTrimmed);
 
-      if (!notifResult.automated && autoNotifyGmail && notifResult.gmailComposeUrl) {
-        window.open(notifResult.gmailComposeUrl, '_blank', 'noopener,noreferrer');
+      if (!notifResult.automated && autoNotifyGmail) {
+        openNativeGmailApp(emailTrimmed, notifResult.subject || '', notifResult.body || '');
       }
 
       setNotificationBanner({
@@ -155,8 +156,8 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
         name: nameTrimmed,
         automated: notifResult.automated,
         message: notifResult.message,
-        gmailUrl: notifResult.gmailComposeUrl,
-        mailtoUrl: notifResult.mailtoUrl,
+        subject: notifResult.subject,
+        body: notifResult.body,
       });
 
       setNewEmail('');
@@ -188,8 +189,8 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
     if (res.success) {
       const notifResult = await notifyMemberRemoved(email, name);
 
-      if (!notifResult.automated && withGmailNotification && notifResult.gmailComposeUrl) {
-        window.open(notifResult.gmailComposeUrl, '_blank', 'noopener,noreferrer');
+      if (!notifResult.automated && withGmailNotification) {
+        openNativeGmailApp(email, notifResult.subject || '', notifResult.body || '');
       }
 
       setNotificationBanner({
@@ -198,8 +199,8 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
         name,
         automated: notifResult.automated,
         message: notifResult.message,
-        gmailUrl: notifResult.gmailComposeUrl,
-        mailtoUrl: notifResult.mailtoUrl,
+        subject: notifResult.subject,
+        body: notifResult.body,
       });
 
       setStatusMessage(
@@ -591,15 +592,20 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.app_settings;`;
 
           <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
             {!notificationBanner.automated && (
-              <a
-                href={notificationBanner.gmailUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="px-3 py-1.5 rounded-xl bg-[#C85A32] text-white font-semibold text-xs hover:bg-[#B34B25] flex items-center gap-1.5 shadow-2xs transition-colors"
+              <button
+                type="button"
+                onClick={() =>
+                  openNativeGmailApp(
+                    notificationBanner.email,
+                    notificationBanner.subject || '',
+                    notificationBanner.body || ''
+                  )
+                }
+                className="px-3.5 py-2 rounded-xl bg-[#C85A32] text-white font-semibold text-xs hover:bg-[#B34B25] flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
               >
                 <Mail className="w-3.5 h-3.5" />
-                <span>{isId ? 'Buka Gmail (1-Klik)' : 'Open Gmail (1-Click)'}</span>
-              </a>
+                <span>{isId ? 'Buka Aplikasi Gmail' : 'Open Gmail App'}</span>
+              </button>
             )}
             <button
               type="button"
@@ -699,11 +705,6 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.app_settings;`;
               filteredUsers.map((u) => {
                 const isSelfAdmin = checkIsAdmin(u.email);
                 const inviteContent = getInviteEmailContent(u.email, u.fullName);
-                const gmailComposeUrl = buildGmailComposeUrl(
-                  u.email,
-                  inviteContent.subject,
-                  inviteContent.body
-                );
 
                 return (
                   <div
@@ -763,16 +764,17 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.app_settings;`;
                       {!isSelfAdmin && (
                         <>
                           {/* Send Gmail Notification */}
-                          <a
-                            href={gmailComposeUrl}
-                            target="_blank"
-                            rel="noreferrer"
+                          <button
+                            type="button"
+                            onClick={() =>
+                              openNativeGmailApp(u.email, inviteContent.subject, inviteContent.body)
+                            }
                             className="p-2 sm:px-3 sm:py-2 rounded-xl border border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#201B17] hover:bg-[#F4ECE3] dark:hover:bg-[#28221D] text-xs font-semibold text-[#594E44] dark:text-[#C5B8AA] flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
-                            title={isId ? 'Buka draf undangan via Gmail' : 'Open invite email in Gmail'}
+                            title={isId ? 'Buka aplikasi Gmail untuk kirim surat undangan' : 'Open Gmail app to send invite'}
                           >
                             <Mail className="w-3.5 h-3.5 text-[#C85A32]" />
                             <span className="hidden sm:inline">{isId ? 'Kirim Gmail' : 'Send Gmail'}</span>
-                          </a>
+                          </button>
 
                           {/* Copy Invite Message to clipboard */}
                           <button

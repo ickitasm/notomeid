@@ -13,6 +13,8 @@ export interface MemberNotificationResult {
   message: string;
   gmailComposeUrl: string;
   mailtoUrl: string;
+  subject?: string;
+  body?: string;
 }
 
 /**
@@ -67,40 +69,66 @@ ${ADMIN_EMAIL}`;
 }
 
 /**
- * Generates direct 1-click Gmail Web compose URL
- */
-export function buildGmailComposeUrl(to: string, subject: string, body: string): string {
-  const params = new URLSearchParams({
-    view: 'cm',
-    fs: '1',
-    to,
-    su: subject,
-    body,
-  });
-  return `https://mail.google.com/mail/?${params.toString()}`;
-}
-
-/**
- * Generates mailto link for native mobile mail apps
+ * Generates RFC-compliant mailto URI for direct native email apps (Gmail on Android & iOS)
  */
 export function buildMailtoUrl(to: string, subject: string, body: string): string {
-  const params = new URLSearchParams({
-    subject,
-    body,
-  });
-  return `mailto:${to}?${params.toString()}`;
+  const encodedSubject = encodeURIComponent(subject);
+  const encodedBody = encodeURIComponent(body);
+  return `mailto:${encodeURIComponent(to)}?subject=${encodedSubject}&body=${encodedBody}`;
 }
 
 /**
- * Dispatches automated invite notification (Serverless Background API + Gmail 1-Click Fallback)
+ * Generates direct Gmail compose URI (Uses direct native mailto protocol so Android/iOS
+ * immediately intercepts and launches the native Gmail application instead of legacy webmail)
+ */
+export function buildGmailComposeUrl(to: string, subject: string, body: string): string {
+  return buildMailtoUrl(to, subject, body);
+}
+
+/**
+ * Directly launches the native Gmail app on mobile devices (Android/iOS)
+ * without opening a blank browser tab or navigating to legacy basic HTML webmail.
+ */
+export function openNativeGmailApp(to: string, subject: string, body: string) {
+  const mailtoUri = buildMailtoUrl(to, subject, body);
+
+  if (typeof navigator !== 'undefined') {
+    const ua = navigator.userAgent || '';
+    const isIOS = /iPad|iPhone|iPod/.test(ua);
+
+    if (isIOS) {
+      // Attempt iOS Gmail URL scheme first
+      const gmailScheme = `googlegmail:///co?to=${encodeURIComponent(to)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const fallbackTimer = setTimeout(() => {
+        window.location.href = mailtoUri;
+      }, 400);
+
+      try {
+        window.location.href = gmailScheme;
+        return;
+      } catch {
+        clearTimeout(fallbackTimer);
+        window.location.href = mailtoUri;
+        return;
+      }
+    }
+  }
+
+  // On Android (Chrome, Firefox, etc.) and mobile devices, setting location to mailto:
+  // immediately triggers Android's native intent dispatcher directly into the Gmail app!
+  window.location.href = mailtoUri;
+}
+
+/**
+ * Dispatches automated invite notification (Serverless Background API + Native Gmail Fallback)
  */
 export async function notifyMemberInvited(
   email: string,
   name?: string
 ): Promise<MemberNotificationResult> {
   const { subject, body } = getInviteEmailContent(email, name);
-  const gmailComposeUrl = buildGmailComposeUrl(email, subject, body);
   const mailtoUrl = buildMailtoUrl(email, subject, body);
+  const gmailComposeUrl = buildGmailComposeUrl(email, subject, body);
 
   // Try background serverless dispatch
   try {
@@ -119,32 +147,36 @@ export async function notifyMemberInvited(
           message: data.message || `Email undangan otomatis terkirim langsung ke ${email}!`,
           gmailComposeUrl,
           mailtoUrl,
+          subject,
+          body,
         };
       }
     }
   } catch (err) {
-    console.info('Auto email endpoint not active yet. Using standard 1-click dispatch.', err);
+    console.info('Auto email endpoint not active yet. Using native Gmail app dispatch.', err);
   }
 
   return {
     success: true,
     automated: false,
-    message: `Akun ${email} berhasil didaftarkan. Siap dikirimkan notifikasi.`,
+    message: `Akun ${email} berhasil didaftarkan. Siap dikirimkan notifikasi via aplikasi Gmail.`,
     gmailComposeUrl,
     mailtoUrl,
+    subject,
+    body,
   };
 }
 
 /**
- * Dispatches automated revocation/removal notification (Serverless Background API + Gmail 1-Click Fallback)
+ * Dispatches automated revocation/removal notification (Serverless Background API + Native Gmail Fallback)
  */
 export async function notifyMemberRemoved(
   email: string,
   name?: string
 ): Promise<MemberNotificationResult> {
   const { subject, body } = getRemovalEmailContent(email, name);
-  const gmailComposeUrl = buildGmailComposeUrl(email, subject, body);
   const mailtoUrl = buildMailtoUrl(email, subject, body);
+  const gmailComposeUrl = buildGmailComposeUrl(email, subject, body);
 
   // Try background serverless dispatch
   try {
@@ -163,11 +195,13 @@ export async function notifyMemberRemoved(
           message: data.message || `Email pencabutan akses otomatis terkirim ke ${email}.`,
           gmailComposeUrl,
           mailtoUrl,
+          subject,
+          body,
         };
       }
     }
   } catch (err) {
-    console.info('Auto email endpoint not active yet. Using standard 1-click dispatch.', err);
+    console.info('Auto email endpoint not active yet. Using native Gmail app dispatch.', err);
   }
 
   return {
@@ -176,5 +210,7 @@ export async function notifyMemberRemoved(
     message: `Akses untuk ${email} telah dicabut.`,
     gmailComposeUrl,
     mailtoUrl,
+    subject,
+    body,
   };
 }

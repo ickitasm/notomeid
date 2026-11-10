@@ -34,6 +34,7 @@ import {
   getRemovalEmailContent,
   buildGmailComposeUrl,
   buildMailtoUrl,
+  openNativeGmailApp,
 } from '../../lib/memberNotifications';
 
 interface AdminPanelModalProps {
@@ -84,8 +85,8 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
     name?: string;
     automated: boolean;
     message: string;
-    gmailUrl: string;
-    mailtoUrl: string;
+    subject?: string;
+    body?: string;
   } | null>(null);
 
   // Deletion modal state
@@ -116,9 +117,9 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
       // Trigger notification helper (tries serverless API first, fallback to Gmail 1-click)
       const notifResult = await notifyMemberInvited(emailTrimmed, nameTrimmed);
 
-      // If NOT automated and admin requested auto Gmail opening, open Gmail tab
-      if (!notifResult.automated && autoNotifyGmail && notifResult.gmailComposeUrl) {
-        window.open(notifResult.gmailComposeUrl, '_blank', 'noopener,noreferrer');
+      // If NOT automated and admin requested auto Gmail opening, launch native Gmail app
+      if (!notifResult.automated && autoNotifyGmail) {
+        openNativeGmailApp(emailTrimmed, notifResult.subject || '', notifResult.body || '');
       }
 
       setNotificationBanner({
@@ -127,8 +128,8 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
         name: nameTrimmed,
         automated: notifResult.automated,
         message: notifResult.message,
-        gmailUrl: notifResult.gmailComposeUrl,
-        mailtoUrl: notifResult.mailtoUrl,
+        subject: notifResult.subject,
+        body: notifResult.body,
       });
 
       setNewEmail('');
@@ -154,8 +155,8 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
     if (res.success) {
       const notifResult = await notifyMemberRemoved(email, name);
 
-      if (!notifResult.automated && withGmailNotification && notifResult.gmailComposeUrl) {
-        window.open(notifResult.gmailComposeUrl, '_blank', 'noopener,noreferrer');
+      if (!notifResult.automated && withGmailNotification) {
+        openNativeGmailApp(email, notifResult.subject || '', notifResult.body || '');
       }
 
       setNotificationBanner({
@@ -164,8 +165,8 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
         name,
         automated: notifResult.automated,
         message: notifResult.message,
-        gmailUrl: notifResult.gmailComposeUrl,
-        mailtoUrl: notifResult.mailtoUrl,
+        subject: notifResult.subject,
+        body: notifResult.body,
       });
     }
 
@@ -433,15 +434,20 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.app_settings;`;
 
               <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
                 {!notificationBanner.automated && (
-                  <a
-                    href={notificationBanner.gmailUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="px-3 py-1.5 rounded-lg bg-[#C85A32] text-white font-medium text-xs hover:bg-[#B34B25] flex items-center gap-1.5 shadow-xs transition-colors"
+                  <button
+                    type="button"
+                    onClick={() =>
+                      openNativeGmailApp(
+                        notificationBanner.email,
+                        notificationBanner.subject || '',
+                        notificationBanner.body || ''
+                      )
+                    }
+                    className="px-3 py-1.5 rounded-lg bg-[#C85A32] text-white font-medium text-xs hover:bg-[#B34B25] flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
                   >
                     <Mail className="w-3.5 h-3.5" />
-                    <span>{isId ? 'Buka Gmail (1-Klik)' : 'Open Gmail (1-Click)'}</span>
-                  </a>
+                    <span>{isId ? 'Buka Aplikasi Gmail' : 'Open Gmail App'}</span>
+                  </button>
                 )}
                 <button
                   type="button"
@@ -566,18 +572,19 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.app_settings;`;
                         <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
                           {/* Send Gmail Notification button */}
                           {!isSelfAdmin && (
-                            <a
-                              href={gmailComposeUrl}
-                              target="_blank"
-                              rel="noreferrer"
+                            <button
+                              type="button"
+                              onClick={() =>
+                                openNativeGmailApp(u.email, inviteContent.subject, inviteContent.body)
+                              }
                               className="p-1.5 rounded-lg border border-[#E0D7CB] dark:border-[#38312B] bg-[#FAF7F2] dark:bg-[#161311] hover:bg-[#EFE8DD] text-xs text-[#594E44] dark:text-[#C5B8AA] flex items-center gap-1 cursor-pointer transition-colors"
-                              title={isId ? 'Kirim notifikasi pendaftaran via Gmail' : 'Send invite email via Gmail'}
+                              title={isId ? 'Kirim notifikasi pendaftaran via aplikasi Gmail' : 'Send invite email via Gmail app'}
                             >
                               <Mail className="w-3.5 h-3.5 text-[#C85A32]" />
                               <span className="text-[10px] hidden sm:inline">
                                 {isId ? 'Kirim Gmail' : 'Email'}
                               </span>
-                            </a>
+                            </button>
                           )}
 
                           {/* Copy invite text */}

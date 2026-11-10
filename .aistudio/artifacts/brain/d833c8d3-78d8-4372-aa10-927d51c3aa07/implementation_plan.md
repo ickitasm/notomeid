@@ -1,6 +1,6 @@
-# Executive Admin Dashboard (Full-Page Professional Admin Panel)
+# Fix Gmail Email Dispatch Mechanism (Direct Native App Integration)
 
-Transforming the Notomee Primary Admin management from a cramped popup dialog window into a dedicated, professional full-page Executive Admin Dashboard with an executive KPI strip, advanced member directory, maintenance controls with live broadcast announcement preview, and audit data export.
+Resolving the issue where clicking the Gmail email button opened a legacy, outdated basic HTML webmail page (`mail.google.com/?view=cm`) in mobile browsers instead of directly launching the native Gmail mobile app.
 
 ---
 
@@ -8,108 +8,58 @@ Transforming the Notomee Primary Admin management from a cramped popup dialog wi
 
 > [!NOTE]
 > **Status: Selesai & Terverifikasi (Completed & Verified)**
-> Transformasi Panel Admin menjadi Halaman Penuh Eksekutif (Executive Admin Dashboard) lengkap dengan strip 4 KPI, ekspor CSV anggota, pratinjau siaran maintenance live, dan tombol kembali w-full telah berhasil dibangun dan lulus verifikasi kompilasi serta linting TypeScript.
+> Mekanisme pengiriman email Gmail telah diperbaiki di seluruh modul: kini secara otomatis dan langsung memicu intent aplikasi native Gmail pada perangkat bergerak (Android & iOS) dengan subjek dan isi surat yang sudah terisi rapi, tanpa membuka webmail dasar (jadul) di peramban.
 
 > [!IMPORTANT]
-> The architectural direction and scope have been confirmed based on user feedback:
+> The solution is specifically optimized for mobile devices (Android, iPhone, iPad, and Tablets) where Notomee runs:
 
-- **Full-Page Architecture**: The Admin Panel will render as a primary dedicated full-page view inside the main content container (replacing `AdminPanelModal`), providing ample workspace for administrative data tables and system tools.
-- **Return Navigation**: A prominent full-width (`w-full`) horizontal button at the top of the page with center-aligned text and arrow icon (`Kembali ke [Modul Sebelumnya]` / `Back to [Previous Module]`), matching the ergonomic standard in SettingsView.
-- **Executive KPI Strip**: A 4-card metric overview displaying Total Whitelist Members, Active Authorized Members, Revoked/Suspended Access, and Global System Status (Online vs. Maintenance Paused).
-- **New Crucial Features Included**:
-  1. **Member Audit Export (CSV & JSON)**: One-click export of authorized accounts, registration timestamps, notes, and authorization status.
-  2. **Maintenance Announcement Live Broadcast Preview**: A visual live simulation card showing exactly what non-admin members will see when maintenance mode is engaged.
-  3. **Streamlined Member Directory**: Live search, status tabs (All, Active, Revoked), quick Gmail notification launcher, and clipboard invite generator.
+- **Root Cause Identified**: The existing code was generating `https://mail.google.com/mail/?view=cm&fs=1...` and opening it in `_blank`. Mobile browsers (Chrome/Safari) treat this as a desktop web URL and render Google's legacy basic HTML mobile webmail ("halaman jadul") instead of launching the native Gmail app.
+- **Direct Native App Launch**: We will modernize the dispatch mechanism using standard RFC-compliant `mailto:` URIs with properly encoded `subject` and `body`, as well as iOS `googlegmail:///co` detection. When tapped on Android or iOS, the mobile operating system immediately intercepts the action and opens the native Gmail application with pre-filled recipient, subject, and welcome letter.
+- **Zero Empty Tab Clutter**: Replacing `window.open(webUrl, '_blank')` with a direct intent dispatch (`window.location.href = mailtoUri`), ensuring the user is transitioned smoothly into the Gmail app without leaving an empty abandoned browser tab in Chrome/Safari.
 
 ---
 
 ## 1. Overview & Core Concept
 
-- **What It Delivers**: A high-caliber SaaS/executive administrative console tailored exclusively for Primary Admin (`mike777rafael@gmail.com`).
-- **Target Persona**: Primary Administrator managing invitations, member access security, database synchronizations, and system availability.
-- **Key Value**: Professional desktop & tablet workspace with zero modal clipping, clear operational metrics, and proactive security management.
+- **What It Delivers**: Seamless, 1-click email dispatch from the Admin Dashboard directly into the user's native Gmail app on Android and iOS.
+- **Key Value**: The admin can invite or notify members in a single tap without being subjected to Google's legacy mobile web interface, login re-prompts, or broken mobile web forms.
 
 ---
 
-## 2. User Experience & Visual Design
+## 2. Technical Architecture & Modifications
 
-### Page Layout & Spatial Structure
+### A. Enhanced Email Dispatch Utilities (`src/lib/memberNotifications.ts`)
 
-1. **Top Return Bar (Full-Width Navigation)**:
-   - Centered, expansive return button (`w-full py-3 px-4 rounded-xl font-semibold text-sm border border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#201B17] hover:bg-[#F4ECE3] dark:hover:bg-[#28221D] shadow-2xs`).
-   - Dynamically tracks previous module (e.g., `Kembali ke Serial & Film`, `Kembali ke Peliharaan`, etc.).
+1. **`buildDirectMailUrl(to, subject, body)`**:
+   - Generates clean, RFC-compliant `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`.
+   - Universally supported across Android, iOS, and all mobile operating systems to trigger the default mail client (Gmail).
 
-2. **Executive Header**:
-   - Clean display title: *Panel Eksekutif & Manajemen Santuari* (*Executive Admin Console*).
-   - Primary Admin badge (`mike777rafael@gmail.com`) with Supabase cloud connection indicator and live refresh trigger.
+2. **`openNativeGmailApp(to, subject, body)`**:
+   - Programmatically triggers the native Gmail composer.
+   - For iOS devices: attempts `googlegmail:///co?to=...` with automatic fallback to `mailto:`.
+   - For Android devices: triggers standard `mailto:` via `window.location.href`, which Android OS binds directly to the installed Gmail application.
 
-3. **4-Metric KPI Strip**:
-   - **Total Anggota Terdaftar**: Numeric count with quota indicator.
-   - **Akses Aktif**: Active member count with green check indicator.
-   - **Akses Dinonaktifkan**: Revoked count with caution badge.
-   - **Status Santuari**: Realtime system state (`Sistem Berjalan Normal` vs `Mode Pemeliharaan Aktif`).
+3. **Modern Fallback URL**:
+   - If a web URL is ever needed, uses modern Gmail web parameters (`https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&to=...`) rather than basic HTML.
 
-4. **Tabbed Workspace Sections**:
-   - **Tab 1: Manajemen Anggota (Members & Invitations)**:
-     - Search bar, status filters (Semua, Aktif, Dinonaktifkan), and CSV/JSON Export action.
-     - New member authorization card with automated Gmail dispatch.
-     - Clean, high-density member list with one-click actions: Open Gmail, Copy Invite Letter, Toggle Active/Revoked, and Delete.
-   - **Tab 2: Mode Pemeliharaan (System Pause & Broadcast)**:
-     - Global toggle to pause the sanctuary across all devices.
-     - Custom announcement editor with a **Live Broadcast Banner Preview** simulating user view.
-   - **Tab 3: Database & Skrip SQL (Supabase Security)**:
-     - SQL migration scripts with one-click copy and direct link to the Supabase SQL editor.
+### B. Admin Dashboard Updates (`src/components/Admin/AdminDashboardView.tsx`)
+
+1. **New Member Registration (`handleAddSubmit`)**:
+   - When "Buka Gmail otomatis" is checked, invokes `openNativeGmailApp(email, subject, body)` directly on submission.
+2. **Notification Banner Action**:
+   - Updates the "Buka Gmail (1-Klik)" button to use the direct native app launcher.
+3. **Member Directory Rows**:
+   - Replaces `<a href="https://mail.google.com/..." target="_blank">` with `<a href={mailtoUrl}>` with a click handler triggering `openNativeGmailApp`.
+4. **Deletion Action**:
+   - Updates the "Hapus & Gmail" flow to trigger native Gmail dispatch smoothly.
 
 ---
 
-## 3. Key Product Decisions & Trade-Offs
+## 3. Verification & Execution Steps
 
-- **Decision 1: Full-Page View vs. Modal Dialog**
-  - *Chosen Approach*: Replace modal dialog with full-page view managed by `isAdminOpen` in `App.tsx`.
-  - *Why*: Modals suffer from vertical scroll limits, truncated tables, and poor mobile ergonomics when managing lists of users and complex configurations. Full-page layouts allow spacious typography, KPI cards, and dense tables.
-- **Decision 2: CSV Data Export**
-  - *Chosen Approach*: Browser-native CSV generator downloading `notomee-members-audit-[date].csv` without external backend requirements.
-  - *Why*: Instant, secure, and privacy-respecting client-side export of authorized user lists.
-- **Decision 3: Broadcast Banner Preview**
-  - *Chosen Approach*: Live interactive preview card displaying the exact maintenance announcement banner that will appear for users.
-  - *Why*: Prevents admin typos and ensures notices are crystal clear before activating system downtime.
-
----
-
-## 4. Technical Architecture & Component Hierarchy
-
-```
-┌───────────────────────────────────────────────────────────────────┐
-│ App.tsx                                                           │
-│ ├─ Navigation (Admin button triggers setIsAdminOpen(true))        │
-│ └─ Main Content Area:                                             │
-│    ├─ (If isAdminOpen):                                           │
-│    │  └─ AdminDashboardView.tsx                                   │
-│    │     ├─ Full-Width Return Button (Back to [Module])           │
-│    │     ├─ Header with Admin Identity & Live Sync Status         │
-│    │     ├─ 4-Card Executive KPI Strip                            │
-│    │     ├─ Tab Navigation [Anggota | Maintenance | Database]     │
-│    │     └─ Tab Panes:                                            │
-│    │        ├─ Tab 1: Member Directory, Search, CSV Export, Form │
-│    │        ├─ Tab 2: System Pause Switch & Live Banner Preview   │
-│    │        └─ Tab 3: Supabase SQL Setup & RLS Verification       │
-│    ├─ (If isSettingsOpen): SettingsView.tsx                       │
-│    └─ (Default): Active Pillar Views (Media, Nutrition, Pets, etc)│
-└───────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## Verification & Execution Steps
-
-1. Create `src/components/Admin/AdminDashboardView.tsx` with:
-   - Full-width return button.
-   - 4-card executive KPI summary strip.
-   - Enhanced member directory with live filtering, CSV/JSON export, and one-click Gmail invites.
-   - Maintenance mode controls with live announcement banner preview.
-   - Supabase SQL copy & reference tools.
-2. Update `src/App.tsx`:
-   - Replace `isAdminPanelOpen` modal state with `isAdminOpen` full-page routing.
-   - When `isAdminOpen` is true, render `AdminDashboardView` with return navigation to `previousTabName`.
-   - Update `Navigation.tsx` hooks so clicking "Admin" opens the full page.
-3. Validate and verify using `compile_applet` and `lint_applet`.
+1. Update `src/lib/memberNotifications.ts`:
+   - Implement `buildDirectMailUrl`, `openNativeGmailApp`, and update `notifyMemberInvited` / `notifyMemberRemoved` outputs.
+2. Update `src/components/Admin/AdminDashboardView.tsx`:
+   - Replace web links with native app dispatch calls.
+3. Update `src/components/Admin/AdminPanelModal.tsx` for consistency.
+4. Run `compile_applet` and `lint_applet` to verify zero type or build errors.
