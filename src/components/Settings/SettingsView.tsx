@@ -9,11 +9,9 @@ import {
   Download,
   Upload,
   RotateCcw,
-  Sliders,
   Check,
   Cloud,
   RefreshCw,
-  Globe,
   Sparkles,
   CheckCircle2,
   Utensils,
@@ -176,25 +174,20 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
   return (
     <div className="max-w-4xl w-full mx-auto pb-16 space-y-6 animate-in fade-in duration-200">
-      {/* Top Navigation & Return Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-[#E0D7CB] dark:border-[#38312B]">
+      {/* Top Navigation & Return Bar - Full Width Horizontal */}
+      <div className="pb-4 border-b border-[#E0D7CB] dark:border-[#38312B]">
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#201B17] hover:bg-[#F4ECE3] dark:hover:bg-[#28221D] text-[#594E44] dark:text-[#C5B8AA] font-semibold text-[13.5px] transition-all active:scale-95 cursor-pointer self-start shadow-2xs"
+          className="w-full flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl border border-[#E0D7CB] dark:border-[#38312B] bg-white dark:bg-[#201B17] hover:bg-[#F4ECE3] dark:hover:bg-[#28221D] text-[#594E44] dark:text-[#C5B8AA] font-semibold text-sm transition-all active:scale-[0.99] cursor-pointer shadow-2xs"
         >
-          <ArrowLeft className="w-4 h-4 text-[#C85A32]" />
+          <ArrowLeft className="w-4 h-4 text-[#C85A32] shrink-0" />
           <span>
             {activeLang === 'id'
               ? `Kembali ke ${previousTabName || 'Modul'}`
               : `Back to ${previousTabName || 'Module'}`}
           </span>
         </button>
-
-        <div className="flex items-center gap-2 text-xs font-mono text-[#8F8275] dark:text-[#A89C90]">
-          <Sliders className="w-4 h-4 text-[#C85A32]" />
-          <span>Notome Personal Sanctuary · Settings</span>
-        </div>
       </div>
 
       {/* Page Title & Editorial Header */}
@@ -247,18 +240,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       {/* Tab Content */}
       {activeTab === 'general' ? (
         <div className="space-y-6">
-          {/* Section 1: Display Language (Flags ONLY as requested) */}
-          <div className="p-4 sm:p-5 rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] space-y-3 shadow-xs">
-            <div className="flex items-center gap-2 font-serif font-bold text-[14px] sm:text-[15px] text-[#2B241E] dark:text-[#EFE9E2]">
-              <Globe className="w-4.5 h-4.5 text-[#8C6D4F]" />
-              <span>{t.languageLabel}</span>
-            </div>
-            <p className="text-xs text-[#7B6F63] dark:text-[#9F9184]">
-              {activeLang === 'id'
-                ? 'Pilih bahasa antarmuka (Bahasa Indonesia / English)'
-                : 'Select application interface language'}
-            </p>
-            <div className="flex items-center gap-3 pt-1">
+          {/* Section 1: Display Language (Clean Flags Only) */}
+          <div className="p-4 sm:p-5 rounded-2xl border border-[#E4DCDB] dark:border-[#352F2B] bg-[#FFFDF9] dark:bg-[#1C1815] shadow-xs">
+            <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => onSelectLanguage('id')}
@@ -300,11 +284,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 {preferences.theme}
               </span>
             </div>
-            <p className="text-xs text-[#7B6F63] dark:text-[#9F9184]">
-              {activeLang === 'id'
-                ? 'Tersedia 7 tema visual lengkap untuk suasana ruang personal Anda'
-                : 'Available in 7 visual themes for your personal sanctuary ambience'}
-            </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-1">
               {allThemes.map((th) => {

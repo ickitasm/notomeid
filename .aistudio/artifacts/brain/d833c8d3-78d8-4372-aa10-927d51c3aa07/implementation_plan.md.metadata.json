@@ -1,0 +1,6 @@
+{
+  "summary":  "Rencana pembaruan visual dan penataan tata letak pada halaman Pengaturan & Sinkronisasi (Settings & Sync):\n1. Perluasan tombol 'Kembali ke [Modul]' menjadi selebar horizontal halaman (w-full) dengan perataan ikon dan teks di tengah, serta penghapusan baris teks 'Notome Personal Sanctuary · Settings'.\n2. Penyederhanaan kartu Bahasa pada tab General: menghapus label teks '(Bahasa)' dan kalimat deskripsi 'Select application interface language', menampilkan tombol bendera 🇮🇩 dan 🇬🇧 secara bersih dan minimalis.\n3. Penghapusan kalimat deskripsi tema visual 'Available in 7 visual themes for your personal sanctuary ambience / Tersedia 7 tema visual lengkap untuk suasana ruang personal Anda'.",
+  "updatedAt":  "2026-11-10T07:36:31.307249642Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}
