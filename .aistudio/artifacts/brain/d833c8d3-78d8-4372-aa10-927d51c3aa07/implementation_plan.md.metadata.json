@@ -1,6 +1,6 @@
 {
-  "summary":  "Rencana implementasi 3 opsi font (default/saat ini, sans, fun) di Pengaturan tepat di bawah opsi bahasa, tanpa keterangan teks melainkan simbol/huruf representasi gaya tipografi, dan diterapkan ke seluruh teks aplikasi.",
-  "updatedAt":  "2026-11-10T13:29:07.407394742Z",
+  "summary":  "Rencana implementasi tombol panah ganti halaman di bar navigasi bawah yang mengapit tab modul, dengan dukungan perputaran looping terus menerus antar-halaman.",
+  "updatedAt":  "2026-11-10T15:23:43.138739851Z",
   "requestFeedback":  true,
   "userFacing":  true
 }

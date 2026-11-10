@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import { Film, Utensils, HeartPulse, Calendar, Sun, Moon, Sliders, LogOut, CheckCircle2, Globe, ShieldCheck, BookOpen, MoonStar, Sparkles, Bell, Menu, User as UserIcon, Trees, Ghost, Gamepad2 } from 'lucide-react';
+import { Film, Utensils, HeartPulse, Calendar, Sun, Moon, Sliders, LogOut, CheckCircle2, Globe, ShieldCheck, BookOpen, MoonStar, Sparkles, Bell, Menu, User as UserIcon, Trees, Ghost, Gamepad2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { AppUser } from '../hooks/useAuth';
 import { UpcomingAlert } from '../lib/notifications';
 import { NotificationPanel } from './Notifications/NotificationPanel';
@@ -91,6 +91,19 @@ export const Navigation: React.FC<NavigationProps> = ({
     onSelectLanguage(language === 'id' ? 'en' : 'id');
   };
 
+  const currentTabIndex = navItems.findIndex((item) => item.id === activeTab);
+
+  const handlePrevTab = () => {
+    const prevIndex = (currentTabIndex - 1 + navItems.length) % navItems.length;
+    onTabChange(navItems[prevIndex].id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleNextTab = () => {
+    const nextIndex = (currentTabIndex + 1) % navItems.length;
+    onTabChange(navItems[nextIndex].id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <>
@@ -381,53 +394,78 @@ export const Navigation: React.FC<NavigationProps> = ({
         </div>
       </header>
 
-      {/* Android & Mobile Bottom Navigation Bar (High Contrast, Sharp Text & Icons, Highlight Active) */}
+      {/* Android & Mobile Bottom Navigation Bar Flanked by Looping Arrow Buttons */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FAF7F2]/95 dark:bg-[#161311]/95 backdrop-blur-xl border-t border-[#D9CEBF] dark:border-[#382E26] safe-area-pb select-none shadow-lg">
-        <nav className="grid grid-cols-6 items-center h-18 max-w-lg mx-auto px-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => {
-                  onTabChange(item.id);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                className={`flex flex-col items-center justify-center min-h-[54px] py-1 transition-all duration-200 touch-manipulation cursor-pointer active:scale-95 ${
-                  isActive
-                    ? 'scale-105 opacity-100'
-                    : 'opacity-70 hover:opacity-100'
-                }`}
-              >
-                <div
-                  className={`p-1.5 rounded-xl transition-all duration-200 ${
-                    isActive
-                      ? 'bg-[#C85A32]/15 text-[#C85A32] shadow-2xs ring-1 ring-[#C85A32]/35'
-                      : 'text-[#1F1914] dark:text-[#F2EDE8]'
-                  }`}
-                >
-                  <Icon className="w-5 h-5 stroke-[2.25]" />
-                </div>
-                <span
-                  className={`text-[10px] sm:text-[11px] tracking-tight mt-0.5 whitespace-nowrap transition-colors ${
-                    isActive
-                      ? 'text-[#C85A32] font-black'
-                      : 'text-[#1F1914] dark:text-[#F2EDE8] font-bold'
-                  }`}
-                >
-                  {item.shortLabel}
-                </span>
+        <div className="flex items-center justify-between h-18 max-w-lg mx-auto px-1.5 sm:px-2 gap-0.5">
+          {/* Left Arrow Button (Looping) */}
+          <button
+            type="button"
+            onClick={handlePrevTab}
+            aria-label="Previous Module"
+            className="w-9 h-12 flex items-center justify-center rounded-xl text-[#1F1914] dark:text-[#F2EDE8] hover:bg-[#EAE2D7] dark:hover:bg-[#26201B] active:scale-90 transition-all cursor-pointer touch-manipulation shrink-0"
+            title={language === 'id' ? 'Halaman Sebelumnya' : 'Previous Page'}
+          >
+            <ChevronLeft className="w-5 h-5 stroke-[2.5] text-[#C85A32]" />
+          </button>
 
-                {/* Active indicator dot */}
-                {isActive && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#C85A32] mt-0.5 shadow-xs" />
-                )}
-              </button>
-            );
-          })}
-        </nav>
+          {/* 6 Middle Module Nav Tabs */}
+          <nav className="grid grid-cols-6 items-center flex-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => {
+                    onTabChange(item.id);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className={`flex flex-col items-center justify-center min-h-[54px] py-1 transition-all duration-200 touch-manipulation cursor-pointer active:scale-95 ${
+                    isActive
+                      ? 'scale-105 opacity-100'
+                      : 'opacity-70 hover:opacity-100'
+                  }`}
+                >
+                  <div
+                    className={`p-1.5 rounded-xl transition-all duration-200 ${
+                      isActive
+                        ? 'bg-[#C85A32]/15 text-[#C85A32] shadow-2xs ring-1 ring-[#C85A32]/35'
+                        : 'text-[#1F1914] dark:text-[#F2EDE8]'
+                    }`}
+                  >
+                    <Icon className="w-5 h-5 stroke-[2.25]" />
+                  </div>
+                  <span
+                    className={`text-[9.5px] sm:text-[10.5px] tracking-tight mt-0.5 whitespace-nowrap transition-colors ${
+                      isActive
+                        ? 'text-[#C85A32] font-black'
+                        : 'text-[#1F1914] dark:text-[#F2EDE8] font-bold'
+                    }`}
+                  >
+                    {item.shortLabel}
+                  </span>
+
+                  {/* Active indicator dot */}
+                  {isActive && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#C85A32] mt-0.5 shadow-xs" />
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* Right Arrow Button (Looping) */}
+          <button
+            type="button"
+            onClick={handleNextTab}
+            aria-label="Next Module"
+            className="w-9 h-12 flex items-center justify-center rounded-xl text-[#1F1914] dark:text-[#F2EDE8] hover:bg-[#EAE2D7] dark:hover:bg-[#26201B] active:scale-90 transition-all cursor-pointer touch-manipulation shrink-0"
+            title={language === 'id' ? 'Halaman Selanjutnya' : 'Next Page'}
+          >
+            <ChevronRight className="w-5 h-5 stroke-[2.5] text-[#C85A32]" />
+          </button>
+        </div>
       </div>
     </>
   );
